@@ -26,7 +26,7 @@ import { ProveedorModule } from './proveedor/proveedor.module';
         migrationsRun: false,
         autoLoadEntities: true,
         logging: true,
-        synchronize: false,
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
