@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ProductosModule } from './productos/productos.module';
+import { MarcasModule } from './marcas/marcas.module';
+import { ProveedorModule } from './proveedor/proveedor.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -14,15 +17,22 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         host: configService.get('DB_HOST'),
         port: parseInt(configService.get('DB_PORT')),
         database: configService.get('DB_NAME'),
-        entities: [__dirname + '///*.entity{.ts,.js}'],
-        synchronize: true,
-        options: {
-          encrypt: true,
+        entities: [__dirname + '/**/**/*.entity{.ts,.js}'],
+        extra: {
           trustServerCertificate: true,
+          encrypt: false,
+          instanceName: 'SQLEXPRESS',
         },
+        migrationsRun: false,
+        autoLoadEntities: true,
+        logging: true,
+        synchronize: false,
       }),
-      inject: [ConfigService]
-    })
-  ]
+      inject: [ConfigService],
+    }),
+    ProductosModule,
+    MarcasModule,
+    ProveedorModule,
+  ],
 })
 export class AppModule {}
