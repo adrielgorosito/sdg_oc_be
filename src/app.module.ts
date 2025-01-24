@@ -4,6 +4,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductosModule } from './productos/productos.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
+import { ClienteModule } from './cliente/cliente.module';
+import { ObraSocialModule } from './obra-social/obra-social.module';
+import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
 
 @Module({
   imports: [
@@ -26,13 +29,16 @@ import { ProveedorModule } from './proveedor/proveedor.module';
         migrationsRun: false,
         autoLoadEntities: true,
         logging: true,
-        synchronize: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
     ProductosModule,
     MarcasModule,
     ProveedorModule,
+    ClienteModule,
+    ObraSocialModule,
+    ClienteObraSocialModule,
   ],
 })
 export class AppModule {}
