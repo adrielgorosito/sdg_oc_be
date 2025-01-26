@@ -15,6 +15,6 @@ export class ClienteObraSocial extends BaseEntity {
   })
   obraSocial: ObraSocial;
 
-  @Column({ type: 'int', unique: true })
+  @Column()
   nroSocio: number;
 }
