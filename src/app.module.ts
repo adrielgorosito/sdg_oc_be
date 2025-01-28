@@ -20,7 +20,10 @@ import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-soci
         host: configService.get('DB_HOST'),
         port: parseInt(configService.get('DB_PORT')),
         database: configService.get('DB_NAME'),
-        entities: [__dirname + '/**/**/*.entity{.ts,.js}'],
+        entities: [
+          __dirname + '/**/**/*.entity{.ts,.js}',
+          __dirname + '/**/*.entity{.ts,.js}',
+        ],
         extra: {
           trustServerCertificate: true,
           encrypt: false,
