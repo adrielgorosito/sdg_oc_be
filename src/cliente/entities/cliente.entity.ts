@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Localidad } from 'src/localidad/localidad.entity';
 
 @Entity()
 export class Cliente extends BaseEntity {
@@ -20,17 +21,20 @@ export class Cliente extends BaseEntity {
   telefono: string;
 
   @Column()
-  domicilio: string;
-
-  @Column()
   sexo: string;
 
+  @Column()
   fechaNac: Date;
-
-  fechaAlta: Date;
 
   @Column()
   observaciones: string;
+
+  @Column() // Ahora "domicilio" es un string con calle y número
+  domicilio: string;
+
+  @ManyToOne(() => Localidad, (localidad) => localidad.clientes)
+  @JoinColumn({ name: 'localidad_id' }) // Crea la FK "localidad_id" en Cliente
+  localidad: Localidad;
 
   @OneToMany(
     () => ClienteObraSocial,
