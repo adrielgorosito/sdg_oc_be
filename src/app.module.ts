@@ -7,6 +7,7 @@ import { ProveedorModule } from './proveedor/proveedor.module';
 import { ClienteModule } from './cliente/cliente.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
+import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-soci
     ClienteModule,
     ObraSocialModule,
     ClienteObraSocialModule,
+    CuentaCorrienteModule,
   ],
 })
 export class AppModule {}
