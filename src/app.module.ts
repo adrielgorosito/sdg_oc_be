@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ClienteModule } from './cliente/cliente.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
+import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 
 @Module({
   providers: [
@@ -57,6 +58,7 @@ import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-soci
     ClienteModule,
     ObraSocialModule,
     ClienteObraSocialModule,
+    CuentaCorrienteModule,
   ],
 })
 export class AppModule {}
