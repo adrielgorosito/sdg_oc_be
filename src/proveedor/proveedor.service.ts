@@ -17,10 +17,8 @@ export class ProveedorService {
   ) {}
 
   async findAll(): Promise<Proveedor[]> {
-    try {
-      const proveedores = await this.proveedorRepository.find();
-      return proveedores;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    try {¿
+      return await this.proveedorRepository.find();
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al obtener los proveedores',
@@ -37,6 +35,7 @@ export class ProveedorService {
       if (!proveedor) {
         throw new NotFoundException(`Proveedor con ID ${id} no encontrado`);
       }
+      
       return proveedor;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -49,9 +48,7 @@ export class ProveedorService {
   async create(proveedor: CreateProveedorDTO): Promise<Proveedor> {
     try {
       const nuevoProveedor = this.proveedorRepository.create(proveedor);
-      await this.proveedorRepository.save(nuevoProveedor);
-      return nuevoProveedor;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return await this.proveedorRepository.save(nuevoProveedor);
     } catch (_) {
       throw new InternalServerErrorException('Error al crear el proveedor');
     }
