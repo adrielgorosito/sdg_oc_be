@@ -1,10 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Producto } from './entities/producto.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Marca } from 'src/marcas/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
-import { ProductoDTO } from './dto/producto.dto';
+import { CreateProductoDTO } from './dto/create-producto.dto';
+import { UpdateProductoDTO } from './dto/update-producto.dto copy';
 
 @Injectable()
 export class ProductosService {
@@ -16,37 +21,112 @@ export class ProductosService {
     @InjectRepository(Proveedor)
     private proveedorRepository: Repository<Proveedor>,
   ) {}
-  async create(productoDTO: ProductoDTO) {
-    const marcaExistente: Marca = await this.marcaRepository.findOne({
-      where: { id: productoDTO.marca.id },
-    });
-    if (!marcaExistente) {
-      throw new HttpException('La marca no existe', HttpStatus.NOT_FOUND);
-    }
-
-    const proveedorExistente: Proveedor =
-      await this.proveedorRepository.findOne({
-        where: { id: productoDTO.proveedor.id },
-      });
-    if (!proveedorExistente) {
-      throw new HttpException('El proveedor no existe', HttpStatus.NOT_FOUND);
-    }
-
-    const nuevoProducto = this.productoRepository.create(productoDTO);
-    await this.productoRepository.save(nuevoProducto);
-
-    return nuevoProducto;
-  }
 
   async findAll() {
-    return await this.productoRepository.find();
+    try {
+      const productos = await this.productoRepository.find({
+        relations: {
+          marca: true,
+          proveedor: true,
+        },
+        order: {
+          descripcion: 'ASC',
+        },
+      });
+
+      return productos;
+    } catch (_) {
+      throw new InternalServerErrorException('Error al obtener los productos');
+    }
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} producto`;
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { id },
+        relations: {
+          marca: true,
+          proveedor: true,
+        },
+      });
+
+      if (!producto) {
+        throw new NotFoundException(`Producto con ID ${id} no encontrado`);
+      }
+      return producto;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al obtener el producto');
+    }
+  }
+  
+  async create(productoDTO: CreateProductoDTO) {
+    try {
+      const marcaExistente: Marca = await this.marcaRepository.findOne({
+        where: { id: productoDTO.marca.id },
+      });
+      if (!marcaExistente) {
+        throw new NotFoundException(
+          `Marca con ID ${productoDTO.marca.id} no encontrada`,
+        );
+      }
+
+      const proveedorExistente: Proveedor =
+        await this.proveedorRepository.findOne({
+          where: { id: productoDTO.proveedor.id },
+        });
+      if (!proveedorExistente) {
+        throw new NotFoundException(
+          `Proveedor con ID ${productoDTO.proveedor.id} no encontrado`,
+        );
+      }
+
+      const nuevoProducto = this.productoRepository.create(productoDTO);
+      return await this.productoRepository.save(nuevoProducto);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al crear el producto');
+    }
+  }
+  
+  async update(id: number, producto: UpdateProductoDTO): Promise<Producto> {
+    try {
+      const productoExistente = await this.productoRepository.findOne({
+        where: { id },
+      });
+      
+      if (!productoExistente) {
+        throw new NotFoundException(`Producto con ID ${id} no encontrado`);
+      }
+      
+      Object.assign(productoExistente, producto);
+      return await this.productoRepository.save(productoExistente);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al actualizar el producto');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} producto`;
+  async remove(id: number) {
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { id },
+      });
+      if (!producto) {
+        throw new NotFoundException(`Producto con ID ${id} no encontrado`);
+      }
+      await this.productoRepository.remove(producto);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al eliminar el producto');
+    }
   }
 }

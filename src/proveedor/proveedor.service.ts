@@ -1,4 +1,93 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Proveedor } from './entities/proveedor.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateProveedorDTO } from './dto/create-proveedor.dto';
+import { UpdateProveedorDTO } from './dto/update-proveedor.dto';
 
 @Injectable()
-export class ProveedorService {}
+export class ProveedorService {
+  constructor(
+    @InjectRepository(Proveedor)
+    private readonly proveedorRepository: Repository<Proveedor>,
+  ) {}
+
+  async findAll(): Promise<Proveedor[]> {
+    try {¿
+      return await this.proveedorRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener los proveedores',
+      );
+    }
+  }
+
+  async findOne(id: number): Promise<Proveedor> {
+    try {
+      const proveedor = await this.proveedorRepository.findOne({
+        where: { id },
+      });
+
+      if (!proveedor) {
+        throw new NotFoundException(`Proveedor con ID ${id} no encontrado`);
+      }
+      
+      return proveedor;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al obtener el proveedor');
+    }
+  }
+
+  async create(proveedor: CreateProveedorDTO): Promise<Proveedor> {
+    try {
+      const nuevoProveedor = this.proveedorRepository.create(proveedor);
+      return await this.proveedorRepository.save(nuevoProveedor);
+    } catch (_) {
+      throw new InternalServerErrorException('Error al crear el proveedor');
+    }
+  }
+
+  async update(id: number, proveedor: UpdateProveedorDTO): Promise<Proveedor> {
+    try {
+      const proveedorExistente = await this.proveedorRepository.findOne({
+        where: { id },
+      });
+      if (!proveedorExistente) {
+        throw new NotFoundException(`Proveedor con ID ${id} no encontrado`);
+      }
+      Object.assign(proveedorExistente, proveedor);
+      return await this.proveedorRepository.save(proveedor);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al actualizar el proveedor',
+      );
+    }
+  }
+
+  async remove(id: number): Promise<void> {
+    try {
+      const proveedor = await this.proveedorRepository.findOne({
+        where: { id },
+      });
+      if (!proveedor) {
+        throw new NotFoundException(`Proveedor con ID ${id} no encontrado`);
+      }
+      await this.proveedorRepository.remove(proveedor);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al eliminar el proveedor');
+    }
+  }
+}

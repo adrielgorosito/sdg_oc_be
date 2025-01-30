@@ -8,5 +8,5 @@ export class Marca extends BaseEntity {
   productos: Producto[];
 
   @Column()
-  descripcion: string;
+  nombre: string;
 }
