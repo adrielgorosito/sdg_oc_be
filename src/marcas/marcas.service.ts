@@ -28,7 +28,6 @@ export class MarcasService {
       });
 
       return marcas;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener las marcas');
     }
@@ -58,9 +57,7 @@ export class MarcasService {
   async create(marca: CreateMarcaDTO): Promise<Marca> {
     try {
       const nuevaMarca = this.marcaRepository.create(marca);
-      await this.marcaRepository.save(nuevaMarca);
-      return nuevaMarca;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return this.marcaRepository.save(nuevaMarca);
     } catch (error) {
       throw new InternalServerErrorException('Error al crear la marca');
     }
