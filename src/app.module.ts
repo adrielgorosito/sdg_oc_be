@@ -4,8 +4,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductosModule } from './productos/productos.module';
 import { MarcasModule } from './marcas/marcas.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
@@ -27,9 +35,16 @@ import { ProveedorModule } from './proveedor/proveedor.module';
         autoLoadEntities: true,
         logging: true,
         synchronize: true,
+        dropSchema: false,
       }),
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     ProductosModule,
     MarcasModule,
     ProveedorModule,
