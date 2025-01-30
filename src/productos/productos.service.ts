@@ -22,38 +22,6 @@ export class ProductosService {
     private proveedorRepository: Repository<Proveedor>,
   ) {}
 
-  async create(productoDTO: CreateProductoDTO) {
-    try {
-      const marcaExistente: Marca = await this.marcaRepository.findOne({
-        where: { id: productoDTO.marca.id },
-      });
-      if (!marcaExistente) {
-        throw new NotFoundException(
-          `Marca con ID ${productoDTO.marca.id} no encontrada`,
-        );
-      }
-
-      const proveedorExistente: Proveedor =
-        await this.proveedorRepository.findOne({
-          where: { id: productoDTO.proveedor.id },
-        });
-      if (!proveedorExistente) {
-        throw new NotFoundException(
-          `Proveedor con ID ${productoDTO.proveedor.id} no encontrado`,
-        );
-      }
-
-      const nuevoProducto = this.productoRepository.create(productoDTO);
-      await this.productoRepository.save(nuevoProducto);
-      return nuevoProducto;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Error al crear el producto');
-    }
-  }
-
   async findAll() {
     try {
       const productos = await this.productoRepository.find({
@@ -67,7 +35,6 @@ export class ProductosService {
       });
 
       return productos;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       throw new InternalServerErrorException('Error al obtener los productos');
     }
@@ -94,15 +61,48 @@ export class ProductosService {
       throw new InternalServerErrorException('Error al obtener el producto');
     }
   }
+  
+  async create(productoDTO: CreateProductoDTO) {
+    try {
+      const marcaExistente: Marca = await this.marcaRepository.findOne({
+        where: { id: productoDTO.marca.id },
+      });
+      if (!marcaExistente) {
+        throw new NotFoundException(
+          `Marca con ID ${productoDTO.marca.id} no encontrada`,
+        );
+      }
 
+      const proveedorExistente: Proveedor =
+        await this.proveedorRepository.findOne({
+          where: { id: productoDTO.proveedor.id },
+        });
+      if (!proveedorExistente) {
+        throw new NotFoundException(
+          `Proveedor con ID ${productoDTO.proveedor.id} no encontrado`,
+        );
+      }
+
+      const nuevoProducto = this.productoRepository.create(productoDTO);
+      return await this.productoRepository.save(nuevoProducto);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al crear el producto');
+    }
+  }
+  
   async update(id: number, producto: UpdateProductoDTO): Promise<Producto> {
     try {
       const productoExistente = await this.productoRepository.findOne({
         where: { id },
       });
+      
       if (!productoExistente) {
         throw new NotFoundException(`Producto con ID ${id} no encontrado`);
       }
+      
       Object.assign(productoExistente, producto);
       return await this.productoRepository.save(productoExistente);
     } catch (error) {
