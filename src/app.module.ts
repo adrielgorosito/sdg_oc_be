@@ -6,6 +6,10 @@ import { MarcasModule } from './marcas/marcas.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { ClienteModule } from './cliente/cliente.module';
+import { ObraSocialModule } from './obra-social/obra-social.module';
+import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
+import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 
 @Module({
   providers: [
@@ -25,7 +29,10 @@ import { APP_GUARD } from '@nestjs/core';
         host: configService.get('DB_HOST'),
         port: parseInt(configService.get('DB_PORT')),
         database: configService.get('DB_NAME'),
-        entities: [__dirname + '/**/**/*.entity{.ts,.js}'],
+        entities: [
+          __dirname + '/**/**/*.entity{.ts,.js}',
+          __dirname + '/**/*.entity{.ts,.js}',
+        ],
         extra: {
           trustServerCertificate: true,
           encrypt: false,
@@ -48,6 +55,10 @@ import { APP_GUARD } from '@nestjs/core';
     ProductosModule,
     MarcasModule,
     ProveedorModule,
+    ClienteModule,
+    ObraSocialModule,
+    ClienteObraSocialModule,
+    CuentaCorrienteModule,
   ],
 })
 export class AppModule {}

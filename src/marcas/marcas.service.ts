@@ -29,7 +29,9 @@ export class MarcasService {
 
       return marcas;
     } catch (error) {
-      throw new InternalServerErrorException('Error al obtener las marcas');
+      throw new InternalServerErrorException(
+        'Error al obtener las marcas: ' + error,
+      );
     }
   }
 
@@ -59,7 +61,9 @@ export class MarcasService {
       const nuevaMarca = this.marcaRepository.create(marca);
       return this.marcaRepository.save(nuevaMarca);
     } catch (error) {
-      throw new InternalServerErrorException('Error al crear la marca');
+      throw new InternalServerErrorException(
+        'Error al crear la marca: ' + error,
+      );
     }
   }
 
