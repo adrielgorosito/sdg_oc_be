@@ -17,11 +17,11 @@ export class ProveedorService {
   ) {}
 
   async findAll(): Promise<Proveedor[]> {
-    try {¿
+    try {
       return await this.proveedorRepository.find();
     } catch (error) {
       throw new InternalServerErrorException(
-        'Error al obtener los proveedores',
+        'Error al obtener los proveedores: ' + error,
       );
     }
   }
@@ -35,7 +35,7 @@ export class ProveedorService {
       if (!proveedor) {
         throw new NotFoundException(`Proveedor con ID ${id} no encontrado`);
       }
-      
+
       return proveedor;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -49,8 +49,10 @@ export class ProveedorService {
     try {
       const nuevoProveedor = this.proveedorRepository.create(proveedor);
       return await this.proveedorRepository.save(nuevoProveedor);
-    } catch (_) {
-      throw new InternalServerErrorException('Error al crear el proveedor');
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al crear el proveedor: ' + error,
+      );
     }
   }
 

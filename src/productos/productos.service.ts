@@ -35,8 +35,10 @@ export class ProductosService {
       });
 
       return productos;
-    } catch (_) {
-      throw new InternalServerErrorException('Error al obtener los productos');
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener los productos: ' + error,
+      );
     }
   }
 
@@ -61,7 +63,7 @@ export class ProductosService {
       throw new InternalServerErrorException('Error al obtener el producto');
     }
   }
-  
+
   async create(productoDTO: CreateProductoDTO) {
     try {
       const marcaExistente: Marca = await this.marcaRepository.findOne({
@@ -92,17 +94,17 @@ export class ProductosService {
       throw new InternalServerErrorException('Error al crear el producto');
     }
   }
-  
+
   async update(id: number, producto: UpdateProductoDTO): Promise<Producto> {
     try {
       const productoExistente = await this.productoRepository.findOne({
         where: { id },
       });
-      
+
       if (!productoExistente) {
         throw new NotFoundException(`Producto con ID ${id} no encontrado`);
       }
-      
+
       Object.assign(productoExistente, producto);
       return await this.productoRepository.save(productoExistente);
     } catch (error) {
