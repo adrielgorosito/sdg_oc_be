@@ -1,13 +1,15 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ObraSocial } from './entities/obra-social.entity';
+import { CreateObraSocialDTO } from './dto/create-obra-social.dto';
+import { UpdateObraSocialDTO } from './dto/update-obra-social.dto';
 import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ObraSocial } from './entities/obra-social.entity';
-import { ObraSocialDTO } from './dto/obra-social.dto';
 
 @Injectable()
 export class ObraSocialService {
@@ -17,59 +19,103 @@ export class ObraSocialService {
   ) {}
 
   async findAll(): Promise<ObraSocial[]> {
-    return await this.obraSocialRepository.find();
+    try {
+      return await this.obraSocialRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener las obras sociales: ' + error,
+      );
+    }
   }
 
   async findOne(id: number): Promise<ObraSocial> {
-    return await this.obraSocialRepository.findOne({ where: { id: id } });
-  }
+    try {
+      const obraSocial = await this.obraSocialRepository.findOne({
+        where: { id },
+      });
 
-  async create(obraSocialDTO: ObraSocialDTO): Promise<ObraSocial> {
-    const obraSocialExists = await this.obraSocialRepository.findOne({
-      where: { nombre: obraSocialDTO.nombre },
-    });
+      if (!obraSocial) {
+        throw new NotFoundException(`Obra social con id ${id} no encontrada`);
+      }
 
-    if (obraSocialExists) {
-      throw new HttpException(
-        'Ya existe una obra social con ese nombre',
-        HttpStatus.BAD_REQUEST,
+      return obraSocial;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener la obra social: ' + error,
       );
     }
-
-    const nuevaObraSocial = this.obraSocialRepository.create(obraSocialDTO);
-    return await this.obraSocialRepository.save(nuevaObraSocial);
   }
 
-  async update(id: number, obraSocialDTO: ObraSocialDTO): Promise<ObraSocial> {
-    const obraSocialToUpdate = await this.findOne(id);
+  async create(obraSocial: CreateObraSocialDTO): Promise<ObraSocial> {
+    try {
+      const obraSocialExistente = await this.obraSocialRepository.findOne({
+        where: { nombre: obraSocial.nombre },
+      });
 
-    if (!obraSocialToUpdate) {
-      throw new NotFoundException(`Obra social con id ${id} no encontrada`);
-    }
+      if (obraSocialExistente) {
+        throw new HttpException(
+          'Ya existe una obra social con ese nombre',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
-    const nombreExists = await this.obraSocialRepository.findOne({
-      where: { nombre: obraSocialDTO.nombre },
-    });
-
-    if (nombreExists) {
-      throw new HttpException(
-        'Ya existe una obra social con ese nombre',
-        HttpStatus.BAD_REQUEST,
+      const nuevaObraSocial = this.obraSocialRepository.create(obraSocial);
+      return await this.obraSocialRepository.save(nuevaObraSocial);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al crear la obra social: ' + error,
       );
     }
-
-    const obraSocialUpdated = Object.assign(obraSocialToUpdate, obraSocialDTO);
-
-    return await this.obraSocialRepository.save(obraSocialUpdated);
   }
 
-  async delete(id: number): Promise<void> {
-    const obraSocialToDelete = await this.findOne(id);
+  async update(
+    id: number,
+    obraSocial: UpdateObraSocialDTO,
+  ): Promise<ObraSocial> {
+    try {
+      const obraSocialExistente = await this.obraSocialRepository.findOne({
+        where: { id },
+      });
 
-    if (!obraSocialToDelete) {
-      throw new NotFoundException(`Obra social con id ${id} no encontrada`);
+      if (!obraSocialExistente) {
+        throw new NotFoundException(`Obra social con id ${id} no encontrada`);
+      }
+
+      const nombreExistente = await this.obraSocialRepository.findOne({
+        where: { nombre: obraSocial.nombre },
+      });
+
+      if (nombreExistente) {
+        throw new HttpException(
+          'Ya existe una obra social con ese nombre',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const osActualizada = Object.assign(obraSocialExistente, obraSocial);
+      return await this.obraSocialRepository.save(osActualizada);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al actualizar la obra social: ' + error,
+      );
     }
+  }
 
-    await this.obraSocialRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    try {
+      const obraSocial = await this.obraSocialRepository.findOne({
+        where: { id },
+      });
+
+      if (!obraSocial) {
+        throw new NotFoundException(`Obra social con id ${id} no encontrada`);
+      }
+
+      await this.obraSocialRepository.delete(id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al eliminar la obra social: ' + error,
+      );
+    }
   }
 }
