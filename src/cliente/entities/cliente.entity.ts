@@ -1,7 +1,8 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { Localidad } from 'src/localidad/localidad.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 
 @Entity()
 export class Cliente extends BaseEntity {
@@ -40,4 +41,7 @@ export class Cliente extends BaseEntity {
     (clienteObraSocial) => clienteObraSocial.cliente,
   )
   clienteObraSocial: ClienteObraSocial[];
+
+  @OneToOne(() => CuentaCorriente, (cuentaCorriente) => cuentaCorriente.cliente)
+  cuentaCorriente: CuentaCorriente;
 }
