@@ -84,27 +84,25 @@ export class ClienteObraSocialService {
         );
       }
 
-      const obraSocialExists = await this.obraSocialRepository.findOne({
+      const obraSocialExistente = await this.obraSocialRepository.findOne({
         where: { id: cliObSocDTO.obraSocial.id },
       });
 
-      if (!obraSocialExists) {
+      if (!obraSocialExistente) {
         throw new NotFoundException(
           `Obra social con id ${cliObSocDTO.obraSocial.id} no encontrada`,
         );
       }
 
-      const clienteObraSocialExists: ClienteObraSocial[] = await this.findAll(
-        cliObSocDTO.cliente.id,
-        cliObSocDTO.obraSocial.id,
-      );
+      const clienteObraSocialExistente: ClienteObraSocial[] =
+        await this.findAll(cliObSocDTO.cliente.id, cliObSocDTO.obraSocial.id);
 
-      if (clienteObraSocialExists.length > 0) {
+      if (clienteObraSocialExistente.length > 0) {
         throw new HttpException(
           {
             statusCode: HttpStatus.BAD_REQUEST,
             message: `Ya existe una relación con idCliente ${cliObSocDTO.cliente.id} e idObraSocial ${cliObSocDTO.obraSocial.id}`,
-            nroSocio: clienteObraSocialExists[0].nroSocio,
+            nroSocio: clienteObraSocialExistente[0].nroSocio,
           },
           HttpStatus.BAD_REQUEST,
         );
@@ -124,7 +122,9 @@ export class ClienteObraSocialService {
     cliObSocDTO: UpdateClienteObraSocialDTO,
   ): Promise<ClienteObraSocial> {
     try {
-      const clienteObraSocial = await this.findOne(id);
+      const clienteObraSocial = await this.cliObSocRepository.findOne({
+        where: { id },
+      });
 
       if (!clienteObraSocial) {
         throw new NotFoundException(
@@ -132,8 +132,8 @@ export class ClienteObraSocialService {
         );
       }
 
-      const cliObSocUpdated = Object.assign(clienteObraSocial, cliObSocDTO);
-      return await this.cliObSocRepository.save(cliObSocUpdated);
+      const cliObSocActualizado = Object.assign(clienteObraSocial, cliObSocDTO);
+      return await this.cliObSocRepository.save(cliObSocActualizado);
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al actualizar la relación cliente-obra social: ' + error,
@@ -143,7 +143,9 @@ export class ClienteObraSocialService {
 
   async remove(id: number): Promise<void> {
     try {
-      const clienteObraSocial = await this.findOne(id);
+      const clienteObraSocial = await this.cliObSocRepository.findOne({
+        where: { id },
+      });
 
       if (!clienteObraSocial) {
         throw new NotFoundException(

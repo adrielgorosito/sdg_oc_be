@@ -24,7 +24,7 @@ export class ClienteObraSocialController {
     return await this.cliObSocService.findAll(idCliente, idObraSocial);
   }
 
-  @Get('/:id')
+  @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.cliObSocService.findOne(id);
   }
@@ -34,7 +34,7 @@ export class ClienteObraSocialController {
     return await this.cliObSocService.create(cliObSocDTO);
   }
 
-  @Patch('/:id')
+  @Patch(':id')
   async update(
     @Param('id') id: number,
     @Body() cliObSoc: UpdateClienteObraSocialDTO,
@@ -42,7 +42,7 @@ export class ClienteObraSocialController {
     return await this.cliObSocService.update(id, cliObSoc);
   }
 
-  @Delete('/:id')
+  @Delete(':id')
   async remove(@Param('id') id: number) {
     return await this.cliObSocService.remove(id);
   }
