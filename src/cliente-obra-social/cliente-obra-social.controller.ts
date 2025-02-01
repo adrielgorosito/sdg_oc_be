@@ -1,3 +1,6 @@
+import { ClienteObraSocialService } from './cliente-obra-social.service';
+import { CreateClienteObraSocialDTO } from './dto/create-cliente-obra-social.dto';
+import { UpdateClienteObraSocialDTO } from './dto/update-cliente-obra-social.dto';
 import {
   Body,
   Controller,
@@ -8,46 +11,39 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ClienteObraSocialService } from './cliente-obra-social.service';
-import { ClienteObraSocialDTO } from './dto/cliente-obra-social.dto';
 
 @Controller('cliente-obra-social')
 export class ClienteObraSocialController {
-  constructor(
-    private readonly clienteObraSocialService: ClienteObraSocialService,
-  ) {}
+  constructor(private readonly cliObSocService: ClienteObraSocialService) {}
 
   @Get()
   async findAll(
     @Query('idCliente') idCliente: number,
     @Query('idObraSocial') idObraSocial: number,
   ) {
-    return await this.clienteObraSocialService.findAll(idCliente, idObraSocial);
+    return await this.cliObSocService.findAll(idCliente, idObraSocial);
   }
 
   @Get('/:id')
-  async findOneById(@Param('id') id: number) {
-    return await this.clienteObraSocialService.findOneById(id);
+  async findOne(@Param('id') id: number) {
+    return await this.cliObSocService.findOne(id);
   }
 
   @Post()
-  async createOne(@Body() cliObSocDTO: ClienteObraSocialDTO) {
-    return await this.clienteObraSocialService.create(cliObSocDTO);
+  async create(@Body() cliObSocDTO: CreateClienteObraSocialDTO) {
+    return await this.cliObSocService.create(cliObSocDTO);
   }
 
   @Patch('/:id')
   async update(
     @Param('id') id: number,
-    @Body() updateNroSocio: { nroSocio: number },
+    @Body() cliObSoc: UpdateClienteObraSocialDTO,
   ) {
-    return await this.clienteObraSocialService.update(
-      id,
-      updateNroSocio.nroSocio,
-    );
+    return await this.cliObSocService.update(id, cliObSoc);
   }
 
   @Delete('/:id')
-  async deleteOne(@Param('id') id: number) {
-    return await this.clienteObraSocialService.delete(id);
+  async remove(@Param('id') id: number) {
+    return await this.cliObSocService.remove(id);
   }
 }
