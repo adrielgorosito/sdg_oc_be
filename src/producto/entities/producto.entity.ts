@@ -1,8 +1,9 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { LineaVenta } from 'src/linea-venta/entities/linea-venta.entity';
-import { Marca } from 'src/marcas/entities/marca.entity';
+import { Marca } from 'src/marca/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+
 @Entity()
 export class Producto extends BaseEntity {
   @Column()
