@@ -3,6 +3,7 @@ import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { Localidad } from 'src/localidad/localidad.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { Venta } from 'src/venta/entities/venta.entity';
 
 @Entity()
 export class Cliente extends BaseEntity {
@@ -44,4 +45,7 @@ export class Cliente extends BaseEntity {
 
   @OneToOne(() => CuentaCorriente, (cuentaCorriente) => cuentaCorriente.cliente)
   cuentaCorriente: CuentaCorriente;
+
+  @OneToMany(() => Venta, (ventas) => ventas.cliente)
+  ventas: Venta[];
 }
