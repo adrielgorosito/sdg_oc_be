@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsObject } from 'class-validator';
-import { CreateClienteDTO } from 'src/cliente/dto/create-cliente.dto';
+import { UpdateClienteDTO } from 'src/cliente/dto/update-cliente.dto';
 import { BaseDTO } from 'src/common/dtos/base.dto';
 
 export class CreateCuentaCorrienteDTO extends BaseDTO {
@@ -10,6 +10,6 @@ export class CreateCuentaCorrienteDTO extends BaseDTO {
 
   @IsNotEmpty()
   @IsObject()
-  @Type(() => CreateClienteDTO)
-  cliente: { id: number };
+  @Type(() => UpdateClienteDTO)
+  cliente: UpdateClienteDTO;
 }
