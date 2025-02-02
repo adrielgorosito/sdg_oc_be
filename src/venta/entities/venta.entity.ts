@@ -1,7 +1,6 @@
-import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { LineaVenta } from 'src/linea-venta/entities/linea-venta.entity';
-//import { LineaDeVenta } from './linea-de-venta.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
