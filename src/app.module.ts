@@ -12,6 +12,7 @@ import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-soci
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 import { VentaModule } from './venta/venta.module';
 import { LineaVentaModule } from './linea-venta/linea-venta.module';
+import { MovimientoModule } from './movimiento/movimiento.module';
 
 @Module({
   providers: [
@@ -63,6 +64,7 @@ import { LineaVentaModule } from './linea-venta/linea-venta.module';
     CuentaCorrienteModule,
     VentaModule,
     LineaVentaModule,
+    MovimientoModule,
   ],
 })
 export class AppModule {}

@@ -4,6 +4,8 @@ import { Proveedor } from './entities/proveedor.entity';
 import { CreateProveedorDTO } from './dto/create-proveedor.dto';
 import { UpdateProveedorDTO } from './dto/update-proveedor.dto';
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -46,6 +48,17 @@ export class ProveedorService {
 
   async create(proveedor: CreateProveedorDTO): Promise<Proveedor> {
     try {
+      const proveedorExistente = await this.proveedorRepository.findOne({
+        where: { cuit: proveedor.cuit },
+      });
+
+      if (proveedorExistente) {
+        throw new HttpException(
+          'Ya existe un proveedor con ese cuit',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const nuevoProveedor = this.proveedorRepository.create(proveedor);
       return await this.proveedorRepository.save(nuevoProveedor);
     } catch (error) {

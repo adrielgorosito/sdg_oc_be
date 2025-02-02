@@ -1,3 +1,6 @@
+import { ObraSocialService } from './obra-social.service';
+import { CreateObraSocialDTO } from './dto/create-obra-social.dto';
+import { UpdateObraSocialDTO } from './dto/update-obra-social.dto';
 import {
   Body,
   Controller,
@@ -7,8 +10,6 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ObraSocialService } from './obra-social.service';
-import { ObraSocialDTO } from './dto/obra-social.dto';
 
 @Controller('obra-social')
 export class ObraSocialController {
@@ -19,23 +20,23 @@ export class ObraSocialController {
     return await this.obraSocialService.findAll();
   }
 
-  @Get('/:id')
+  @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.obraSocialService.findOne(id);
   }
 
   @Post()
-  async createOne(@Body() obraSocialDTO: ObraSocialDTO) {
+  async createOne(@Body() obraSocialDTO: CreateObraSocialDTO) {
     return await this.obraSocialService.create(obraSocialDTO);
   }
 
-  @Patch('/:id')
-  async update(@Param('id') id: number, @Body() obraSocialDTO: ObraSocialDTO) {
-    return await this.obraSocialService.update(id, obraSocialDTO);
+  @Patch(':id')
+  async update(@Param('id') id: number, @Body() osDTO: UpdateObraSocialDTO) {
+    return await this.obraSocialService.update(id, osDTO);
   }
 
-  @Delete('/:id')
-  async deleteOne(@Param('id') id: number) {
-    return await this.obraSocialService.delete(id);
+  @Delete(':id')
+  async remove(@Param('id') id: number) {
+    return await this.obraSocialService.remove(id);
   }
 }

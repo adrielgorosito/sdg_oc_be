@@ -2,9 +2,9 @@ import { Type } from 'class-transformer';
 import { IsNumber, IsObject } from 'class-validator';
 import { ClienteDTO } from 'src/cliente/dto/cliente.dto';
 import { BaseDTO } from 'src/common/dtos/base.dto';
-import { ObraSocialDTO } from 'src/obra-social/dto/obra-social.dto';
+import { CreateObraSocialDTO } from 'src/obra-social/dto/create-obra-social.dto';
 
-export class ClienteObraSocialDTO extends BaseDTO {
+export class CreateClienteObraSocialDTO extends BaseDTO {
   @IsNumber()
   nroSocio: number;
 
@@ -13,6 +13,6 @@ export class ClienteObraSocialDTO extends BaseDTO {
   cliente: { id: number };
 
   @IsObject()
-  @Type(() => ObraSocialDTO)
+  @Type(() => CreateObraSocialDTO)
   obraSocial: { id: number };
 }

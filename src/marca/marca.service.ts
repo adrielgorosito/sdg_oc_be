@@ -4,6 +4,8 @@ import { Marca } from './entities/marca.entity';
 import { CreateMarcaDTO } from './dto/create-marca.dto';
 import { UpdateMarcaDTO } from './dto/update-marca.dto';
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -58,6 +60,17 @@ export class MarcaService {
 
   async create(marca: CreateMarcaDTO): Promise<Marca> {
     try {
+      const marcaExistente = await this.marcaRepository.findOne({
+        where: { nombre: marca.nombre },
+      });
+
+      if (marcaExistente) {
+        throw new HttpException(
+          'Ya existe una marca con ese nombre',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const nuevaMarca = this.marcaRepository.create(marca);
       return this.marcaRepository.save(nuevaMarca);
     } catch (error) {

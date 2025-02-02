@@ -106,8 +106,8 @@ export class ProductoService {
         throw new NotFoundException(`Producto con id ${id} no encontrado`);
       }
 
-      Object.assign(productoExistente, producto);
-      return await this.productoRepository.save(productoExistente);
+      const prodActualizado = Object.assign(productoExistente, producto);
+      return await this.productoRepository.save(prodActualizado);
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al actualizar el producto: ' + error,
