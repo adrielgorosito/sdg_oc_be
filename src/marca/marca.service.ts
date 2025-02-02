@@ -47,10 +47,12 @@ export class MarcaService {
       if (!marca) {
         throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
-      
+
       return marca;
     } catch (error) {
-      throw new InternalServerErrorException('Error al obtener la marca: ' + error);
+      throw new InternalServerErrorException(
+        'Error al obtener la marca: ' + error,
+      );
     }
   }
 
@@ -70,29 +72,33 @@ export class MarcaService {
       const marcaExistente = await this.marcaRepository.findOne({
         where: { id },
       });
-      
+
       if (!marcaExistente) {
         throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
-      
+
       Object.assign(marcaExistente, marca);
       return await this.marcaRepository.save(marcaExistente);
     } catch (error) {
-      throw new InternalServerErrorException('Error al actualizar la marca: ' + error);
+      throw new InternalServerErrorException(
+        'Error al actualizar la marca: ' + error,
+      );
     }
   }
 
   async remove(id: number) {
     try {
       const marca = await this.marcaRepository.findOne({ where: { id } });
-      
+
       if (!marca) {
         throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
-      
+
       await this.marcaRepository.remove(marca);
     } catch (error) {
-      throw new InternalServerErrorException('Error al eliminar la marca: ' + error);
+      throw new InternalServerErrorException(
+        'Error al eliminar la marca: ' + error,
+      );
     }
   }
 }

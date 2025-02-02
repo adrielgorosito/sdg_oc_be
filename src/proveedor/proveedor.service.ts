@@ -38,7 +38,9 @@ export class ProveedorService {
 
       return proveedor;
     } catch (error) {
-      throw new InternalServerErrorException('Error al obtener el proveedor: ' + error);
+      throw new InternalServerErrorException(
+        'Error al obtener el proveedor: ' + error,
+      );
     }
   }
 
@@ -58,13 +60,13 @@ export class ProveedorService {
       const proveedorExistente = await this.proveedorRepository.findOne({
         where: { id },
       });
-      
+
       if (!proveedorExistente) {
         throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
       }
-      
-      const c = Object.assign(proveedorExistente, proveedor);
-      return await this.proveedorRepository.save(c);
+
+      Object.assign(proveedorExistente, proveedor);
+      return await this.proveedorRepository.save(proveedorExistente);
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al actualizar el proveedor: ' + error,
@@ -77,14 +79,16 @@ export class ProveedorService {
       const proveedor = await this.proveedorRepository.findOne({
         where: { id },
       });
-      
+
       if (!proveedor) {
         throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
       }
-      
+
       await this.proveedorRepository.remove(proveedor);
     } catch (error) {
-      throw new InternalServerErrorException('Error al eliminar el proveedor: ' + error);
+      throw new InternalServerErrorException(
+        'Error al eliminar el proveedor: ' + error,
+      );
     }
   }
 }

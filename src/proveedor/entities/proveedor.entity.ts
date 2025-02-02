@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
-import { Producto } from 'src/productos/entities/producto.entity';
+import { Producto } from 'src/producto/entities/producto.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()

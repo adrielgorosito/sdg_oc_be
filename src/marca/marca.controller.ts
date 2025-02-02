@@ -31,7 +31,7 @@ export class MarcaController {
   }
 
   @Patch(':id')
-  updateOne(@Param('id') id: number, @Body() marcaDTO: UpdateMarcaDTO) {
+  update(@Param('id') id: number, @Body() marcaDTO: UpdateMarcaDTO) {
     return this.marcaService.update(id, marcaDTO);
   }
 

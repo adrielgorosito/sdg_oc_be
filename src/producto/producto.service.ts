@@ -4,7 +4,7 @@ import { Producto } from './entities/producto.entity';
 import { Marca } from 'src/marca/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { CreateProductoDTO } from './dto/create-producto.dto';
-import { UpdateProductoDTO } from './dto/update-producto.dto copy';
+import { UpdateProductoDTO } from './dto/update-producto.dto';
 import {
   Injectable,
   InternalServerErrorException,

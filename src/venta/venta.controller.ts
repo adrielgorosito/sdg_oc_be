@@ -1,9 +1,9 @@
 import { Controller } from '@nestjs/common';
-import { VentasService } from './venta.service';
+import { VentaService } from './venta.service';
 
 @Controller('ventas')
 export class VentasController {
-  constructor(private readonly ventasService: VentasService) {}
+  constructor(private readonly ventasService: VentaService) {}
 
   /* @Get()
   findAll() {

@@ -1,6 +1,6 @@
 import { ProductoService } from './producto.service';
 import { CreateProductoDTO } from './dto/create-producto.dto';
-import { UpdateProductoDTO } from './dto/update-producto.dto copy';
+import { UpdateProductoDTO } from './dto/update-producto.dto';
 import {
   Body,
   Controller,
@@ -14,7 +14,7 @@ import {
 @Controller('producto')
 export class ProductoController {
   constructor(private readonly productoService: ProductoService) {}
-  
+
   @Get()
   findAll() {
     return this.productoService.findAll();
@@ -30,7 +30,7 @@ export class ProductoController {
   }
 
   @Patch(':id')
-  updateOne(@Param('id') id: number, @Body() productoDTO: UpdateProductoDTO) {
+  update(@Param('id') id: number, @Body() productoDTO: UpdateProductoDTO) {
     return this.productoService.update(id, productoDTO);
   }
 

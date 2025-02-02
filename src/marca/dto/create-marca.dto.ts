@@ -6,7 +6,7 @@ export class CreateMarcaDTO extends BaseDTO {
   @IsNotEmpty()
   @IsString()
   nombre: string;
-  
+
   @IsOptional()
   @IsArray()
   productos: RelationDTO[];
