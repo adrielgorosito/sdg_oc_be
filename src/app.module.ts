@@ -44,7 +44,7 @@ import { MovimientoModule } from './movimiento/movimiento.module';
         migrationsRun: false,
         autoLoadEntities: true,
         logging: true,
-        synchronize: true,
+        synchronize: false,
         dropSchema: false,
       }),
       inject: [ConfigService],
