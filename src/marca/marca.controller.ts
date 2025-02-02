@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 
 @Controller('marca')
-export class MarcasController {
+export class MarcaController {
   constructor(private readonly marcaService: MarcaService) {}
 
   @Get()
