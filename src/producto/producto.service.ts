@@ -1,18 +1,18 @@
+import { InjectRepository } from '@nestjs/typeorm
+import { Repository } from 'typeorm';
+import { Producto } from './entities/producto.entity';
+import { Marca } from 'src/marca/entities/marca.entity';
+import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
+import { CreateProductoDTO } from './dto/create-producto.dto';
+import { UpdateProductoDTO } from './dto/update-producto.dto copy';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Marca } from 'src/marcas/entities/marca.entity';
-import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
-import { Repository } from 'typeorm';
-import { CreateProductoDTO } from './dto/create-producto.dto';
-import { UpdateProductoDTO } from './dto/update-producto.dto copy';
-import { Producto } from './entities/producto.entity';
 
 @Injectable()
-export class ProductosService {
+export class ProductoService {
   constructor(
     @InjectRepository(Producto)
     private productoRepository: Repository<Producto>,
