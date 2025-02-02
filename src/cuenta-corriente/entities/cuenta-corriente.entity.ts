@@ -1,7 +1,7 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { Movimiento } from 'src/movimiento/entities/movimiento.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 @Entity()
 export class CuentaCorriente extends BaseEntity {
@@ -9,10 +9,11 @@ export class CuentaCorriente extends BaseEntity {
   saldo: number;
 
   @OneToMany(() => Movimiento, (movimiento) => movimiento.cuentaCorriente)
-  movimiento: Movimiento[];
+  movimientos: Movimiento[];
 
-  @ManyToOne(() => Cliente, (cliente) => cliente.cuentaCorriente, {
+  @OneToOne(() => Cliente, (cliente) => cliente.cuentaCorriente, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn()
   cliente: Cliente;
 }

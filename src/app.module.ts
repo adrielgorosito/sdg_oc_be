@@ -10,6 +10,7 @@ import { ClienteModule } from './cliente/cliente.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
+import { MovimientoModule } from './movimiento/movimiento.module';
 import { VentasModule } from './ventas/ventas.module';
 
 @Module({
@@ -60,6 +61,7 @@ import { VentasModule } from './ventas/ventas.module';
     ObraSocialModule,
     ClienteObraSocialModule,
     CuentaCorrienteModule,
+    MovimientoModule,
     VentasModule,
   ],
 })

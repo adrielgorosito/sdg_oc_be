@@ -15,26 +15,29 @@ import { UpdateProductoDTO } from './dto/update-producto.dto copy';
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
   @Get()
-  findAll() {
-    return this.productosService.findAll();
+  async findAll() {
+    return await this.productosService.findAll();
   }
 
   @Post()
-  createOne(@Body() productoDTO: CreateProductoDTO) {
-    return this.productosService.create(productoDTO);
+  async createOne(@Body() productoDTO: CreateProductoDTO) {
+    return await this.productosService.create(productoDTO);
   }
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.productosService.findOne(id);
+  async findOne(@Param('id') id: number) {
+    return await this.productosService.findOne(id);
   }
 
   @Patch(':id')
-  updateOne(@Param('id') id: number, @Body() productoDTO: UpdateProductoDTO) {
-    return this.productosService.update(id, productoDTO);
+  async updateOne(
+    @Param('id') id: number,
+    @Body() productoDTO: UpdateProductoDTO,
+  ) {
+    return await this.productosService.update(id, productoDTO);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.productosService.remove(id);
+  async remove(@Param('id') id: number) {
+    return await this.productosService.remove(id);
   }
 }

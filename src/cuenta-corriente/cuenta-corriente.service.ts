@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CuentaCorriente } from './entities/cuenta-corriente.entity';
 import { Repository } from 'typeorm';
-import { CuentaCorrienteDTO } from './dto/cuenta-corriente.dto';
+import { CuentaCorriente } from './entities/cuenta-corriente.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { CreateCuentaCorrienteDTO } from './dto/create-cuenta-corriente.dto';
+import { UpdateCuentaCorrienteDTO } from './dto/update-cuenta-corriente.dto';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class CuentaCorrienteService {
@@ -15,51 +20,97 @@ export class CuentaCorrienteService {
   ) {}
 
   async findAll(): Promise<CuentaCorriente[]> {
-    return await this.cuentaCorrienteRepository.find();
+    try {
+      return await this.cuentaCorrienteRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener las cuentas corrientes: ' + error,
+      );
+    }
   }
 
   async findOne(id: number): Promise<CuentaCorriente> {
-    return await this.cuentaCorrienteRepository.findOne({ where: { id: id } });
-  }
+    try {
+      const cuentaCorriente = await this.cuentaCorrienteRepository.findOne({
+        where: { id },
+      });
 
-  async create(ccDTO: CuentaCorrienteDTO): Promise<CuentaCorriente> {
-    const clienteExistente = await this.clienteRepository.findOne({
-      where: { id: ccDTO.cliente.id },
-    });
+      if (!cuentaCorriente) {
+        throw new NotFoundException(
+          `Cuenta corriente con id ${id} no encontrada`,
+        );
+      }
 
-    if (!clienteExistente) {
-      throw new NotFoundException(
-        `Cliente con id ${ccDTO.cliente.id} no encontrado`,
+      return cuentaCorriente;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener la cuenta corriente: ' + error,
       );
     }
-
-    const cuentaCorriente = this.cuentaCorrienteRepository.create(ccDTO);
-    return await this.cuentaCorrienteRepository.save(cuentaCorriente);
   }
 
-  async update(id: number, newSaldo: number): Promise<CuentaCorriente> {
-    const ccToUpdate = await this.findOne(id);
+  async create(ccDTO: CreateCuentaCorrienteDTO): Promise<CuentaCorriente> {
+    try {
+      const clienteExistente = await this.clienteRepository.findOne({
+        where: { id: ccDTO.cliente.id },
+      });
 
-    if (!ccToUpdate) {
-      throw new NotFoundException(
-        `Cuenta corriente con id ${id} no encontrada`,
+      if (!clienteExistente) {
+        throw new NotFoundException(
+          `Cliente con id ${ccDTO.cliente.id} no encontrado`,
+        );
+      }
+
+      const cuentaCorriente = this.cuentaCorrienteRepository.create(ccDTO);
+      return await this.cuentaCorrienteRepository.save(cuentaCorriente);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al crear la cuenta corriente: ' + error,
       );
     }
-
-    ccToUpdate.saldo = newSaldo;
-
-    return await this.cuentaCorrienteRepository.save(ccToUpdate);
   }
 
-  async delete(id: number): Promise<void> {
-    const cuentaCorriente = await this.findOne(id);
+  async update(
+    id: number,
+    ccDTO: UpdateCuentaCorrienteDTO,
+  ): Promise<CuentaCorriente> {
+    try {
+      const ccExistente = await this.cuentaCorrienteRepository.findOne({
+        where: { id },
+      });
 
-    if (!cuentaCorriente) {
-      throw new NotFoundException(
-        `Cuenta corriente con id ${id} no encontrada`,
+      if (!ccExistente) {
+        throw new NotFoundException(
+          `Cuenta corriente con id ${id} no encontrada`,
+        );
+      }
+
+      const ccActualizado = Object.assign(ccExistente, ccDTO);
+      return await this.cuentaCorrienteRepository.save(ccActualizado);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al actualizar la cuenta corriente: ' + error,
       );
     }
+  }
 
-    await this.cuentaCorrienteRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    try {
+      const cuentaCorriente = await this.cuentaCorrienteRepository.findOne({
+        where: { id },
+      });
+
+      if (!cuentaCorriente) {
+        throw new NotFoundException(
+          `Cuenta corriente con id ${id} no encontrada`,
+        );
+      }
+
+      await this.cuentaCorrienteRepository.delete(id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al eliminar la cuenta corriente: ' + error,
+      );
+    }
   }
 }
