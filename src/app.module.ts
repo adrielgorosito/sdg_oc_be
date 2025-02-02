@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ProductosModule } from './productos/producto.module';
-import { MarcasModule } from './marcas/marca.module';
+import { ProductoModule } from './producto/producto.module';
+import { MarcaModule } from './marca/marca.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -10,7 +10,7 @@ import { ClienteModule } from './cliente/cliente.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
-import { VentasModule } from './ventas/venta.module';
+import { VentaModule } from './venta/venta.module';
 import { LineaVentaModule } from './linea-venta/linea-venta.module';
 
 @Module({
@@ -31,7 +31,10 @@ import { LineaVentaModule } from './linea-venta/linea-venta.module';
         host: configService.get('DB_HOST'),
         port: parseInt(configService.get('DB_PORT')),
         database: configService.get('DB_NAME'),
-        entities: [__dirname + '/**/**/*.entity{.ts,.js}'],
+        entities: [
+          __dirname + '/**/**/*.entity{.ts,.js}',
+          __dirname + '/**/*.entity{.ts,.js}',
+        ],
         extra: {
           trustServerCertificate: true,
           encrypt: false,
@@ -51,14 +54,14 @@ import { LineaVentaModule } from './linea-venta/linea-venta.module';
         limit: 10,
       },
     ]),
-    ProductosModule,
-    MarcasModule,
+    ProductoModule,
+    MarcaModule,
     ProveedorModule,
     ClienteModule,
     ObraSocialModule,
     ClienteObraSocialModule,
     CuentaCorrienteModule,
-    VentasModule,
+    VentaModule,
     LineaVentaModule,
   ],
 })
