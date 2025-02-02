@@ -1,16 +1,16 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Marca } from './entities/marca.entity';
+import { CreateMarcaDTO } from './dto/create-marca.dto';
+import { UpdateMarcaDTO } from './dto/update-marca.dto';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Marca } from './entities/marca.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateMarcaDTO } from './dto/create-marca.dto';
-import { UpdateMarcaDTO } from './dto/update-marca.dto';
 
 @Injectable()
-export class MarcasService {
+export class MarcaService {
   constructor(
     @InjectRepository(Marca)
     private readonly marcaRepository: Repository<Marca>,
@@ -45,14 +45,12 @@ export class MarcasService {
       });
 
       if (!marca) {
-        throw new NotFoundException(`Marca con ID ${id} no encontrada`);
+        throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
+      
       return marca;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Error al obtener la marca');
+      throw new InternalServerErrorException('Error al obtener la marca: ' + error);
     }
   }
 
@@ -72,31 +70,29 @@ export class MarcasService {
       const marcaExistente = await this.marcaRepository.findOne({
         where: { id },
       });
+      
       if (!marcaExistente) {
-        throw new NotFoundException(`Marca con ID ${id} no encontrada`);
+        throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
+      
       Object.assign(marcaExistente, marca);
       return await this.marcaRepository.save(marcaExistente);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Error al actualizar la marca');
+      throw new InternalServerErrorException('Error al actualizar la marca: ' + error);
     }
   }
 
   async remove(id: number) {
     try {
       const marca = await this.marcaRepository.findOne({ where: { id } });
+      
       if (!marca) {
-        throw new NotFoundException(`Marca con ID ${id} no encontrada`);
+        throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
+      
       await this.marcaRepository.remove(marca);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Error al eliminar la marca');
+      throw new InternalServerErrorException('Error al eliminar la marca: ' + error);
     }
   }
 }
