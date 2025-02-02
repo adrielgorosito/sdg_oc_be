@@ -13,6 +13,7 @@ export class VentaService {
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
 }
+
 // Crear una nueva venta
 /* async create(createVentaDto: CreateVentaDTO): Promise<Venta> {
     try {

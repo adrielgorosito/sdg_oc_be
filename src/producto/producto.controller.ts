@@ -20,13 +20,14 @@ export class ProductoController {
     return this.productoService.findAll();
   }
 
-  @Post()
-  createOne(@Body() productoDTO: CreateProductoDTO) {
-    return this.productoService.create(productoDTO);
-  }
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.productoService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() productoDTO: CreateProductoDTO) {
+    return this.productoService.create(productoDTO);
   }
 
   @Patch(':id')
