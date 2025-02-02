@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Venta } from './entities/venta.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class VentasService {
+export class VentaService {
   constructor(
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
@@ -19,9 +19,11 @@ export class VentasService {
       const clienteExistente = await this.clienteRepository.findOne({
         where: { id: createVentaDto.cliente.id },
       });
+      
       if (!clienteExistente) {
         throw new NotFoundException('Cliente no encontrado');
       }
+      
       const nuevaVenta = this.ventaRepository.create(createVentaDto);
       return await this.ventaRepository.save(nuevaVenta);
     } catch (error) {}
