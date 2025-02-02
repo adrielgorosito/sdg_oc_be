@@ -1,13 +1,13 @@
 import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
+  IsNumber,
   IsObject,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
-import { UpdateMarcaDTO } from 'src/marcas/dto/update-marca.dto';
-import { UpdateProveedorDTO } from 'src/proveedor/dto/update-proveedor.dto';
+import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreateProductoDTO extends BaseDTO {
   @IsNotEmpty()
@@ -16,11 +16,15 @@ export class CreateProductoDTO extends BaseDTO {
 
   @IsObject()
   @ValidateNested()
-  @Type(() => UpdateProveedorDTO)
-  proveedor: UpdateProveedorDTO;
+  @Type(() => RelationDTO)
+  proveedor: RelationDTO;
 
   @IsObject()
   @ValidateNested()
-  @Type(() => UpdateMarcaDTO)
-  marca: UpdateMarcaDTO;
+  @Type(() => RelationDTO)
+  marca: RelationDTO;
+
+  @IsNotEmpty()
+  @IsNumber()
+  precio: number;
 }

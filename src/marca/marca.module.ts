@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { MarcasService } from './marcas.service';
-import { MarcasController } from './marcas.controller';
+import { MarcaService } from './marca.service';
+import { MarcaController } from './marca.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Producto } from 'src/productos/entities/producto.entity';
+import { Producto } from 'src/producto/entities/producto.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { Marca } from './entities/marca.entity';
 
 @Module({
-  controllers: [MarcasController],
-  providers: [MarcasService],
   imports: [TypeOrmModule.forFeature([Producto, Marca, Proveedor])],
+  controllers: [MarcaController],
+  providers: [MarcaService],
 })
-export class MarcasModule {}
+export class MarcaModule {}

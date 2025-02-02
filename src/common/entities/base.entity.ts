@@ -20,5 +20,5 @@ export abstract class BaseEntity {
     default: null,
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt?: Date = null;
+  updatedAt?: Date;
 }

@@ -5,20 +5,20 @@ import {
   VersionColumn,
 } from 'typeorm';
 
-export abstract class BaseEntity {
+export abstract class BaseTransactionalEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @CreateDateColumn({
-    type: 'timestamp',
+    type: 'datetime2',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp',
+    type: 'datetime2',
     nullable: true,
-    default: () => null,
+    default: null,
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt?: Date;

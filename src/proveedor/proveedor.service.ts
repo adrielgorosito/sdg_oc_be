@@ -78,8 +78,8 @@ export class ProveedorService {
         throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
       }
 
-      const provActualizado = Object.assign(proveedorExistente, proveedor);
-      return await this.proveedorRepository.save(provActualizado);
+      Object.assign(proveedorExistente, proveedor);
+      return await this.proveedorRepository.save(proveedorExistente);
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al actualizar el proveedor: ' + error,

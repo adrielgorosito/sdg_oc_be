@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 
 @Injectable()
-export class MarcasService {
+export class MarcaService {
   constructor(
     @InjectRepository(Marca)
     private readonly marcaRepository: Repository<Marca>,
@@ -90,8 +90,8 @@ export class MarcasService {
         throw new NotFoundException(`Marca con id ${id} no encontrada`);
       }
 
-      const marcaActualizada = Object.assign(marcaExistente, marca);
-      return await this.marcaRepository.save(marcaActualizada);
+      Object.assign(marcaExistente, marca);
+      return await this.marcaRepository.save(marcaExistente);
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al actualizar la marca: ' + error,
