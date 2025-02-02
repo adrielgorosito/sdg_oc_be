@@ -3,13 +3,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Producto } from './entities/producto.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Marca } from 'src/marcas/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
+import { Repository } from 'typeorm';
 import { CreateProductoDTO } from './dto/create-producto.dto';
 import { UpdateProductoDTO } from './dto/update-producto.dto copy';
+import { Producto } from './entities/producto.entity';
 
 @Injectable()
 export class ProductosService {

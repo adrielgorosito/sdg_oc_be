@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { MarcasService } from './marcas.service';
-import { MarcasController } from './marcas.controller';
+import { MarcasService } from './marca.service';
+import { MarcasController } from './marca.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Producto } from 'src/productos/entities/producto.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';

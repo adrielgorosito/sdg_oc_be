@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { MarcasService } from './marcas.service';
+import { MarcasService } from './marca.service';
 import { CreateMarcaDTO } from './dto/create-marca.dto';
 import { UpdateMarcaDTO } from './dto/update-marca.dto';
 

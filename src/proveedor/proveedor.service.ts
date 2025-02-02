@@ -65,7 +65,7 @@ export class ProveedorService {
         throw new NotFoundException(`Proveedor con ID ${id} no encontrado`);
       }
       Object.assign(proveedorExistente, proveedor);
-      return await this.proveedorRepository.save(proveedor);
+      return await this.proveedorRepository.save(proveedorExistente);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

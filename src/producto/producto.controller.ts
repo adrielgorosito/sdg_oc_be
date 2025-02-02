@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ProductosService } from './productos.service';
+import { ProductosService } from './producto.service';
 import { UpdateProductoDTO } from './dto/update-producto.dto copy';
 
 @Controller('productos')
