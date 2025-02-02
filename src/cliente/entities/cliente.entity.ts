@@ -27,7 +27,7 @@ export class Cliente extends BaseEntity {
   @Column()
   fechaNac: Date;
 
-  @Column()
+  @Column({ nullable: true })
   observaciones: string;
 
   @Column()

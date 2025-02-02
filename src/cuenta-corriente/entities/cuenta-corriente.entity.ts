@@ -1,5 +1,5 @@
-import { BaseEntity } from 'src/common/entities/base.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
 import { Movimiento } from 'src/movimiento/entities/movimiento.entity';
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
@@ -11,9 +11,7 @@ export class CuentaCorriente extends BaseEntity {
   @OneToMany(() => Movimiento, (movimiento) => movimiento.cuentaCorriente)
   movimientos: Movimiento[];
 
-  @OneToOne(() => Cliente, (cliente) => cliente.cuentaCorriente, {
-    onDelete: 'CASCADE',
-  })
+  @OneToOne(() => Cliente)
   @JoinColumn()
   cliente: Cliente;
 }
