@@ -5,6 +5,7 @@ import { Localidad } from 'src/localidad/localidad.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
 import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 
 @Entity()
 export class Cliente extends BaseEntity {
@@ -55,4 +56,10 @@ export class Cliente extends BaseEntity {
     (historiaClinicaLentesContacto) => historiaClinicaLentesContacto.cliente,
   )
   historiaClinicaLentesContacto: HistoriaClinicaLentesContacto;
+
+  @OneToMany(
+    () => RecetaLentesContacto,
+    (recetasLentesContacto) => recetasLentesContacto.cliente,
+  )
+  recetasLentesContacto: RecetaLentesContacto[];
 }

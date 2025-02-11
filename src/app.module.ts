@@ -14,6 +14,7 @@ import { VentaModule } from './venta/venta.module';
 import { LineaVentaModule } from './linea-venta/linea-venta.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
 import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-contacto/historia-clinica-lentes-contacto.module';
+import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
 
 @Module({
   providers: [
@@ -67,6 +68,7 @@ import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-c
     LineaVentaModule,
     MovimientoModule,
     HistoriaClinicaLentesContactoModule,
+    RecetaLentesContactoModule,
   ],
 })
 export class AppModule {}
