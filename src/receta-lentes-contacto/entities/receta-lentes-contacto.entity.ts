@@ -1,6 +1,7 @@
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { PruebasLentesContacto } from 'src/pruebas-lentes-contacto/entities/pruebas-lentes-contacto.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class RecetaLentesContacto extends BaseEntity {
@@ -86,4 +87,10 @@ export class RecetaLentesContacto extends BaseEntity {
     onDelete: 'CASCADE',
   })
   cliente: Cliente;
+
+  @OneToMany(
+    () => PruebasLentesContacto,
+    (pruebasLentesContacto) => pruebasLentesContacto.recetaLentesContacto,
+  )
+  pruebasLentesContacto: PruebasLentesContacto[];
 }

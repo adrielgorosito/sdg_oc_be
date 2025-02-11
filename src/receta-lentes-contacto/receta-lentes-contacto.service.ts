@@ -25,6 +25,7 @@ export class RecetaLentesContactoService {
       return await this.rlcRepository.find({
         relations: {
           cliente: true,
+          pruebasLentesContacto: true,
         },
       });
     } catch (error) {
@@ -40,6 +41,7 @@ export class RecetaLentesContactoService {
         where: { id },
         relations: {
           cliente: true,
+          pruebasLentesContacto: true,
         },
       });
 

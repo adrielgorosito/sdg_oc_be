@@ -15,6 +15,7 @@ import { LineaVentaModule } from './linea-venta/linea-venta.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
 import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-contacto/historia-clinica-lentes-contacto.module';
 import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
+import { PruebasLentesContactoModule } from './pruebas-lentes-contacto/pruebas-lentes-contacto.module';
 
 @Module({
   providers: [
@@ -69,6 +70,7 @@ import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lent
     MovimientoModule,
     HistoriaClinicaLentesContactoModule,
     RecetaLentesContactoModule,
+    PruebasLentesContactoModule,
   ],
 })
 export class AppModule {}
