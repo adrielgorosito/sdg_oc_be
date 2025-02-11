@@ -4,6 +4,7 @@ import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { Localidad } from 'src/localidad/localidad.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
+import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
 
 @Entity()
 export class Cliente extends BaseEntity {
@@ -48,4 +49,10 @@ export class Cliente extends BaseEntity {
 
   @OneToMany(() => Venta, (ventas) => ventas.cliente)
   ventas: Venta[];
+
+  @OneToOne(
+    () => HistoriaClinicaLentesContacto,
+    (historiaClinicaLentesContacto) => historiaClinicaLentesContacto.cliente,
+  )
+  historiaClinicaLentesContacto: HistoriaClinicaLentesContacto;
 }
