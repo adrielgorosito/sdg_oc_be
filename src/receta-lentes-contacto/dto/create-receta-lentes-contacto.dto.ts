@@ -1,15 +1,17 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsObject,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
-import { CreateClienteDTO } from 'src/cliente/dto/create-cliente.dto';
 import { IsEstesiometria } from 'src/common/decorators/is-estesiometria.decorator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
+import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreateRecetaLentesContactoDTO extends BaseDTO {
   @IsString()
@@ -117,8 +119,12 @@ export class CreateRecetaLentesContactoDTO extends BaseDTO {
   @IsOptional()
   observaciones?: string;
 
-  @IsNotEmpty()
   @IsObject()
-  @Type(() => CreateClienteDTO)
-  cliente: CreateClienteDTO;
+  @ValidateNested()
+  @Type(() => RelationDTO)
+  cliente: RelationDTO;
+
+  @IsOptional()
+  @IsArray()
+  pruebasLentesContacto: RelationDTO[];
 }

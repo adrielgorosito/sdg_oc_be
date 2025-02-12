@@ -6,9 +6,10 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
-import { CreateRecetaLentesContactoDTO } from 'src/receta-lentes-contacto/dto/create-receta-lentes-contacto.dto';
 import { BaseDTO } from 'src/common/dtos/base.dto';
+import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreatePruebasLentesContactoDTO extends BaseDTO {
   @IsNumber()
@@ -95,8 +96,8 @@ export class CreatePruebasLentesContactoDTO extends BaseDTO {
   @IsOptional()
   observaciones: string;
 
-  @IsNotEmpty()
   @IsObject()
-  @Type(() => CreateRecetaLentesContactoDTO)
-  recetaLentesContacto: CreateRecetaLentesContactoDTO;
+  @ValidateNested()
+  @Type(() => RelationDTO)
+  recetaLentesContacto: RelationDTO;
 }

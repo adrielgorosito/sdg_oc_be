@@ -5,10 +5,10 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
-import { CreateClienteDTO } from 'src/cliente/dto/create-cliente.dto';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseDTO } from 'src/common/dtos/base.dto';
+import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreateHistoriaClinicaLentesContactoDTO extends BaseDTO {
   @IsBoolean()
@@ -143,8 +143,8 @@ export class CreateHistoriaClinicaLentesContactoDTO extends BaseDTO {
   @IsNotEmpty()
   parasimpaticoliticos: boolean;
 
-  @IsNotEmpty()
   @IsObject()
-  @Type(() => CreateClienteDTO)
-  cliente: Cliente;
+  @ValidateNested()
+  @Type(() => RelationDTO)
+  cliente: RelationDTO;
 }
