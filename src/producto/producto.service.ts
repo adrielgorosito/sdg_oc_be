@@ -1,15 +1,15 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Producto } from './entities/producto.entity';
-import { Marca } from 'src/marca/entities/marca.entity';
-import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
-import { CreateProductoDTO } from './dto/create-producto.dto';
-import { UpdateProductoDTO } from './dto/update-producto.dto';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Marca } from 'src/marca/entities/marca.entity';
+import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
+import { Repository } from 'typeorm';
+import { CreateProductoDTO } from './dto/create-producto.dto';
+import { UpdateProductoDTO } from './dto/update-producto.dto';
+import { Producto } from './entities/producto.entity';
 
 @Injectable()
 export class ProductoService {
@@ -90,6 +90,9 @@ export class ProductoService {
       const nuevoProducto = this.productoRepository.create(productoDTO);
       return await this.productoRepository.save(nuevoProducto);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al crear el producto: ' + error,
       );
@@ -106,9 +109,12 @@ export class ProductoService {
         throw new NotFoundException(`Producto con id ${id} no encontrado`);
       }
 
-      const prodActualizado = Object.assign(productoExistente, producto);
-      return await this.productoRepository.save(prodActualizado);
+      Object.assign(productoExistente, producto);
+      return await this.productoRepository.save(productoExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al actualizar el producto: ' + error,
       );
@@ -127,6 +133,9 @@ export class ProductoService {
 
       await this.productoRepository.remove(producto);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al eliminar el producto: ' + error,
       );

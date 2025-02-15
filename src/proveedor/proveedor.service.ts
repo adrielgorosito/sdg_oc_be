@@ -1,8 +1,3 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Proveedor } from './entities/proveedor.entity';
-import { CreateProveedorDTO } from './dto/create-proveedor.dto';
-import { UpdateProveedorDTO } from './dto/update-proveedor.dto';
 import {
   HttpException,
   HttpStatus,
@@ -10,6 +5,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateProveedorDTO } from './dto/create-proveedor.dto';
+import { UpdateProveedorDTO } from './dto/update-proveedor.dto';
+import { Proveedor } from './entities/proveedor.entity';
 
 @Injectable()
 export class ProveedorService {
@@ -40,6 +40,9 @@ export class ProveedorService {
 
       return proveedor;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al obtener el proveedor: ' + error,
       );
@@ -62,6 +65,9 @@ export class ProveedorService {
       const nuevoProveedor = this.proveedorRepository.create(proveedor);
       return await this.proveedorRepository.save(nuevoProveedor);
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al crear el proveedor: ' + error,
       );
@@ -81,6 +87,9 @@ export class ProveedorService {
       Object.assign(proveedorExistente, proveedor);
       return await this.proveedorRepository.save(proveedorExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al actualizar el proveedor: ' + error,
       );
@@ -99,6 +108,9 @@ export class ProveedorService {
 
       await this.proveedorRepository.remove(proveedor);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al eliminar el proveedor: ' + error,
       );

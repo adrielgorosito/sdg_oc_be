@@ -1,15 +1,14 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Marca } from './entities/marca.entity';
-import { CreateMarcaDTO } from './dto/create-marca.dto';
-import { UpdateMarcaDTO } from './dto/update-marca.dto';
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateMarcaDTO } from './dto/create-marca.dto';
+import { UpdateMarcaDTO } from './dto/update-marca.dto';
+import { Marca } from './entities/marca.entity';
 
 @Injectable()
 export class MarcaService {
@@ -52,6 +51,9 @@ export class MarcaService {
 
       return marca;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al obtener la marca: ' + error,
       );
@@ -65,15 +67,15 @@ export class MarcaService {
       });
 
       if (marcaExistente) {
-        throw new HttpException(
-          'Ya existe una marca con ese nombre',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new BadRequestException('Ya existe una marca con ese nombre');
       }
 
       const nuevaMarca = this.marcaRepository.create(marca);
       return this.marcaRepository.save(nuevaMarca);
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al crear la marca: ' + error,
       );
@@ -93,6 +95,9 @@ export class MarcaService {
       Object.assign(marcaExistente, marca);
       return await this.marcaRepository.save(marcaExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al actualizar la marca: ' + error,
       );
@@ -109,6 +114,9 @@ export class MarcaService {
 
       await this.marcaRepository.remove(marca);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         'Error al eliminar la marca: ' + error,
       );
