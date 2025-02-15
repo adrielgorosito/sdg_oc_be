@@ -13,6 +13,7 @@ import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.modul
 import { VentaModule } from './venta/venta.module';
 import { LineaVentaModule } from './linea-venta/linea-venta.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
+import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
 
 @Module({
   providers: [
@@ -65,6 +66,7 @@ import { MovimientoModule } from './movimiento/movimiento.module';
     VentaModule,
     LineaVentaModule,
     MovimientoModule,
+    MedioDePagoModule,
   ],
 })
 export class AppModule {}

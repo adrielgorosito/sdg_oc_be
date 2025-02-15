@@ -1,6 +1,6 @@
 import {
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -18,7 +18,6 @@ export abstract class BaseEntity {
     type: 'datetime2',
     nullable: true,
     default: null,
-    onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt?: Date;
+  updatedAt: Date;
 }

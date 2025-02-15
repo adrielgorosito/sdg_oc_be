@@ -1,8 +1,14 @@
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Venta } from './entities/venta.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { CreateVentaDTO } from './dto/create-venta.dto';
+import { UpdateVentaDTO } from './dto/update-venta.dto';
+import { Venta } from './entities/venta.entity';
 
 @Injectable()
 export class VentaService {
@@ -12,65 +18,181 @@ export class VentaService {
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
-}
 
-// Crear una nueva venta
-/* async create(createVentaDto: CreateVentaDTO): Promise<Venta> {
+  async create(createVentaDto: CreateVentaDTO): Promise<Venta> {
     try {
       const clienteExistente = await this.clienteRepository.findOne({
         where: { id: createVentaDto.cliente.id },
       });
-      
+
       if (!clienteExistente) {
         throw new NotFoundException('Cliente no encontrado');
       }
-      
+
+      const importe = createVentaDto.lineasDeVenta.reduce(
+        (total, linea) => total + linea.precioIndividual * linea.cantidad,
+        0,
+      );
       const nuevaVenta = this.ventaRepository.create(createVentaDto);
+      nuevaVenta.importe = importe;
+
       return await this.ventaRepository.save(nuevaVenta);
-    } catch (error) {}
-  } */
-
-// Obtener todas las ventas
-/*  async findAll(): Promise<Venta[]> {
-    return await this.ventaRepository.find();
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(error);
+    }
   }
 
-  // Obtener una venta por ID
-  async findOne(id: number): Promise<Venta> {
-    return await this.ventaRepository.findOneOrFail({ where: { id } });
+  async findAll() {
+    try {
+      const ventas = await this.ventaRepository.find({
+        relations: {
+          cliente: true,
+          lineasDeVenta: true,
+          mediosDePago: true,
+        },
+        order: {
+          fecha: 'DESC',
+        },
+      });
+
+      return ventas;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener las ventas: ' + error,
+      );
+    }
   }
 
-  // Actualizar una venta
-  async update(id: number, updateVentaDto: UpdateVentaDTO): Promise<Venta> {
-    await this.ventaRepository.update(id, updateVentaDto);
-    return this.findOne(id);
+  async findOne(id: string) {
+    try {
+      const venta = await this.ventaRepository.findOne({
+        where: { id },
+        relations: {
+          cliente: true,
+          lineasDeVenta: true,
+          mediosDePago: true,
+        },
+      });
+
+      if (!venta) {
+        throw new NotFoundException(`Venta con id ${id} no encontrada`);
+      }
+      return venta;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al obtener la venta: ' + error,
+      );
+    }
   }
 
-  // Eliminar una venta
-  async remove(id: number): Promise<void> {
-    await this.ventaRepository.delete(id);
+  async update(id: string, updateVentaDto: UpdateVentaDTO): Promise<Venta> {
+    try {
+      const ventaExistente = await this.ventaRepository.findOne({
+        where: { id },
+      });
+
+      if (!ventaExistente) {
+        throw new NotFoundException(`Venta con id ${id} no encontrada`);
+      }
+      Object.assign(ventaExistente, updateVentaDto);
+      return await this.ventaRepository.save(ventaExistente);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al actualizar la venta: ' + error,
+      );
+    }
   }
 
-  // Obtener ventas por fecha
-  async findByDate(fecha: Date): Promise<Venta[]> {
-    return await this.ventaRepository.find({
-      where: {
-        fechaVenta: fecha,
-      },
-    });
+  async remove(id: string) {
+    try {
+      const venta = await this.ventaRepository.findOne({
+        where: { id },
+      });
+
+      if (!venta) {
+        throw new NotFoundException(`Venta con id ${id} no encontrada`);
+      }
+
+      await this.ventaRepository.remove(venta);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al eliminar la venta: ' + error,
+      );
+    }
   }
 
-  // Calcular total de ventas por período
-  async calculateTotalVentas(
-    fechaInicio: Date,
-    fechaFin: Date,
-  ): Promise<number> {
-    const ventas = await this.ventaRepository.find({
-      where: {
-        fechaVenta: Between(fechaInicio, fechaFin),
-      },
-    });
+  async findByCliente(id: number) {
+    try {
+      const cliente = await this.clienteRepository.findOne({
+        where: { id },
+      });
+      if (!cliente) {
+        throw new NotFoundException(`Cliente con id ${id} no encontrado`);
+      }
+      const ventas = await this.ventaRepository.find({
+        where: { cliente: cliente },
+        relations: {
+          cliente: true,
+          lineasDeVenta: true,
+          mediosDePago: true,
+        },
+        order: {
+          fecha: 'DESC',
+        },
+      });
 
-    return ventas.reduce((total, venta) => total + venta.total, 0);
+      return ventas;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al obtener las ventas del cliente: ' + error,
+      );
+    }
   }
-} */
+
+  async findByClienteDni(dni: number) {
+    try {
+      const cliente = await this.clienteRepository.findOne({
+        where: { dni },
+      });
+
+      if (!cliente) {
+        throw new NotFoundException(`Cliente con DNI ${dni} no encontrado`);
+      }
+      const ventas = await this.ventaRepository.find({
+        where: { cliente: cliente },
+        relations: {
+          cliente: true,
+          lineasDeVenta: true,
+          mediosDePago: true,
+        },
+        order: {
+          fecha: 'DESC',
+        },
+      });
+
+      return ventas;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error al obtener las ventas del cliente por DNI: ' + error,
+      );
+    }
+  }
+}

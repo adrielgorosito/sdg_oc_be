@@ -1,29 +1,43 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsNotEmpty,
   IsNumber,
   IsObject,
+  IsOptional,
   ValidateNested,
 } from 'class-validator';
-import { ClienteDTO } from 'src/cliente/dto/cliente.dto';
 import { BaseTransactionalDTO } from 'src/common/dtos/baseTransactional.dto';
+import { RelationDTO } from 'src/common/dtos/relation.dto';
+import { CreateLineaVentaDTO } from 'src/linea-venta/dto/create-linea-venta.dto';
+import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
 
 export class CreateVentaDTO extends BaseTransactionalDTO {
   @IsNotEmpty()
   @IsDate()
   fecha: Date;
 
-  @IsNotEmpty()
   @IsNumber()
+  @IsOptional()
   numeroFactura: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   descuentoPorcentaje: number;
 
   @IsObject()
   @ValidateNested()
-  @Type(() => ClienteDTO)
-  cliente: ClienteDTO;
+  @Type(() => RelationDTO)
+  cliente: RelationDTO;
+
+  @IsArray()
+  @ValidateNested()
+  @Type(() => CreateMedioDePagoDto)
+  mediosDePago: CreateMedioDePagoDto[];
+
+  @IsArray()
+  @ValidateNested()
+  @Type(() => CreateLineaVentaDTO)
+  lineasDeVenta: CreateLineaVentaDTO[];
 }
