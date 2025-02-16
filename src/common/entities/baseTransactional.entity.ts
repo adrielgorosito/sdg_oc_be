@@ -1,8 +1,7 @@
 import {
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
-  VersionColumn,
 } from 'typeorm';
 
 export abstract class BaseTransactionalEntity {
@@ -20,9 +19,7 @@ export abstract class BaseTransactionalEntity {
     nullable: true,
     default: null,
     onUpdate: 'CURRENT_TIMESTAMP',
+    update: false,
   })
   updatedAt?: Date;
-
-  @VersionColumn()
-  version: number;
 }

@@ -1,22 +1,42 @@
-import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
 import { LineaVenta } from 'src/linea-venta/entities/linea-venta.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { MedioDePago } from 'src/medio-de-pago/entities/medio-de-pago.entity';
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class Venta extends BaseTransactionalEntity {
   @Column()
   fecha: Date;
 
-  @Column()
+  @Column({ nullable: true })
   numeroFactura: number;
 
-  @Column()
+  @Column({ nullable: true })
   descuentoPorcentaje: number;
+
+  @Column()
+  importe: number;
 
   @ManyToOne(() => Cliente, (cliente) => cliente.ventas)
   cliente: Cliente;
 
-  @OneToMany(() => LineaVenta, (lineaVenta) => lineaVenta.venta)
+  @OneToMany(() => LineaVenta, (lineaVenta) => lineaVenta.venta, {
+    cascade: true,
+  })
   lineasDeVenta: LineaVenta[];
+
+  @OneToMany(() => MedioDePago, (medioDePago) => medioDePago.venta, {
+    cascade: true,
+  })
+  mediosDePago: MedioDePago[];
+
+  @BeforeInsert()
+  asignarNumerosPago() {
+    if (this.mediosDePago && this.mediosDePago.length > 0) {
+      this.mediosDePago.forEach((medioPago, index) => {
+        medioPago.numeroPago = index + 1;
+      });
+    }
+  }
 }

@@ -19,6 +19,7 @@ import { PruebasLentesContactoModule } from './pruebas-lentes-contacto/pruebas-l
 import { AudiometriaModule } from './audiometria/audiometria.module';
 import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-aereos.module';
 import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
+import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
 
 @Module({
   providers: [
@@ -77,6 +78,7 @@ import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereo
     AudiometriaModule,
     RecetaLentesAereosModule,
     DetallesRecetaLentesAereosModule,
+    MedioDePagoModule,
   ],
 })
 export class AppModule {}

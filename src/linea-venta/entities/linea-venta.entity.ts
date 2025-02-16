@@ -5,7 +5,10 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity()
 export class LineaVenta extends BaseTransactionalEntity {
-  @ManyToOne(() => Venta, (venta) => venta.lineasDeVenta)
+  @ManyToOne(() => Venta, (venta) => venta.lineasDeVenta, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   venta: Venta;
 
   @ManyToOne(() => Producto, (producto) => producto.lineasVentas)
