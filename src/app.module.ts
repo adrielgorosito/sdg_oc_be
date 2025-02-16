@@ -13,6 +13,12 @@ import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.modul
 import { VentaModule } from './venta/venta.module';
 import { LineaVentaModule } from './linea-venta/linea-venta.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
+import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-contacto/historia-clinica-lentes-contacto.module';
+import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
+import { PruebasLentesContactoModule } from './pruebas-lentes-contacto/pruebas-lentes-contacto.module';
+import { AudiometriaModule } from './audiometria/audiometria.module';
+import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-aereos.module';
+import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
 import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
 
 @Module({
@@ -66,6 +72,12 @@ import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
     VentaModule,
     LineaVentaModule,
     MovimientoModule,
+    HistoriaClinicaLentesContactoModule,
+    RecetaLentesContactoModule,
+    PruebasLentesContactoModule,
+    AudiometriaModule,
+    RecetaLentesAereosModule,
+    DetallesRecetaLentesAereosModule,
     MedioDePagoModule,
   ],
 })
