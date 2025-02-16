@@ -17,6 +17,7 @@ import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-c
 import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
 import { PruebasLentesContactoModule } from './pruebas-lentes-contacto/pruebas-lentes-contacto.module';
 import { AudiometriaModule } from './audiometria/audiometria.module';
+import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-aereos.module';
 
 @Module({
   providers: [
@@ -48,7 +49,7 @@ import { AudiometriaModule } from './audiometria/audiometria.module';
         migrationsRun: false,
         autoLoadEntities: true,
         logging: true,
-        synchronize: false,
+        synchronize: true,
         dropSchema: false,
       }),
       inject: [ConfigService],
@@ -73,6 +74,7 @@ import { AudiometriaModule } from './audiometria/audiometria.module';
     RecetaLentesContactoModule,
     PruebasLentesContactoModule,
     AudiometriaModule,
+    RecetaLentesAereosModule,
   ],
 })
 export class AppModule {}
