@@ -1,6 +1,7 @@
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { DetallesRecetaLentesAereos } from 'src/detalles-receta-lentes-aereos/entities/detalles-receta-lentes-aereos.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class RecetaLentesAereos extends BaseEntity {
@@ -28,5 +29,11 @@ export class RecetaLentesAereos extends BaseEntity {
   @ManyToOne(() => Cliente, (cliente) => cliente.recetaLentesAereos)
   cliente: Cliente;
 
-  // , {cascade: true}
+  @OneToMany(
+    () => DetallesRecetaLentesAereos,
+    (detallesRecetaLentesAereos) =>
+      detallesRecetaLentesAereos.recetaLentesAereos,
+    { cascade: true },
+  )
+  detallesRecetaLentesAereos: DetallesRecetaLentesAereos[];
 }
