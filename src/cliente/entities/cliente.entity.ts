@@ -1,17 +1,17 @@
-import { BaseEntity } from 'src/common/entities/base.entity';
-import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
-import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { Venta } from 'src/venta/entities/venta.entity';
-import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import { Audiometria } from 'src/audiometria/entities/audiometria.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
+import { BaseEntity } from 'src/common/entities/base.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
 import { Localidad } from 'src/localidad/entities/localidad.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { Venta } from 'src/venta/entities/venta.entity';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 
 @Entity()
 export class Cliente extends BaseEntity {
-  @Column()
+  @Column({ unique: true })
   dni: number;
 
   @Column()
@@ -29,7 +29,7 @@ export class Cliente extends BaseEntity {
   @Column()
   sexo: string;
 
-  @Column()
+  @Column({ type: 'datetime2' })
   fechaNac: Date;
 
   @Column({ nullable: true })
@@ -38,9 +38,15 @@ export class Cliente extends BaseEntity {
   @Column()
   domicilio: string;
 
+  @ManyToOne(() => Localidad, (localidad) => localidad.clientes)
+  localidad: Localidad;
+
   @OneToMany(
     () => ClienteObraSocial,
     (clienteObrasSociales) => clienteObrasSociales.cliente,
+    {
+      cascade: true,
+    },
   )
   clienteObrasSociales: ClienteObraSocial[];
 
@@ -51,19 +57,16 @@ export class Cliente extends BaseEntity {
     () => RecetaLentesAereos,
     (recetasLentesAereos) => recetasLentesAereos.cliente,
   )
-  recetasLentesAereos: RecetaLentesAereos;
+  recetasLentesAereos: RecetaLentesAereos[];
 
   @OneToMany(
     () => RecetaLentesContacto,
     (recetasLentesContacto) => recetasLentesContacto.cliente,
   )
-  recetasLentesContacto: RecetaLentesContacto;
+  recetasLentesContacto: RecetaLentesContacto[];
 
   @OneToMany(() => Audiometria, (audiometrias) => audiometrias.cliente)
-  audiometrias: Audiometria;
-
-  @ManyToOne(() => Localidad, (localidad) => localidad.clientes)
-  localidad: Localidad;
+  audiometrias: Audiometria[];
 
   @OneToOne(
     () => HistoriaClinicaLentesContacto,
@@ -71,6 +74,10 @@ export class Cliente extends BaseEntity {
   )
   historiaClinicaLentesContacto: HistoriaClinicaLentesContacto;
 
-  @OneToOne(() => CuentaCorriente, (cuentaCorriente) => cuentaCorriente.cliente)
+  @OneToOne(
+    () => CuentaCorriente,
+    (cuentaCorriente) => cuentaCorriente.cliente,
+    { cascade: true },
+  )
   cuentaCorriente: CuentaCorriente;
 }

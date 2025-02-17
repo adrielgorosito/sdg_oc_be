@@ -9,11 +9,13 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { BaseTransactionalDTO } from 'src/common/dtos/baseTransactional.dto';
+import { CreateClienteObraSocialDTO } from 'src/cliente-obra-social/dto/create-cliente-obra-social.dto';
+import { UniqueObraSocial } from 'src/common/decorators/unique-obra-social.decorator';
+import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CreateCuentaCorrienteDTO } from 'src/cuenta-corriente/dto/create-cuenta-corriente.dto';
 
-export class CreateClienteDTO extends BaseTransactionalDTO {
+export class CreateClienteDTO extends BaseDTO {
   @IsNotEmpty()
   @IsNumber()
   dni: number;
@@ -56,37 +58,18 @@ export class CreateClienteDTO extends BaseTransactionalDTO {
   localidad: RelationDTO;
 
   @IsArray()
+  @UniqueObraSocial()
   @ValidateNested()
-  @Type(() => RelationDTO)
-  clienteObraSocial: RelationDTO[];
+  @Type(() => CreateClienteObraSocialDTO)
+  clienteObrasSociales: CreateClienteObraSocialDTO[];
 
-  @IsObject()
   @ValidateNested()
   @Type(() => CreateCuentaCorrienteDTO)
   cuentaCorriente: CreateCuentaCorrienteDTO;
 
-  @IsArray()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  ventas: RelationDTO[];
-
+  @IsOptional()
   @IsObject()
   @ValidateNested()
   @Type(() => RelationDTO)
   historiaClinicaLentesContacto: RelationDTO;
-
-  @IsArray()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  recetasLentesContacto: RelationDTO[];
-
-  @IsArray()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  audiometrias: RelationDTO[];
-
-  @IsArray()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  recetaLentesAereos: RelationDTO[];
 }
