@@ -20,6 +20,8 @@ import { AudiometriaModule } from './audiometria/audiometria.module';
 import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-aereos.module';
 import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
 import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
+import { LocalidadModule } from './localidad/localidad.module';
+import { ProvinciaModule } from './provincia/provincia.module';
 
 @Module({
   providers: [
@@ -79,6 +81,8 @@ import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
     RecetaLentesAereosModule,
     DetallesRecetaLentesAereosModule,
     MedioDePagoModule,
+    LocalidadModule,
+    ProvinciaModule,
   ],
 })
 export class AppModule {}

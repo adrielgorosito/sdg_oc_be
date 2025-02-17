@@ -1,13 +1,13 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { Localidad } from 'src/localidad/localidad.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
 import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import { Audiometria } from 'src/audiometria/entities/audiometria.entity';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { Localidad } from 'src/localidad/entities/localidad.entity';
 
 @Entity()
 export class Cliente extends BaseEntity {

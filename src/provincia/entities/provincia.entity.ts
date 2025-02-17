@@ -1,5 +1,5 @@
+import { Localidad } from 'src/localidad/entities/localidad.entity';
 import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
-import { Localidad } from 'src/localidad/localidad.entity';
 
 @Entity()
 export class Provincia {
