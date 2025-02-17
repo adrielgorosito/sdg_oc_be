@@ -1,10 +1,3 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ClienteObraSocial } from './entities/cliente-obra-social.entity';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { CreateClienteObraSocialDTO } from './dto/create-cliente-obra-social.dto';
-import { UpdateClienteObraSocialDTO } from './dto/update-cliente-obra-social.dto';
 import {
   HttpException,
   HttpStatus,
@@ -12,6 +5,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { Repository } from 'typeorm';
+import { CreateClienteObraSocialDTO } from './dto/create-cliente-obra-social.dto';
+import { UpdateClienteObraSocialDTO } from './dto/update-cliente-obra-social.dto';
+import { ClienteObraSocial } from './entities/cliente-obra-social.entity';
 
 @Injectable()
 export class ClienteObraSocialService {
@@ -109,7 +109,7 @@ export class ClienteObraSocialService {
           {
             statusCode: HttpStatus.BAD_REQUEST,
             message: `Ya existe una relación con idCliente ${cliObSocDTO.cliente.id} e idObraSocial ${cliObSocDTO.obraSocial.id}`,
-            nroSocio: clienteObraSocialExistente[0].nroSocio,
+            numeroSocio: clienteObraSocialExistente[0].numeroSocio,
           },
           HttpStatus.BAD_REQUEST,
         );

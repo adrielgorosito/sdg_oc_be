@@ -26,7 +26,7 @@ export class RecetaLentesAereos extends BaseEntity {
   @Column()
   tratamiento: string;
 
-  @ManyToOne(() => Cliente, (cliente) => cliente.recetaLentesAereos)
+  @ManyToOne(() => Cliente, (cliente) => cliente.recetasLentesAereos)
   cliente: Cliente;
 
   @OneToMany(

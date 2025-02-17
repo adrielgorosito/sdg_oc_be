@@ -1,21 +1,20 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsObject } from 'class-validator';
-import { CreateClienteDTO } from 'src/cliente/dto/create-cliente.dto';
+import { IsNotEmpty, IsObject, IsOptional, IsString } from 'class-validator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
-import { CreateObraSocialDTO } from 'src/obra-social/dto/create-obra-social.dto';
+import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreateClienteObraSocialDTO extends BaseDTO {
   @IsNotEmpty()
-  @IsNumber()
-  nroSocio: number;
+  @IsString()
+  numeroSocio: string;
+
+  @IsOptional()
+  @IsObject()
+  @Type(() => RelationDTO)
+  cliente: RelationDTO;
 
   @IsNotEmpty()
   @IsObject()
-  @Type(() => CreateClienteDTO)
-  cliente: { id: number };
-
-  @IsNotEmpty()
-  @IsObject()
-  @Type(() => CreateObraSocialDTO)
-  obraSocial: { id: number };
+  @Type(() => RelationDTO)
+  obraSocial: RelationDTO;
 }
