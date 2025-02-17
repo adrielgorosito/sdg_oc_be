@@ -9,13 +9,13 @@ export class MedioDePago {
   @PrimaryColumn()
   ventaId: string;
 
-  @Column()
+  @Column({ enum: TipoMedioDePagoEnum })
   tipoMedioDePago: TipoMedioDePagoEnum;
 
   @Column({ nullable: true })
   entidadBancaria: string;
 
-  @Column({ nullable: true })
+  @Column({ enum: RedDePago, nullable: true })
   redDePago: RedDePago;
 
   @Column({ type: 'decimal', precision: 9, scale: 2 })
