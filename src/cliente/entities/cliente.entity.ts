@@ -38,20 +38,32 @@ export class Cliente extends BaseEntity {
   @Column()
   domicilio: string;
 
-  @ManyToOne(() => Localidad, (localidad) => localidad.clientes)
-  localidad: Localidad;
-
   @OneToMany(
     () => ClienteObraSocial,
-    (clienteObraSocial) => clienteObraSocial.cliente,
+    (clienteObrasSociales) => clienteObrasSociales.cliente,
   )
-  clienteObraSocial: ClienteObraSocial[];
-
-  @OneToOne(() => CuentaCorriente, (cuentaCorriente) => cuentaCorriente.cliente)
-  cuentaCorriente: CuentaCorriente;
+  clienteObrasSociales: ClienteObraSocial[];
 
   @OneToMany(() => Venta, (ventas) => ventas.cliente)
   ventas: Venta[];
+
+  @OneToMany(
+    () => RecetaLentesAereos,
+    (recetasLentesAereos) => recetasLentesAereos.cliente,
+  )
+  recetasLentesAereos: RecetaLentesAereos;
+
+  @OneToMany(
+    () => RecetaLentesContacto,
+    (recetasLentesContacto) => recetasLentesContacto.cliente,
+  )
+  recetasLentesContacto: RecetaLentesContacto;
+
+  @OneToMany(() => Audiometria, (audiometrias) => audiometrias.cliente)
+  audiometrias: Audiometria;
+
+  @ManyToOne(() => Localidad, (localidad) => localidad.clientes)
+  localidad: Localidad;
 
   @OneToOne(
     () => HistoriaClinicaLentesContacto,
@@ -59,18 +71,6 @@ export class Cliente extends BaseEntity {
   )
   historiaClinicaLentesContacto: HistoriaClinicaLentesContacto;
 
-  @OneToMany(
-    () => RecetaLentesContacto,
-    (recetasLentesContacto) => recetasLentesContacto.cliente,
-  )
-  recetasLentesContacto: RecetaLentesContacto[];
-
-  @OneToMany(() => Audiometria, (audiometrias) => audiometrias.cliente)
-  audiometrias: Audiometria[];
-
-  @OneToMany(
-    () => RecetaLentesAereos,
-    (recetaLentesAereos) => recetaLentesAereos.cliente,
-  )
-  recetaLentesAereos: RecetaLentesAereos[];
+  @OneToOne(() => CuentaCorriente, (cuentaCorriente) => cuentaCorriente.cliente)
+  cuentaCorriente: CuentaCorriente;
 }
