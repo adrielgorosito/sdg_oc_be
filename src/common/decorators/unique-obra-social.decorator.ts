@@ -13,7 +13,6 @@ export function UniqueObraSocial(validationOptions?: ValidationOptions) {
           console.log(value);
 
           if (!Array.isArray(value)) return false;
-          console.log(value);
 
           const obraSocialIds = value.map((item) => item.obraSocial.id);
           const uniqueIds = new Set(obraSocialIds);
