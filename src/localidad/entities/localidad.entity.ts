@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
-import { Provincia } from 'src/provincia/provincia.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Provincia } from 'src/provincia/entities/provincia.entity';
 
 @Entity()
 export class Localidad {
