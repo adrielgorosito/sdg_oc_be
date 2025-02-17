@@ -42,6 +42,9 @@ export class ClienteObraSocialService {
         });
       }
 
+      queryBuilder.leftJoinAndSelect('cliObSoc.cliente', 'cliente');
+      queryBuilder.leftJoinAndSelect('cliObSoc.obraSocial', 'obraSocial');
+
       return await queryBuilder.getMany();
     } catch (error) {
       throw new InternalServerErrorException(
@@ -54,6 +57,10 @@ export class ClienteObraSocialService {
     try {
       const cliObSoc = await this.cliObSocRepository.findOne({
         where: { id },
+        relations: {
+          cliente: true,
+          obraSocial: true,
+        },
       });
 
       if (!cliObSoc) {
