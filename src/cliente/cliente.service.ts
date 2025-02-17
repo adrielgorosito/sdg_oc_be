@@ -36,7 +36,7 @@ export class ClienteService {
   async findOne(id: number) {
     try {
       const cliente = await this.clienteRepository.findOne({
-        where: { id: Number(id) },
+        where: { id: id },
         relations: {
           localidad: true,
           clienteObrasSociales: true,
