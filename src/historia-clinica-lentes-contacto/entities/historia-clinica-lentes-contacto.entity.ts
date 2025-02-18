@@ -4,103 +4,103 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity()
 export class HistoriaClinicaLentesContacto extends BaseEntity {
-  @Column()
+  @Column({ default: false })
   patologicas: boolean;
 
-  @Column()
+  @Column({ default: false })
   traumaticas: boolean;
 
-  @Column()
-  sens_luz_natural: boolean;
+  @Column({ default: false })
+  sensLuzNatural: boolean;
 
-  @Column()
-  sens_luz_artificial: boolean;
+  @Column({ default: false })
+  sensLuzArtificial: boolean;
 
-  @Column()
-  sens_humo: boolean;
+  @Column({ default: false })
+  sensHumo: boolean;
 
-  @Column()
-  sens_frio: boolean;
+  @Column({ default: false })
+  sensFrio: boolean;
 
-  @Column()
-  sens_polvo: boolean;
+  @Column({ default: false })
+  sensPolvo: boolean;
 
-  @Column()
-  observaciones_sens: string;
+  @Column({ default: null, nullable: true })
+  observacionesSens: string;
 
-  @Column()
-  transtornos_neurologicos: boolean;
+  @Column({ default: false })
+  transtornosNeurologicos: boolean;
 
-  @Column()
-  regimen_eventual: boolean;
+  @Column({ default: false })
+  regimenEventual: boolean;
 
-  @Column()
-  glandulas_endocinas: boolean;
+  @Column({ default: false })
+  glandulasEndocinas: boolean;
 
-  @Column()
-  sistema_cardiovascular: boolean;
+  @Column({ default: false })
+  sistemaCardiovascular: boolean;
 
-  @Column()
+  @Column({ default: false })
   embarazo: boolean;
 
-  @Column()
+  @Column({ default: false })
   estomatologia: boolean;
 
-  @Column()
+  @Column({ default: false })
   caries: boolean;
 
-  @Column()
+  @Column({ default: false })
   digestivo: boolean;
 
-  @Column()
-  alergia_digestiva: boolean;
+  @Column({ default: false })
+  alergiaDigestiva: boolean;
 
-  @Column()
-  alergia_respiratoria: boolean;
+  @Column({ default: false })
+  alergiaRespiratoria: boolean;
 
-  @Column()
-  alergia_cutanea: boolean;
+  @Column({ default: false })
+  alergiaCutanea: boolean;
 
-  @Column()
-  alergia_otras: boolean;
+  @Column({ default: false })
+  alergiaOtras: boolean;
 
-  @Column()
-  rinitis_primaveral: boolean;
+  @Column({ default: false })
+  rinitisPrimaveral: boolean;
 
-  @Column()
-  sinusitis_cronica: boolean;
+  @Column({ default: false })
+  sinusitisCronica: boolean;
 
-  @Column()
-  observaciones_antecedentes: string;
+  @Column({ default: null, nullable: true })
+  observacionesAntecedentes: string;
 
-  @Column()
+  @Column({ default: false })
   antibioticos: boolean;
 
-  @Column()
+  @Column({ default: false })
   antiestaminicos: boolean;
 
-  @Column()
-  pildora_contraceptiva: boolean;
+  @Column({ default: false })
+  pildoraContraceptiva: boolean;
 
-  @Column()
+  @Column({ default: false })
   anorexigenos: boolean;
 
-  @Column()
+  @Column({ default: false })
   neurolepticos: boolean;
 
-  @Column()
-  tratamiento_digestivo: boolean;
+  @Column({ default: false })
+  tratamientoDigestivo: boolean;
 
-  @Column()
+  @Column({ default: false })
   dirueticos: boolean;
 
-  @Column()
+  @Column({ default: false })
   tranquilizantes: boolean;
 
-  @Column()
+  @Column({ default: false })
   corticoides: boolean;
 
-  @Column()
+  @Column({ default: false })
   parasimpaticoliticos: boolean;
 
   @OneToOne(() => Cliente)

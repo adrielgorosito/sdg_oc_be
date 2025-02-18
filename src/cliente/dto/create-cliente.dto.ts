@@ -57,6 +57,7 @@ export class CreateClienteDTO extends BaseDTO {
   @Type(() => RelationDTO)
   localidad: RelationDTO;
 
+  @IsOptional()
   @IsArray()
   @UniqueObraSocial()
   @ValidateNested()

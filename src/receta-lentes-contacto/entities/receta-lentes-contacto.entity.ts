@@ -1,7 +1,7 @@
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { PruebasLentesContacto } from 'src/pruebas-lentes-contacto/entities/pruebas-lentes-contacto.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class RecetaLentesContacto extends BaseEntity {
@@ -93,4 +93,13 @@ export class RecetaLentesContacto extends BaseEntity {
     (pruebasLentesContacto) => pruebasLentesContacto.recetaLentesContacto,
   )
   pruebasLentesContacto: PruebasLentesContacto[];
+
+  @BeforeInsert()
+  asignarNumeroPrueba() {
+    if (this.pruebasLentesContacto && this.pruebasLentesContacto.length > 0) {
+      this.pruebasLentesContacto.forEach((prueba, index) => {
+        prueba.numeroPrueba = index + 1;
+      });
+    }
+  }
 }

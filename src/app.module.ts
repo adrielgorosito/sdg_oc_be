@@ -10,16 +10,13 @@ import { ClienteModule } from './cliente/cliente.module';
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
 import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-contacto/historia-clinica-lentes-contacto.module';
-import { LineaVentaModule } from './linea-venta/linea-venta.module';
 import { LocalidadModule } from './localidad/localidad.module';
 import { MarcaModule } from './marca/marca.module';
-import { MedioDePagoModule } from './medio-de-pago/medio-de-pago.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
 import { ProductoModule } from './producto/producto.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
 import { ProvinciaModule } from './provincia/provincia.module';
-import { PruebasLentesContactoModule } from './pruebas-lentes-contacto/pruebas-lentes-contacto.module';
 import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-aereos.module';
 import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
 import { UserModule } from './user/user.module';
@@ -74,15 +71,12 @@ import { VentaModule } from './venta/venta.module';
     ClienteObraSocialModule,
     CuentaCorrienteModule,
     VentaModule,
-    LineaVentaModule,
     MovimientoModule,
     HistoriaClinicaLentesContactoModule,
     RecetaLentesContactoModule,
-    PruebasLentesContactoModule,
     AudiometriaModule,
     RecetaLentesAereosModule,
     DetallesRecetaLentesAereosModule,
-    MedioDePagoModule,
     LocalidadModule,
     ProvinciaModule,
     UserModule,

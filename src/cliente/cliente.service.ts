@@ -39,7 +39,7 @@ export class ClienteService {
         where: { id: id },
         relations: {
           localidad: true,
-          clienteObrasSociales: true,
+          clienteObrasSociales: { obraSocial: true },
           cuentaCorriente: true,
           historiaClinicaLentesContacto: true,
           ventas: true,

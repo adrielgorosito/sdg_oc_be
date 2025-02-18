@@ -1,12 +1,13 @@
-import { BaseEntity } from 'src/common/entities/base.entity';
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
-import { Column, Entity, ManyToOne, Unique } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity()
-@Unique(['numeroPrueba', 'recetaLentesContacto'])
-export class PruebasLentesContacto extends BaseEntity {
-  @Column()
+export class PruebasLentesContacto {
+  @PrimaryColumn()
   numeroPrueba: number;
+
+  @PrimaryColumn()
+  recetaLentesContactoId: number;
 
   @Column()
   od_diametro: number;

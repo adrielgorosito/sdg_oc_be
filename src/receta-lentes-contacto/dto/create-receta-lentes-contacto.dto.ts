@@ -12,6 +12,7 @@ import {
 import { IsEstesiometria } from 'src/common/decorators/is-estesiometria.decorator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
+import { CreatePruebasLentesContactoDTO } from 'src/pruebas-lentes-contacto/dto/create-pruebas-lentes-contacto.dto';
 
 export class CreateRecetaLentesContactoDTO extends BaseDTO {
   @IsString()
@@ -126,5 +127,7 @@ export class CreateRecetaLentesContactoDTO extends BaseDTO {
 
   @IsOptional()
   @IsArray()
-  pruebasLentesContacto: RelationDTO[];
+  @ValidateNested({ each: true })
+  @Type(() => CreatePruebasLentesContactoDTO)
+  pruebasLentesContacto: CreatePruebasLentesContactoDTO[];
 }
