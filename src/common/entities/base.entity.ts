@@ -19,5 +19,5 @@ export abstract class BaseEntity {
     nullable: true,
     default: null,
   })
-  updatedAt: Date;
+  updatedAt: Date | null = null;
 }

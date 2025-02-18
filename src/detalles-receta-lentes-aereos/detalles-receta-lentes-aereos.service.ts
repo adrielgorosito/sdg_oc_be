@@ -4,10 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { DetallesRecetaLentesAereos } from './entities/detalles-receta-lentes-aereos.entity';
-import { CreateDetallesRecetaLentesAereosDTO } from './dto/create-detalles-receta-lentes-aereos.dto';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { Repository } from 'typeorm';
+import { CreateDetallesRecetaLentesAereosDTO } from './dto/create-detalles-receta-lentes-aereos.dto';
+import { DetallesRecetaLentesAereos } from './entities/detalles-receta-lentes-aereos.entity';
 
 @Injectable()
 export class DetallesRecetaLentesAereosService {
@@ -37,7 +37,7 @@ export class DetallesRecetaLentesAereosService {
     try {
       const detalle = await this.detallesRepository.findOne({
         where: {
-          detalleId: id,
+          numeroDetalle: id,
           recetaLentesAereos: { id: recetaId },
         },
         relations: ['recetaLentesAereos'],

@@ -4,10 +4,10 @@ import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 @Entity()
 export class DetallesRecetaLentesAereos {
   @PrimaryColumn()
-  detalleId: number;
+  numeroDetalle: number;
 
   @PrimaryColumn()
-  detalleRecetasLentesAereosId: number;
+  recetaLentesAereosId: number;
 
   @Column()
   od_esferico: string;
@@ -39,7 +39,7 @@ export class DetallesRecetaLentesAereos {
   @Column()
   oi_diametro: string;
 
-  @Column()
+  @Column({ nullable: true })
   observaciones: string;
 
   @ManyToOne(

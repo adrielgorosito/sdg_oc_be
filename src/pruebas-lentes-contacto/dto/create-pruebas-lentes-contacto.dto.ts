@@ -1,21 +1,13 @@
-import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsOptional,
   IsString,
-  ValidateNested,
 } from 'class-validator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
-import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreatePruebasLentesContactoDTO extends BaseDTO {
-  @IsNumber()
-  @IsNotEmpty()
-  numeroPrueba: number;
-
   @IsNumber()
   @IsNotEmpty()
   od_diametro: number;
@@ -95,9 +87,4 @@ export class CreatePruebasLentesContactoDTO extends BaseDTO {
   @IsString()
   @IsOptional()
   observaciones: string;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  recetaLentesContacto: RelationDTO;
 }

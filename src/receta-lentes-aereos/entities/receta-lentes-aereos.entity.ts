@@ -1,15 +1,16 @@
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { DetallesRecetaLentesAereos } from 'src/detalles-receta-lentes-aereos/entities/detalles-receta-lentes-aereos.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { TipoReceta } from '../enum/tipo-receta.enum';
 
 @Entity()
 export class RecetaLentesAereos extends BaseEntity {
   @Column()
   fecha: Date;
 
-  @Column()
-  tipoReceta: string;
+  @Column({ enum: TipoReceta })
+  tipoReceta: TipoReceta;
 
   @Column()
   oftalmologo: string;
@@ -36,4 +37,16 @@ export class RecetaLentesAereos extends BaseEntity {
     { cascade: true },
   )
   detallesRecetaLentesAereos: DetallesRecetaLentesAereos[];
+
+  @BeforeInsert()
+  asignarNumeroDetalle() {
+    if (
+      this.detallesRecetaLentesAereos &&
+      this.detallesRecetaLentesAereos.length > 0
+    ) {
+      this.detallesRecetaLentesAereos.forEach((detalle, index) => {
+        detalle.numeroDetalle = index + 1;
+      });
+    }
+  }
 }

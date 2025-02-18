@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
@@ -11,136 +10,136 @@ import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
 
 export class CreateHistoriaClinicaLentesContactoDTO extends BaseDTO {
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
   patologicas: boolean;
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
   traumaticas: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  sens_luz_natural: boolean;
+  @IsOptional()
+  sensLuzNatural: boolean;
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
-  sens_luz_artificial: boolean;
+  sensLuzArtificial: boolean;
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
-  sens_humo: boolean;
+  sensHumo: boolean;
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
-  sens_frio: boolean;
+  sensFrio: boolean;
 
+  @IsOptional()
   @IsBoolean()
-  @IsNotEmpty()
-  sens_polvo: boolean;
+  sensPolvo: boolean;
 
   @IsString()
   @IsOptional()
-  observaciones_sens: string;
+  observacionesSens: string;
 
   @IsBoolean()
-  @IsNotEmpty()
-  transtornos_neurologicos: boolean;
+  @IsOptional()
+  transtornosNeurologicos: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  regimen_eventual: boolean;
+  @IsOptional()
+  regimenEventual: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  glandulas_endocinas: boolean;
+  @IsOptional()
+  glandulasEndocinas: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  sistema_cardiovascular: boolean;
+  @IsOptional()
+  sistemaCardiovascular: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   embarazo: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   estomatologia: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   caries: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   digestivo: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  alergia_digestiva: boolean;
+  @IsOptional()
+  alergiaDigestiva: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  alergia_respiratoria: boolean;
+  @IsOptional()
+  alergiaRespiratoria: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  alergia_cutanea: boolean;
+  @IsOptional()
+  alergiaCutanea: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  alergia_otras: boolean;
+  @IsOptional()
+  alergiaOtras: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  rinitis_primaveral: boolean;
+  @IsOptional()
+  rinitisPrimaveral: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  sinusitis_cronica: boolean;
+  @IsOptional()
+  sinusitisCronica: boolean;
 
   @IsString()
   @IsOptional()
-  observaciones_antecedentes: string;
+  observacionesAntecedentes: string;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   antibioticos: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   antiestaminicos: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  pildora_contraceptiva: boolean;
+  @IsOptional()
+  pildoraContraceptiva: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   anorexigenos: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   neurolepticos: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
-  tratamiento_digestivo: boolean;
+  @IsOptional()
+  tratamientoDigestivo: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   dirueticos: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   tranquilizantes: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   corticoides: boolean;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   parasimpaticoliticos: boolean;
 
   @IsObject()

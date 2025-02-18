@@ -1,16 +1,17 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEnum,
   IsNotEmpty,
   IsObject,
   IsString,
-  ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { ValidateTipoReceta } from 'src/common/decorators/validate-tipo-receta.decorator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
-import { DetallesRecetaLentesAereos } from 'src/detalles-receta-lentes-aereos/entities/detalles-receta-lentes-aereos.entity';
+import { CreateDetallesRecetaLentesAereosDTO } from 'src/detalles-receta-lentes-aereos/dto/create-detalles-receta-lentes-aereos.dto';
 import { TipoReceta } from '../enum/tipo-receta.enum';
 
 export class CreateRecetaLentesAereosDTO extends BaseDTO {
@@ -48,16 +49,9 @@ export class CreateRecetaLentesAereosDTO extends BaseDTO {
   @Type(() => RelationDTO)
   cliente: RelationDTO;
 
-  @IsObject()
-  @ValidateNested()
-  @Type(() => DetallesRecetaLentesAereos)
-  @ValidateIf(
-    (d) =>
-      ((d.tipoReceta === TipoReceta.Cerca ||
-        d.tipoReceta === TipoReceta.Lejos) &&
-        d.detallesRecetaLentesAereos.length() == 1) ||
-      (d.tipoReceta == TipoReceta.Multifocal &&
-        d.detallesRecetaLentesAereos.length() == 2),
-  )
-  detallesRecetaLentesAereos: DetallesRecetaLentesAereos[];
+  @IsArray()
+  @ValidateTipoReceta()
+  @ValidateNested({ each: true })
+  @Type(() => CreateDetallesRecetaLentesAereosDTO)
+  detallesRecetaLentesAereos: CreateDetallesRecetaLentesAereosDTO[];
 }

@@ -1,19 +1,21 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { RecetaLentesAereos } from './entities/receta-lentes-aereos.entity';
-import { CreateRecetaLentesAereosDTO } from './dto/create-receta-lentes-aereos.dto';
-import { UpdateRecetaLentesAereosDTO } from './dto/update-receta-lentes-aereos.dto';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Repository } from 'typeorm';
+import { CreateRecetaLentesAereosDTO } from './dto/create-receta-lentes-aereos.dto';
+import { UpdateRecetaLentesAereosDTO } from './dto/update-receta-lentes-aereos.dto';
+import { RecetaLentesAereos } from './entities/receta-lentes-aereos.entity';
 @Injectable()
 export class RecetaLentesAereosService {
   constructor(
     @InjectRepository(RecetaLentesAereos)
     private rlaRepository: Repository<RecetaLentesAereos>,
+    @InjectRepository(Cliente)
+    private clienteRepository: Repository<Cliente>,
   ) {}
 
   async findAll(): Promise<RecetaLentesAereos[]> {
@@ -40,6 +42,8 @@ export class RecetaLentesAereosService {
 
       return receta;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+
       throw new InternalServerErrorException(
         'Error al obtener la receta de lentes aéreos: ' + error,
       );
@@ -50,9 +54,20 @@ export class RecetaLentesAereosService {
     rlaDTO: CreateRecetaLentesAereosDTO,
   ): Promise<RecetaLentesAereos> {
     try {
+      const clienteExistente = await this.clienteRepository.findOne({
+        where: { id: rlaDTO.cliente.id },
+      });
+
+      if (!clienteExistente) {
+        throw new NotFoundException(
+          `Cliente con id ${rlaDTO.cliente.id} no encontrado`,
+        );
+      }
       const receta = this.rlaRepository.create(rlaDTO);
       return await this.rlaRepository.save(receta);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+
       throw new InternalServerErrorException(
         'Error al crear la receta de lentes aéreos: ' + error,
       );
@@ -77,6 +92,8 @@ export class RecetaLentesAereosService {
       const recetaActualizada = Object.assign(recetaExistente, rlaDTO);
       return await this.rlaRepository.save(recetaActualizada);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+
       throw new InternalServerErrorException(
         'Error al actualizar la receta de lentes aéreos: ' + error,
       );
@@ -95,6 +112,8 @@ export class RecetaLentesAereosService {
 
       await this.rlaRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+
       throw new InternalServerErrorException(
         'Error al eliminar la receta de lentes aéreos: ' + error,
       );

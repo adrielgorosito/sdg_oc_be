@@ -1,10 +1,6 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateDetallesRecetaLentesAereosDTO {
-  @IsOptional()
-  @IsNumber()
-  detalleId: number;
-
   @IsString()
   od_esferico: string;
 
@@ -35,6 +31,7 @@ export class CreateDetallesRecetaLentesAereosDTO {
   @IsString()
   oi_diametro: string;
 
+  @IsOptional()
   @IsString()
   observaciones: string;
 }
