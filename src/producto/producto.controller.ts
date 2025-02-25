@@ -1,6 +1,3 @@
-import { ProductoService } from './producto.service';
-import { CreateProductoDTO } from './dto/create-producto.dto';
-import { UpdateProductoDTO } from './dto/update-producto.dto';
 import {
   Body,
   Controller,
@@ -9,15 +6,20 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
+import { CreateProductoDTO } from './dto/create-producto.dto';
+import { PaginateProductoDTO } from './dto/paginate-producto.dto';
+import { UpdateProductoDTO } from './dto/update-producto.dto';
+import { ProductoService } from './producto.service';
 
 @Controller('producto')
 export class ProductoController {
   constructor(private readonly productoService: ProductoService) {}
 
   @Get()
-  findAll() {
-    return this.productoService.findAll();
+  findAll(@Query() paginateProductoDTO: PaginateProductoDTO) {
+    return this.productoService.findAll(paginateProductoDTO);
   }
 
   @Get(':id')
