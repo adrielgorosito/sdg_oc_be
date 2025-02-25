@@ -1,14 +1,14 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateRecetaLentesContactoDTO } from './dto/create-receta-lentes-contacto.dto';
+import { UpdateRecetaLentesContactoDTO } from './dto/update-receta-lentes-contacto.dto';
+import { RecetaLentesContacto } from './entities/receta-lentes-contacto.entity';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { Repository } from 'typeorm';
-import { CreateRecetaLentesContactoDTO } from './dto/create-receta-lentes-contacto.dto';
-import { UpdateRecetaLentesContactoDTO } from './dto/update-receta-lentes-contacto.dto';
-import { RecetaLentesContacto } from './entities/receta-lentes-contacto.entity';
 
 @Injectable()
 export class RecetaLentesContactoService {
@@ -54,7 +54,6 @@ export class RecetaLentesContactoService {
       return receta;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-
       throw new InternalServerErrorException(
         'Error al obtener la receta de lentes de contacto: ' + error,
       );
@@ -80,7 +79,6 @@ export class RecetaLentesContactoService {
       return await this.rlcRepository.save(receta);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-
       throw new InternalServerErrorException(
         'Error al crear la receta de lentes de contacto: ' + error,
       );
@@ -102,11 +100,10 @@ export class RecetaLentesContactoService {
         );
       }
 
-      const recetaActualizada = Object.assign(recetaExistente, rlcDTO);
-      return await this.rlcRepository.save(recetaActualizada);
+      Object.assign(recetaExistente, rlcDTO);
+      return await this.rlcRepository.save(recetaExistente);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-
       throw new InternalServerErrorException(
         'Error al actualizar la receta de lentes de contacto: ' + error,
       );
@@ -128,7 +125,6 @@ export class RecetaLentesContactoService {
       await this.rlcRepository.delete(id);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-
       throw new InternalServerErrorException(
         'Error al eliminar la receta de lentes de contacto: ' + error,
       );

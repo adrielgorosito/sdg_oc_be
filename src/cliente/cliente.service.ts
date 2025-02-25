@@ -1,16 +1,16 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { Cliente } from './entities/cliente.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { Repository } from 'typeorm';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { Cliente } from './entities/cliente.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 
 @Injectable()
 export class ClienteService {
@@ -52,7 +52,7 @@ export class ClienteService {
       });
 
       if (!cliente) {
-        throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+        throw new NotFoundException(`Cliente con id ${id} no encontrado`);
       }
 
       return cliente;
@@ -83,7 +83,7 @@ export class ClienteService {
       });
 
       if (!clienteExistente) {
-        throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+        throw new NotFoundException(`Cliente con id ${id} no encontrado`);
       }
       Object.assign(clienteExistente, updateClienteDto);
 
@@ -99,7 +99,7 @@ export class ClienteService {
       const cliente = await this.findOne(id);
 
       if (!cliente) {
-        throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+        throw new NotFoundException(`Cliente con id ${id} no encontrado`);
       }
       return await this.clienteRepository.remove(cliente);
     } catch (error) {
@@ -162,7 +162,7 @@ export class ClienteService {
       });
 
       if (!cliente) {
-        throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
+        throw new NotFoundException(`Cliente con id ${id} no encontrado`);
       }
 
       return cliente;

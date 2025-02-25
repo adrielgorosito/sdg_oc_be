@@ -1,15 +1,14 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProveedorDTO } from './dto/create-proveedor.dto';
 import { UpdateProveedorDTO } from './dto/update-proveedor.dto';
 import { Proveedor } from './entities/proveedor.entity';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class ProveedorService {
@@ -40,9 +39,7 @@ export class ProveedorService {
 
       return proveedor;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener el proveedor: ' + error,
       );
@@ -56,18 +53,14 @@ export class ProveedorService {
       });
 
       if (proveedorExistente) {
-        throw new HttpException(
-          'Ya existe un proveedor con ese cuit',
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new BadRequestException('Ya existe un proveedor con ese cuit');
       }
 
       const nuevoProveedor = this.proveedorRepository.create(proveedor);
       return await this.proveedorRepository.save(nuevoProveedor);
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Error al crear el proveedor: ' + error,
       );
@@ -87,9 +80,7 @@ export class ProveedorService {
       Object.assign(proveedorExistente, proveedor);
       return await this.proveedorRepository.save(proveedorExistente);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar el proveedor: ' + error,
       );
@@ -108,9 +99,7 @@ export class ProveedorService {
 
       await this.proveedorRepository.remove(proveedor);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar el proveedor: ' + error,
       );

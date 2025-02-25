@@ -43,6 +43,7 @@ export class CuentaCorrienteService {
 
       return cuentaCorriente;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la cuenta corriente: ' + error,
       );
@@ -64,6 +65,7 @@ export class CuentaCorrienteService {
       const cuentaCorriente = this.cuentaCorrienteRepository.create(ccDTO);
       return await this.cuentaCorrienteRepository.save(cuentaCorriente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al crear la cuenta corriente: ' + error,
       );
@@ -85,9 +87,10 @@ export class CuentaCorrienteService {
         );
       }
 
-      const ccActualizado = Object.assign(ccExistente, ccDTO);
-      return await this.cuentaCorrienteRepository.save(ccActualizado);
+      Object.assign(ccExistente, ccDTO);
+      return await this.cuentaCorrienteRepository.save(ccExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la cuenta corriente: ' + error,
       );
@@ -108,6 +111,7 @@ export class CuentaCorrienteService {
 
       await this.cuentaCorrienteRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la cuenta corriente: ' + error,
       );

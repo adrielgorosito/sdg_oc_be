@@ -41,6 +41,7 @@ export class AudiometriaService {
 
       return audiometria;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la audiometría: ' + error,
       );
@@ -71,12 +72,10 @@ export class AudiometriaService {
         throw new NotFoundException(`Audiometría con id ${id} no encontrada`);
       }
 
-      const audiometriaActualizada = Object.assign(
-        audiometriaExistente,
-        audiometriaDTO,
-      );
-      return await this.audiometriaRepository.save(audiometriaActualizada);
+      Object.assign(audiometriaExistente, audiometriaDTO);
+      return await this.audiometriaRepository.save(audiometriaExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la audiometría: ' + error,
       );
@@ -95,6 +94,7 @@ export class AudiometriaService {
 
       await this.audiometriaRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la audiometría: ' + error,
       );

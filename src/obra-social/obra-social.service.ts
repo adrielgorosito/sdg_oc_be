@@ -1,11 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ObraSocial } from './entities/obra-social.entity';
 import { CreateObraSocialDTO } from './dto/create-obra-social.dto';
 import { UpdateObraSocialDTO } from './dto/update-obra-social.dto';
+import { ObraSocial } from './entities/obra-social.entity';
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -40,6 +39,7 @@ export class ObraSocialService {
 
       return obraSocial;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la obra social: ' + error,
       );
@@ -53,15 +53,15 @@ export class ObraSocialService {
       });
 
       if (obraSocialExistente) {
-        throw new HttpException(
+        throw new BadRequestException(
           'Ya existe una obra social con ese nombre',
-          HttpStatus.BAD_REQUEST,
         );
       }
 
       const nuevaObraSocial = this.obraSocialRepository.create(obraSocial);
       return await this.obraSocialRepository.save(nuevaObraSocial);
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Error al crear la obra social: ' + error,
       );
@@ -86,15 +86,16 @@ export class ObraSocialService {
       });
 
       if (nombreExistente) {
-        throw new HttpException(
+        throw new BadRequestException(
           'Ya existe una obra social con ese nombre',
-          HttpStatus.BAD_REQUEST,
         );
       }
 
-      const osActualizada = Object.assign(obraSocialExistente, obraSocial);
-      return await this.obraSocialRepository.save(osActualizada);
+      Object.assign(obraSocialExistente, obraSocial);
+      return await this.obraSocialRepository.save(obraSocialExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la obra social: ' + error,
       );
@@ -113,6 +114,7 @@ export class ObraSocialService {
 
       await this.obraSocialRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la obra social: ' + error,
       );

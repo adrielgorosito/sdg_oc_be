@@ -1,14 +1,14 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateMarcaDTO } from './dto/create-marca.dto';
+import { UpdateMarcaDTO } from './dto/update-marca.dto';
+import { Marca } from './entities/marca.entity';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateMarcaDTO } from './dto/create-marca.dto';
-import { UpdateMarcaDTO } from './dto/update-marca.dto';
-import { Marca } from './entities/marca.entity';
 
 @Injectable()
 export class MarcaService {
@@ -51,9 +51,7 @@ export class MarcaService {
 
       return marca;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la marca: ' + error,
       );
@@ -73,9 +71,7 @@ export class MarcaService {
       const nuevaMarca = this.marcaRepository.create(marca);
       return this.marcaRepository.save(nuevaMarca);
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Error al crear la marca: ' + error,
       );
@@ -95,9 +91,7 @@ export class MarcaService {
       Object.assign(marcaExistente, marca);
       return await this.marcaRepository.save(marcaExistente);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la marca: ' + error,
       );
@@ -114,9 +108,7 @@ export class MarcaService {
 
       await this.marcaRepository.remove(marca);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la marca: ' + error,
       );
