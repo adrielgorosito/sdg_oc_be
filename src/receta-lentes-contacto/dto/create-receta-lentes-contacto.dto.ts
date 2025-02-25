@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsDate,
   IsNotEmpty,
   IsNumber,
   IsObject,
@@ -15,6 +16,10 @@ import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CreatePruebasLentesContactoDTO } from 'src/pruebas-lentes-contacto/dto/create-pruebas-lentes-contacto.dto';
 
 export class CreateRecetaLentesContactoDTO extends BaseDTO {
+  @IsDate()
+  @IsNotEmpty()
+  fecha: Date;
+
   @IsString()
   @IsNotEmpty()
   oftalmologo: string;

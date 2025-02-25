@@ -1,13 +1,13 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateDetallesRecetaLentesAereosDTO } from './dto/create-detalles-receta-lentes-aereos.dto';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { DetallesRecetaLentesAereos } from './entities/detalles-receta-lentes-aereos.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { Repository } from 'typeorm';
-import { CreateDetallesRecetaLentesAereosDTO } from './dto/create-detalles-receta-lentes-aereos.dto';
-import { DetallesRecetaLentesAereos } from './entities/detalles-receta-lentes-aereos.entity';
 
 @Injectable()
 export class DetallesRecetaLentesAereosService {
@@ -43,8 +43,15 @@ export class DetallesRecetaLentesAereosService {
         relations: ['recetaLentesAereos'],
       });
 
+      if (!detalle) {
+        throw new NotFoundException(
+          `Detalle con recetaId ${recetaId} e id ${id} no encontrado`,
+        );
+      }
+
       return detalle;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener el detalle de la receta: ' + error,
       );
@@ -71,6 +78,7 @@ export class DetallesRecetaLentesAereosService {
 
       return await this.detallesRepository.save(detalle);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al crear el detalle de la receta: ' + error,
       );
@@ -84,10 +92,17 @@ export class DetallesRecetaLentesAereosService {
   ): Promise<DetallesRecetaLentesAereos> {
     try {
       const detalle = await this.findOne(recetaId, id);
-      const detalleActualizado = Object.assign(detalle, dto);
 
-      return await this.detallesRepository.save(detalleActualizado);
+      if (!detalle) {
+        throw new NotFoundException(
+          `Detalle con recetaId ${recetaId} e id ${id} no encontrado`,
+        );
+      }
+
+      Object.assign(detalle, dto);
+      return await this.detallesRepository.save(detalle);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar el detalle de la receta: ' + error,
       );
@@ -98,8 +113,15 @@ export class DetallesRecetaLentesAereosService {
     try {
       const detalle = await this.findOne(recetaId, id);
 
+      if (!detalle) {
+        throw new NotFoundException(
+          `Detalle con recetaId ${recetaId} e id ${id} no encontrado`,
+        );
+      }
+
       await this.detallesRepository.remove(detalle);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar el detalle de la receta: ' + error,
       );

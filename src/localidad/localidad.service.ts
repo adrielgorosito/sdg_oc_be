@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Localidad } from './entities/localidad.entity';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class LocalidadService {
@@ -11,21 +15,34 @@ export class LocalidadService {
   ) {}
 
   async findAll(): Promise<Localidad[]> {
-    return this.localidadRepository.find({
-      relations: ['provincia'],
-    });
+    try {
+      return this.localidadRepository.find({
+        relations: ['provincia'],
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener las localidades: ' + error,
+      );
+    }
   }
 
   async findOne(id: number): Promise<Localidad> {
-    const localidad = await this.localidadRepository.findOne({
-      where: { id },
-      relations: ['provincia'],
-    });
+    try {
+      const localidad = await this.localidadRepository.findOne({
+        where: { id },
+        relations: ['provincia'],
+      });
 
-    if (!localidad) {
-      throw new NotFoundException(`Localidad con id ${id} no encontrada`);
+      if (!localidad) {
+        throw new NotFoundException(`Localidad con id ${id} no encontrada`);
+      }
+
+      return localidad;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener la localidad: ' + error,
+      );
     }
-
-    return localidad;
   }
 }

@@ -1,10 +1,3 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
@@ -12,6 +5,13 @@ import { Repository } from 'typeorm';
 import { CreateClienteObraSocialDTO } from './dto/create-cliente-obra-social.dto';
 import { UpdateClienteObraSocialDTO } from './dto/update-cliente-obra-social.dto';
 import { ClienteObraSocial } from './entities/cliente-obra-social.entity';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class ClienteObraSocialService {
@@ -71,6 +71,7 @@ export class ClienteObraSocialService {
 
       return cliObSoc;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la relación cliente-obra social: ' + error,
       );
@@ -118,6 +119,7 @@ export class ClienteObraSocialService {
       const cliObSoc = this.cliObSocRepository.create(cliObSocDTO);
       return await this.cliObSocRepository.save(cliObSoc);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al crear la relación cliente-obra social: ' + error,
       );
@@ -139,9 +141,10 @@ export class ClienteObraSocialService {
         );
       }
 
-      const cliObSocActualizado = Object.assign(clienteObraSocial, cliObSocDTO);
-      return await this.cliObSocRepository.save(cliObSocActualizado);
+      Object.assign(clienteObraSocial, cliObSocDTO);
+      return await this.cliObSocRepository.save(clienteObraSocial);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la relación cliente-obra social: ' + error,
       );
@@ -162,6 +165,7 @@ export class ClienteObraSocialService {
 
       await this.cliObSocRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la relación cliente-obra social ' + error,
       );

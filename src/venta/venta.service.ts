@@ -1,14 +1,14 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateVentaDTO } from './dto/create-venta.dto';
+import { UpdateVentaDTO } from './dto/update-venta.dto';
+import { Venta } from './entities/venta.entity';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { Repository } from 'typeorm';
-import { CreateVentaDTO } from './dto/create-venta.dto';
-import { UpdateVentaDTO } from './dto/update-venta.dto';
-import { Venta } from './entities/venta.entity';
 
 @Injectable()
 export class VentaService {
@@ -33,14 +33,13 @@ export class VentaService {
         (total, linea) => total + linea.precioIndividual * linea.cantidad,
         0,
       );
+
       const nuevaVenta = this.ventaRepository.create(createVentaDto);
       nuevaVenta.importe = importe;
 
       return await this.ventaRepository.save(nuevaVenta);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(error);
     }
   }
@@ -80,11 +79,10 @@ export class VentaService {
       if (!venta) {
         throw new NotFoundException(`Venta con id ${id} no encontrada`);
       }
+
       return venta;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la venta: ' + error,
       );
@@ -100,12 +98,11 @@ export class VentaService {
       if (!ventaExistente) {
         throw new NotFoundException(`Venta con id ${id} no encontrada`);
       }
+
       Object.assign(ventaExistente, updateVentaDto);
       return await this.ventaRepository.save(ventaExistente);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la venta: ' + error,
       );
@@ -124,9 +121,7 @@ export class VentaService {
 
       await this.ventaRepository.remove(venta);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la venta: ' + error,
       );
@@ -155,9 +150,7 @@ export class VentaService {
 
       return ventas;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener las ventas del cliente: ' + error,
       );
@@ -187,9 +180,7 @@ export class VentaService {
 
       return ventas;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener las ventas del cliente por DNI: ' + error,
       );

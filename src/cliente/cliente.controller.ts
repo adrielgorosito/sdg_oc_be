@@ -10,6 +10,7 @@ import {
 import { ClienteService } from './cliente.service';
 import { CreateClienteDTO } from './dto/create-cliente.dto';
 import { UpdateClienteDTO } from './dto/update-cliente.dto';
+
 @Controller('cliente')
 export class ClienteController {
   constructor(private readonly clienteService: ClienteService) {}
@@ -37,5 +38,15 @@ export class ClienteController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.clienteService.remove(id);
+  }
+
+  @Get('recetas/count')
+  async getCantidadRecetas() {
+    return await this.clienteService.getCantidadRecetas();
+  }
+
+  @Get('recetas/:id')
+  async getRecetasPorCliente(@Param('id') id: number) {
+    return await this.clienteService.getRecetasPorCliente(id);
   }
 }

@@ -1,14 +1,14 @@
+import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'crypto';
+import { UserService } from 'src/user/user.service';
+import { SignInDTO } from './dto/signin.dto';
+import { SignUpDTO } from './dto/signup.dto';
 import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
-import { UserService } from 'src/user/user.service';
-import { SignInDTO } from './dto/signin.dto';
-import { SignUpDTO } from './dto/signup.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,8 +31,9 @@ export class AuthService {
       if (user?.password !== encryptedPassword) {
         throw new UnauthorizedException();
       }
-      // The "sub" (subject) claim identifies the principal that is the subject of the JWT
+
       const payload = { username: signInDto.username, sub: user.id };
+
       return {
         access_token: await this.jwtService.signAsync(payload),
       };
@@ -55,6 +56,7 @@ export class AuthService {
 
       Object.assign(signUpDto, { password: encryptedPassword });
       const payload = await this.userService.registerUser(signUpDto);
+
       return {
         access_token: await this.jwtService.signAsync(payload),
       };

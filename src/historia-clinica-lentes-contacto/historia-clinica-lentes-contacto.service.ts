@@ -1,14 +1,14 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateHistoriaClinicaLentesContactoDTO } from './dto/create-historia-clinica-lentes-contacto.dto';
+import { UpdateHistoriaClinicaLentesContactoDTO } from './dto/update-historia-clinica-lentes-contacto.dto';
+import { HistoriaClinicaLentesContacto } from './entities/historia-clinica-lentes-contacto.entity';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateHistoriaClinicaLentesContactoDTO } from './dto/create-historia-clinica-lentes-contacto.dto';
-import { UpdateHistoriaClinicaLentesContactoDTO } from './dto/update-historia-clinica-lentes-contacto.dto';
-import { Repository } from 'typeorm';
-import { HistoriaClinicaLentesContacto } from './entities/historia-clinica-lentes-contacto.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
 
 @Injectable()
 export class HistoriaClinicaLentesContactoService {
@@ -52,6 +52,7 @@ export class HistoriaClinicaLentesContactoService {
 
       return hclc;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener la historia clínica de lentes de contacto: ' + error,
       );
@@ -75,6 +76,7 @@ export class HistoriaClinicaLentesContactoService {
       const hclc = this.hclcRepository.create(hclcDTO);
       return await this.hclcRepository.save(hclc);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al crear la historia clínica de lentes de contacto: ' + error,
       );
@@ -93,9 +95,10 @@ export class HistoriaClinicaLentesContactoService {
         );
       }
 
-      const hclcActualizado = Object.assign(hclcExistente, hclcDTO);
-      return await this.hclcRepository.save(hclcActualizado);
+      Object.assign(hclcExistente, hclcDTO);
+      return await this.hclcRepository.save(hclcExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la historia clínica de lentes de contacto: ' +
           error,
@@ -117,6 +120,7 @@ export class HistoriaClinicaLentesContactoService {
 
       await this.hclcRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar la historia clínica de lentes de contacto: ' +
           error,
