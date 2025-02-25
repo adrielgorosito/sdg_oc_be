@@ -8,6 +8,7 @@ import { Marca } from 'src/marca/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { Repository } from 'typeorm';
 import { CreateProductoDTO } from './dto/create-producto.dto';
+import { PaginateProductoDTO } from './dto/paginate-producto.dto';
 import { UpdateProductoDTO } from './dto/update-producto.dto';
 import { Producto } from './entities/producto.entity';
 
@@ -22,19 +23,66 @@ export class ProductoService {
     private proveedorRepository: Repository<Proveedor>,
   ) {}
 
-  async findAll() {
+  async findAll(paginateProductoDTO: PaginateProductoDTO) {
     try {
-      const productos = await this.productoRepository.find({
-        relations: {
-          marca: true,
-          proveedor: true,
-        },
-        order: {
-          descripcion: 'ASC',
-        },
-      });
+      const {
+        limit,
+        offset,
+        categoria,
+        descripcion,
+        nombreMarca,
+        razonSocialProveedor,
+        marcaId,
+        proveedorId,
+      } = paginateProductoDTO;
 
-      return productos;
+      const queryBuilder = this.productoRepository
+        .createQueryBuilder('producto')
+        .leftJoinAndSelect('producto.marca', 'marca')
+        .leftJoinAndSelect('producto.proveedor', 'proveedor')
+        .orderBy('producto.descripcion', 'ASC')
+        .take(limit)
+        .skip(offset);
+
+      if (categoria) {
+        queryBuilder.andWhere(
+          'LOWER(producto.categoria) LIKE LOWER(:categoria)',
+          { categoria: `%${categoria}%` },
+        );
+      }
+      if (descripcion) {
+        queryBuilder.andWhere(
+          'LOWER(producto.descripcion) LIKE LOWER(:descripcion)',
+          { descripcion: `%${descripcion}%` },
+        );
+      }
+      if (nombreMarca) {
+        queryBuilder.andWhere('LOWER(marca.nombre) LIKE LOWER(:nombreMarca)', {
+          nombreMarca: `%${nombreMarca}%`,
+        });
+      }
+      if (marcaId) {
+        queryBuilder.andWhere('marca.id = :marcaId', { marcaId });
+      }
+      if (razonSocialProveedor) {
+        queryBuilder.andWhere(
+          'LOWER(proveedor.razonSocial) LIKE LOWER(:razonSocialProveedor)',
+          { razonSocialProveedor: `%${razonSocialProveedor}%` },
+        );
+      }
+      if (proveedorId) {
+        queryBuilder.andWhere('proveedor.id = :proveedorId', { proveedorId });
+      }
+
+      const [items, total] = await queryBuilder.getManyAndCount();
+      return {
+        items,
+        total,
+        limit,
+        offset,
+        nextPage: total > offset + limit ? offset + limit : null,
+        previousPage: offset > 0 ? offset - limit : null,
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al obtener los productos: ' + error,
