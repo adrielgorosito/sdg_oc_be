@@ -20,11 +20,15 @@ import {
   IRequest,
   WsServicesNamesEnum,
 } from '../interfaces/ISoap';
+import {
+  PREFIX_BODY_LOGIN,
+  PREFIX_BODY_SERVICE,
+  PREFIX_ENVELOPE_LOGIN,
+  PREFIX_ENVELOPE_SERVICE,
+} from './afip.constantes';
 
 export const readFile = fs.readFile;
 export const writeFile = fs.writeFile;
-const prefixEnvelope = 'soap:Envelope';
-const prefixBody = 'soap:Body';
 
 export function isExpired(expireStr: string): boolean {
   const now = new Date();
@@ -50,11 +54,7 @@ export async function generateLoginXml(): Promise<string> {
 
 function validateServiceParams(
   method: WsServicesNamesEnum,
-  datosAfip: {
-    certBase64?: string;
-    factura?: IParamsFECAESolicitar;
-    ultimoAutorizado?: IParamsFECompUltimoAutorizado;
-  },
+  datosAfip: IDatosAfip,
 ): void {
   switch (method) {
     case WsServicesNamesEnum.LoginCms:
@@ -72,17 +72,17 @@ function validateServiceParams(
         );
       }
       if (
-        !datosAfip.factura.Auth?.Token ||
-        !datosAfip.factura.Auth?.Sign ||
-        !datosAfip.factura.Auth?.Cuit
+        !datosAfip.Auth?.Token ||
+        !datosAfip.Auth?.Sign ||
+        !datosAfip.Auth?.Cuit
       ) {
         throw new AfipValidationError(
           'Los datos de autenticación (token, sign y cuit) son requeridos para FECAESolicitar',
         );
       }
       if (
-        !datosAfip.factura.datosFactura?.FeCAEReq?.FeCabReq ||
-        !datosAfip.factura.datosFactura?.FeCAEReq?.FeDetReq
+        !datosAfip.factura?.FeCAEReq?.FeCabReq ||
+        !datosAfip.factura?.FeCAEReq?.FeDetReq
       ) {
         throw new AfipValidationError(
           'Los datos de cabecera y detalle de la factura son requeridos para FECAESolicitar',
@@ -97,17 +97,17 @@ function validateServiceParams(
         );
       }
       if (
-        !datosAfip.ultimoAutorizado.Auth?.Token ||
-        !datosAfip.ultimoAutorizado.Auth?.Sign ||
-        !datosAfip.ultimoAutorizado.Auth?.Cuit
+        !datosAfip.Auth.Token ||
+        !datosAfip.Auth.Sign ||
+        !datosAfip.Auth.Cuit
       ) {
         throw new AfipValidationError(
           'Los datos de autenticación (token, sign y cuit) son requeridos para FECompUltimoAutorizado',
         );
       }
       if (
-        !datosAfip.ultimoAutorizado.datosUltimoAutorizado?.PtoVta ||
-        !datosAfip.ultimoAutorizado.datosUltimoAutorizado?.CbteTipo
+        !datosAfip.ultimoAutorizado?.PtoVta ||
+        !datosAfip.ultimoAutorizado?.CbteTipo
       ) {
         throw new AfipValidationError(
           'El punto de venta y tipo de comprobante son requeridos para FECompUltimoAutorizado',
@@ -145,8 +145,8 @@ export function generateSoapRequest(
       soapAction = 'http://ar.gov.afip.dif.FEV1/FECAESolicitar';
       bodyContent = `
         <ar:FECAESolicitar>
-          ${generateAuthXml(datosAfip.factura.Auth)}
-          ${objectToXml(datosAfip.factura.datosFactura)}
+          ${generateAuthXml(datosAfip.Auth)}
+          ${objectToXml(datosAfip.factura)}
         </ar:FECAESolicitar>`;
       break;
 
@@ -155,8 +155,8 @@ export function generateSoapRequest(
       soapAction = 'http://ar.gov.afip.dif.FEV1/FECompUltimoAutorizado';
       bodyContent = `
         <ar:FECompUltimoAutorizado>
-          ${generateAuthXml(datosAfip.ultimoAutorizado.Auth)}
-          ${objectToXml(datosAfip.ultimoAutorizado.datosUltimoAutorizado)}
+          ${generateAuthXml(datosAfip.Auth)}
+          ${objectToXml(datosAfip.ultimoAutorizado)}
         </ar:FECompUltimoAutorizado>`;
       break;
 
@@ -171,7 +171,6 @@ export function generateSoapRequest(
       ${bodyContent}
     </soapenv:Body>
   </soapenv:Envelope>`;
-
   return {
     method: 'POST',
     headers: {
@@ -212,23 +211,30 @@ export function generateResponse(
 }
 
 export function extractLoginResponse(result: object): ILoginResponse {
-  if (
-    !result?.[`${prefixEnvelope}`]?.[`${prefixBody}`]?.['loginCmsResponse']?.[
-      'loginCmsReturn'
-    ]?.['loginTicketResponse']
-  ) {
+  const loginCmsReturn =
+    result?.[`${PREFIX_ENVELOPE_LOGIN}`]?.[`${PREFIX_BODY_LOGIN}`]?.[
+      'loginCmsResponse'
+    ]?.['loginCmsReturn'];
+
+  if (!loginCmsReturn) {
     throw new AfipXMLError(
       'Estructura XML inválida: No se encontró loginCmsReturn',
     );
   }
-  return result[`${prefixEnvelope}`][`${prefixBody}`]['loginCmsResponse'][
-    'loginCmsReturn'
-  ]['loginTicketResponse'];
+  const responseObject =
+    parseXml<object>(loginCmsReturn)?.['loginTicketResponse'];
+  if (!responseObject) {
+    throw new AfipXMLError(
+      'Estructura XML inválida: No se encontró loginTicketResponse',
+    );
+  }
+
+  return responseObject;
 }
 
 export function extractFECAESolicitar(result: object): IFECAESolicitarResult {
   if (
-    !result?.[`${prefixEnvelope}`]?.[`${prefixBody}`]?.[
+    !result?.[`${PREFIX_ENVELOPE_SERVICE}`]?.[`${PREFIX_BODY_SERVICE}`]?.[
       'FECAESolicitarResponse'
     ]?.['FECAESolicitarResult']
   ) {
@@ -236,15 +242,15 @@ export function extractFECAESolicitar(result: object): IFECAESolicitarResult {
       'Estructura XML inválida: No se encontró FECAESolicitarResult',
     );
   }
-  return result[`${prefixEnvelope}`][`${prefixBody}`].FECAESolicitarResponse
-    .FECAESolicitarResult;
+  return result[`${PREFIX_ENVELOPE_SERVICE}`][`${PREFIX_BODY_SERVICE}`]
+    .FECAESolicitarResponse.FECAESolicitarResult;
 }
 
 export function extractFECompUltimoAutorizado(
   result: object,
 ): IFECompUltimoAutorizadoResult {
   if (
-    !result?.[`${prefixEnvelope}`]?.[`${prefixBody}`]?.[
+    !result?.[`${PREFIX_ENVELOPE_SERVICE}`]?.[`${PREFIX_BODY_SERVICE}`]?.[
       'FECompUltimoAutorizadoResponse'
     ]?.['FECompUltimoAutorizadoResult']
   ) {
@@ -252,7 +258,7 @@ export function extractFECompUltimoAutorizado(
       'Estructura XML inválida: No se encontró FECompUltimoAutorizadoResult',
     );
   }
-  return result[`${prefixEnvelope}`][`${prefixBody}`]
+  return result[`${PREFIX_ENVELOPE_SERVICE}`][`${PREFIX_BODY_SERVICE}`]
     .FECompUltimoAutorizadoResponse.FECompUltimoAutorizadoResult;
 }
 export function parseXml<T>(xml: string): T {
@@ -289,15 +295,27 @@ export async function readStringFromFile(
     );
   }
 }
-
 export function objectToXml(obj: any): string {
-  // Método auxiliar para convertir objeto a XML
   return Object.entries(obj)
-    .map(([key, value]) => `<ar:${key}>${value}</ar:${key}>`)
+    .map(([key, value]) => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+
+      // Manejo especial para arrays
+      if (Array.isArray(value)) {
+        return value
+          .map((item) => `<ar:${key}>${objectToXml(item)}</ar:${key}>`)
+          .join('');
+      }
+      if (typeof value === 'object') {
+        return `<ar:${key}>${objectToXml(value)}</ar:${key}>`;
+      }
+      return `<ar:${key}>${value}</ar:${key}>`;
+    })
     .join('');
 }
 export function parseXmlResponse(xmlString: string) {
-  // Usar parseXml existente y extraer el resultado específico del método
   return parseXml(xmlString);
 }
 
@@ -341,4 +359,32 @@ export async function signMessage(
   const cmsBase64 = Buffer.from(cmsDer, 'binary').toString('base64');
 
   return cmsBase64;
+}
+
+export function incrementarComprobante(
+  factura: IParamsFECAESolicitar,
+  ultimonumero: number,
+): IParamsFECAESolicitar {
+  return {
+    ...factura,
+    FeCAEReq: {
+      ...factura.FeCAEReq,
+      FeDetReq: {
+        ...factura.FeCAEReq.FeDetReq,
+        FECAEDetRequest: {
+          ...factura.FeCAEReq.FeDetReq.FECAEDetRequest,
+          CbteDesde: ultimonumero + 1,
+          CbteHasta: ultimonumero + 1,
+        },
+      },
+    },
+  };
+}
+export function extraerPuntoVentaYTipoComprobante(
+  factura: IParamsFECAESolicitar,
+): IParamsFECompUltimoAutorizado {
+  return {
+    PtoVta: factura.FeCAEReq.FeCabReq.PtoVta,
+    CbteTipo: factura.FeCAEReq.FeCabReq.CbteTipo,
+  };
 }
