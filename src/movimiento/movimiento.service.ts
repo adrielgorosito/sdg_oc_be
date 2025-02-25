@@ -1,14 +1,14 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateMovimientoDTO } from './dto/create-movimiento.dto';
+import { UpdateMovimientoDTO } from './dto/update-movimiento.dto';
+import { Movimiento } from './entities/movimiento.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateMovimientoDTO } from './dto/create-movimiento.dto';
-import { UpdateMovimientoDTO } from './dto/update-movimiento.dto';
-import { Movimiento } from './entities/movimiento.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 
 @Injectable()
 export class MovimientoService {
@@ -41,6 +41,7 @@ export class MovimientoService {
 
       return movimiento;
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener el movimiento: ' + error,
       );
@@ -62,6 +63,7 @@ export class MovimientoService {
       const nuevoMovimiento = this.movimientoRepository.create(movDTO);
       return await this.movimientoRepository.save(nuevoMovimiento);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al crear el movimiento ' + error,
       );
@@ -88,9 +90,10 @@ export class MovimientoService {
         );
       }
 
-      const movActualizado = Object.assign(movExistente, movDTO);
-      return await this.movimientoRepository.save(movActualizado);
+      Object.assign(movExistente, movDTO);
+      return await this.movimientoRepository.save(movExistente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al actualizar el movimiento: ' + error,
       );
@@ -109,6 +112,7 @@ export class MovimientoService {
 
       this.movimientoRepository.delete(id);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar la obra social: ' + error,
       );

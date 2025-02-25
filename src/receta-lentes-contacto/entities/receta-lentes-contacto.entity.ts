@@ -6,6 +6,9 @@ import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 @Entity()
 export class RecetaLentesContacto extends BaseEntity {
   @Column()
+  fecha: Date;
+
+  @Column()
   oftalmologo: string;
 
   @Column()

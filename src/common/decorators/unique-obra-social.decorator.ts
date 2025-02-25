@@ -10,8 +10,6 @@ export function UniqueObraSocial(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: CreateClienteObraSocialDTO[]) {
-          console.log(value);
-
           if (!Array.isArray(value)) return false;
 
           const obraSocialIds = value.map((item) => item.obraSocial.id);
