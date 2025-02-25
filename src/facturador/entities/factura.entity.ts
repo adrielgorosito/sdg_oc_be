@@ -12,7 +12,10 @@ export class Factura extends BaseTransactionalEntity {
   CAE: string;
 
   @Column()
-  fechaEmsion: Date;
+  fechaEmision: Date;
+
+  @Column()
+  fechaVencimiento: Date;
 
   @Column()
   total: number;

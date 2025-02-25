@@ -1,34 +1,51 @@
-export class AfipError extends Error {
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export class AfipError extends HttpException {
   constructor(
     message: string,
-    public readonly code: number,
-    public readonly type: 'XML' | 'AUTH' | 'NETWORK' | 'VALIDATION',
+    statusCode: number,
+    public readonly type: AfipErrorType,
   ) {
-    super(message);
+    super(
+      {
+        message,
+        error: 'AfipError',
+        type,
+      },
+      statusCode,
+    );
     this.name = 'AfipError';
   }
 }
 
 export class AfipXMLError extends AfipError {
   constructor(message: string) {
-    super(message, 503, 'XML');
+    super(message, HttpStatus.NOT_ACCEPTABLE, AfipErrorType.XML);
   }
 }
 
 export class AfipAuthError extends AfipError {
   constructor(message: string) {
-    super(message, 503, 'AUTH');
+    super(message, HttpStatus.SERVICE_UNAVAILABLE, AfipErrorType.AUTH);
   }
 }
 
 export class AfipNetworkError extends AfipError {
   constructor(message: string) {
-    super(message, 503, 'NETWORK');
+    super(message, HttpStatus.SERVICE_UNAVAILABLE, AfipErrorType.NETWORK);
   }
 }
 
 export class AfipValidationError extends AfipError {
   constructor(message: string) {
-    super(message, 400, 'VALIDATION');
+    super(message, HttpStatus.BAD_REQUEST, AfipErrorType.VALIDATION);
   }
+}
+
+export enum AfipErrorType {
+  XML = 'XML',
+  AUTH = 'AUTH',
+  NETWORK = 'NETWORK',
+  VALIDATION = 'VALIDATION',
+  SERVICE = 'SERVICE',
 }
