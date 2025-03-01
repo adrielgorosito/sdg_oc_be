@@ -1,3 +1,4 @@
+import { TipoReceta } from 'src/common/enums/tipo-receta.enum';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
@@ -8,6 +9,9 @@ export class DetallesRecetaLentesAereos {
 
   @PrimaryColumn()
   recetaLentesAereosId: number;
+
+  @Column({ enum: TipoReceta })
+  tipo_detalle: string;
 
   @Column()
   od_esferico: string;
@@ -47,6 +51,5 @@ export class DetallesRecetaLentesAereos {
     (recetaLentesAereos) => recetaLentesAereos.detallesRecetaLentesAereos,
     { onDelete: 'CASCADE' },
   )
-  //@JoinColumn({ name: 'recetaLentesAereosId' })
   recetaLentesAereos: RecetaLentesAereos;
 }

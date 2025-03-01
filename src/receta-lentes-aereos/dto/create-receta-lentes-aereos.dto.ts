@@ -12,7 +12,7 @@ import { ValidateTipoReceta } from 'src/common/decorators/validate-tipo-receta.d
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CreateDetallesRecetaLentesAereosDTO } from 'src/detalles-receta-lentes-aereos/dto/create-detalles-receta-lentes-aereos.dto';
-import { TipoReceta } from '../enum/tipo-receta.enum';
+import { TipoReceta } from '../../common/enums/tipo-receta.enum';
 
 export class CreateRecetaLentesAereosDTO extends BaseDTO {
   @IsDate()

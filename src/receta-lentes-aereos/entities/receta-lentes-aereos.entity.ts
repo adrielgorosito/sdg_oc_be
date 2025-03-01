@@ -2,7 +2,7 @@ import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { DetallesRecetaLentesAereos } from 'src/detalles-receta-lentes-aereos/entities/detalles-receta-lentes-aereos.entity';
 import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { TipoReceta } from '../enum/tipo-receta.enum';
+import { TipoReceta } from '../../common/enums/tipo-receta.enum';
 
 @Entity()
 export class RecetaLentesAereos extends BaseEntity {
