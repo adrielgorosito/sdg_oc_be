@@ -1,6 +1,11 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { TipoReceta } from 'src/common/enums/tipo-receta.enum';
 
 export class CreateDetallesRecetaLentesAereosDTO {
+  @IsString()
+  @IsEnum(TipoReceta)
+  tipo_detalle: string;
+
   @IsString()
   od_esferico: string;
 

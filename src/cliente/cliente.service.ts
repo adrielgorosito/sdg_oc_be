@@ -7,6 +7,7 @@ import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -23,7 +24,7 @@ export class ClienteService {
     try {
       const clientes = await this.clienteRepository.find({
         relations: {
-          localidad: true,
+          localidad: { provincia: true },
         },
       });
 
@@ -66,10 +67,19 @@ export class ClienteService {
 
   async create(createClienteDto: CreateClienteDTO) {
     try {
+      const clienteExistente = await this.clienteRepository.findOne({
+        where: { dni: createClienteDto.dni },
+      });
+
+      if (clienteExistente) {
+        throw new BadRequestException('Ya existe un cliente con ese DNI');
+      }
+
       const cliente = this.clienteRepository.create(createClienteDto);
       cliente.cuentaCorriente = new CuentaCorriente();
       return await this.clienteRepository.save(cliente);
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Error al crear el cliente' + error,
       );
