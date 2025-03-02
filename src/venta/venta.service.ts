@@ -19,31 +19,6 @@ export class VentaService {
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
-  async create(createVentaDto: CreateVentaDTO): Promise<Venta> {
-    try {
-      const clienteExistente = await this.clienteRepository.findOne({
-        where: { id: createVentaDto.cliente.id },
-      });
-
-      if (!clienteExistente) {
-        throw new NotFoundException('Cliente no encontrado');
-      }
-
-      const importe = createVentaDto.lineasDeVenta.reduce(
-        (total, linea) => total + linea.precioIndividual * linea.cantidad,
-        0,
-      );
-
-      const nuevaVenta = this.ventaRepository.create(createVentaDto);
-      nuevaVenta.importe = importe;
-
-      return await this.ventaRepository.save(nuevaVenta);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(error);
-    }
-  }
-
   async findAll() {
     try {
       const ventas = await this.ventaRepository.find({
@@ -71,7 +46,9 @@ export class VentaService {
         where: { id },
         relations: {
           cliente: true,
-          lineasDeVenta: true,
+          lineasDeVenta: {
+            producto: true,
+          },
           mediosDePago: true,
         },
       });
@@ -86,6 +63,31 @@ export class VentaService {
       throw new InternalServerErrorException(
         'Error al obtener la venta: ' + error,
       );
+    }
+  }
+
+  async create(createVentaDto: CreateVentaDTO): Promise<Venta> {
+    try {
+      const clienteExistente = await this.clienteRepository.findOne({
+        where: { id: createVentaDto.cliente.id },
+      });
+
+      if (!clienteExistente) {
+        throw new NotFoundException('Cliente no encontrado');
+      }
+
+      const importe = createVentaDto.lineasDeVenta.reduce(
+        (total, linea) => total + linea.precioIndividual * linea.cantidad,
+        0,
+      );
+
+      const nuevaVenta = this.ventaRepository.create(createVentaDto);
+      nuevaVenta.importe = importe;
+
+      return await this.ventaRepository.save(nuevaVenta);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(error);
     }
   }
 
