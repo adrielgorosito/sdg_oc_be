@@ -1,9 +1,17 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Audiometria } from './entities/audiometria.entity';
 import { CreateAudiometriaDTO } from './dto/create-audiometria.dto';
 import { UpdateAudiometriaDTO } from './dto/update-audiometria.dto';
+import { Audiometria } from './entities/audiometria.entity';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { ConfigService } from '@nestjs/config';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+import { format } from 'date-fns';
+import { promises as fs } from 'fs';
+import { join } from 'path';
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -14,6 +22,9 @@ export class AudiometriaService {
   constructor(
     @InjectRepository(Audiometria)
     private audiometriaRepository: Repository<Audiometria>,
+    @InjectRepository(Cliente)
+    private clienteRepository: Repository<Cliente>,
+    private readonly configService: ConfigService,
   ) {}
 
   async findAll(): Promise<Audiometria[]> {
@@ -48,11 +59,66 @@ export class AudiometriaService {
     }
   }
 
-  async create(audiometriaDTO: CreateAudiometriaDTO): Promise<Audiometria> {
+  async create(
+    dto: CreateAudiometriaDTO,
+    pdf: Express.Multer.File,
+  ): Promise<Audiometria> {
     try {
+      const audiometriaDTO = plainToInstance(CreateAudiometriaDTO, dto);
+      const errors = await validate(audiometriaDTO);
+
+      if (errors.length > 0) {
+        throw new BadRequestException('Datos de audiometría no válidos.');
+      }
+
+      const clienteExistente = await this.clienteRepository.findOne({
+        where: { id: audiometriaDTO.cliente.id },
+      });
+
+      if (!clienteExistente) {
+        throw new NotFoundException(
+          `Cliente con id ${audiometriaDTO.cliente.id} no encontrado`,
+        );
+      }
+
+      if (
+        !pdf ||
+        !pdf.originalname.toLowerCase().endsWith('.pdf') ||
+        pdf.size === 0
+      ) {
+        throw new BadRequestException(
+          'No se ha subido ningún archivo PDF o está vacío.',
+        );
+      }
+
+      const uploadDir =
+        this.configService.get('SERVER_UPLOAD_LINK') + '/audiometrias';
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const formattedDate = format(audiometriaDTO.fechaInforme, 'yyyyMMdd');
+      const newFileName = `audiometria-cliente-${audiometriaDTO.cliente.id}-${formattedDate}.pdf`;
+
+      console.log('Fecha formateada: ', formattedDate);
+      console.log('Nuevo nombre: ', newFileName);
+
+      let finalFileName = newFileName;
+      let counter = 1;
+
+      while (await fileExists(join(uploadDir, finalFileName))) {
+        finalFileName = `${newFileName.slice(0, -4)}-${counter}.pdf`;
+        counter++;
+      }
+
+      const filePath = join(uploadDir, finalFileName);
+      await fs.writeFile(filePath, pdf.buffer);
+
+      audiometriaDTO.linkPDF = filePath;
+
       const audiometria = this.audiometriaRepository.create(audiometriaDTO);
       return await this.audiometriaRepository.save(audiometria);
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al crear la audiometría: ' + error,
       );
@@ -99,5 +165,19 @@ export class AudiometriaService {
         'Error al eliminar la audiometría: ' + error,
       );
     }
+  }
+
+  async uploadPDF() {
+    return null;
+  }
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch (error) {
+    if (error.code === 'ENOENT') return false;
+    throw error;
   }
 }

@@ -1,3 +1,4 @@
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AudiometriaService } from './audiometria.service';
 import { CreateAudiometriaDTO } from './dto/create-audiometria.dto';
 import { UpdateAudiometriaDTO } from './dto/update-audiometria.dto';
@@ -9,6 +10,8 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 
 @Controller('audiometria')
@@ -26,8 +29,14 @@ export class AudiometriaController {
   }
 
   @Post()
-  async createOne(@Body() audiometriaDTO: CreateAudiometriaDTO) {
-    return await this.audiometriaService.create(audiometriaDTO);
+  @UseInterceptors(FileInterceptor('pdf'))
+  async createOne(
+    @Body('audiometriaDTO') audiometriaDTOString: string,
+    @UploadedFile() pdf: Express.Multer.File,
+  ) {
+    const audiometriaDTO: CreateAudiometriaDTO =
+      JSON.parse(audiometriaDTOString);
+    return await this.audiometriaService.create(audiometriaDTO, pdf);
   }
 
   @Patch(':id')

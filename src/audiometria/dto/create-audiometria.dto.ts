@@ -13,10 +13,11 @@ import { RelationDTO } from 'src/common/dtos/relation.dto';
 export class CreateAudiometriaDTO extends BaseDTO {
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   fechaInforme: Date;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   linkPDF: string;
 
   @IsString()
