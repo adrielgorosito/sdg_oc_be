@@ -49,4 +49,9 @@ export class ClienteController {
   async getRecetasPorCliente(@Param('id') id: number) {
     return await this.clienteService.getRecetasPorCliente(id);
   }
+
+  @Get('audiometrias/fecha')
+  async getUltimaFechaAudiometrias() {
+    return await this.clienteService.getUltimaFechaAudiometrias();
+  }
 }
