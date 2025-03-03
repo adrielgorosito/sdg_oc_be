@@ -10,7 +10,7 @@ export class Audiometria extends BaseEntity {
   @Column()
   linkPDF: string;
 
-  @Column()
+  @Column({ nullable: true })
   observaciones: string;
 
   @ManyToOne(() => Cliente, (cliente) => cliente.audiometrias, {
