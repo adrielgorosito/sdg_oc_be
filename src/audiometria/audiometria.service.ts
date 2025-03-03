@@ -91,15 +91,11 @@ export class AudiometriaService {
         );
       }
 
-      const uploadDir =
-        this.configService.get('SERVER_UPLOAD_LINK') + '/audiometrias';
+      const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
       await fs.mkdir(uploadDir, { recursive: true });
 
       const formattedDate = format(audiometriaDTO.fechaInforme, 'yyyyMMdd');
       const newFileName = `audiometria-cliente-${audiometriaDTO.cliente.id}-${formattedDate}.pdf`;
-
-      console.log('Fecha formateada: ', formattedDate);
-      console.log('Nuevo nombre: ', newFileName);
 
       let finalFileName = newFileName;
       let counter = 1;
