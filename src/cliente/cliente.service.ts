@@ -127,25 +127,22 @@ export class ClienteService {
         .addSelect('c.apellido', 'apellido')
         .addSelect((qb) => {
           return qb
-            .select('COUNT(DISTINCT rla.id)', 'cantidad_recetas_lentes_aereos')
+            .select('COUNT(DISTINCT rla.id)', 'cantidadRecetasLentesAereos')
             .from(RecetaLentesAereos, 'rla')
             .where('rla.clienteId = c.id');
-        }, 'cantidad_recetas_lentes_aereos')
+        }, 'cantidadRecetasLentesAereos')
         .addSelect((qb) => {
           return qb
-            .select(
-              'COUNT(DISTINCT rlc.id)',
-              'cantidad_recetas_lentes_contacto',
-            )
+            .select('COUNT(DISTINCT rlc.id)', 'cantidadRecetasLentesContacto')
             .from(RecetaLentesContacto, 'rlc')
             .where('rlc.clienteId = c.id');
-        }, 'cantidad_recetas_lentes_contacto')
+        }, 'cantidadRecetasLentesContacto')
         .addSelect(
           `(SELECT GREATEST(
               (SELECT MAX(rla.fecha) FROM receta_lentes_aereos rla WHERE rla.clienteId = c.id),
               (SELECT MAX(rlc.fecha) FROM receta_lentes_contacto rlc WHERE rlc.clienteId = c.id)
           ))`,
-          'fecha_ultima_receta',
+          'fechaUltimaReceta',
         )
         .groupBy('c.id')
         .addGroupBy('c.nombre')
@@ -180,6 +177,31 @@ export class ClienteService {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener el cliente' + error,
+      );
+    }
+  }
+
+  async getUltimaFechaAudiometrias() {
+    try {
+      const query = this.clienteRepository
+        .createQueryBuilder('c')
+        .select('c.id', 'clienteId')
+        .addSelect('c.nombre', 'nombre')
+        .addSelect('c.apellido', 'apellido')
+        .addSelect(
+          `(SELECT MAX(aud.fechaInforme) FROM audiometria aud WHERE aud.clienteId = c.id)`,
+          'fechaUltimaAudiometria',
+        )
+        .groupBy('c.id')
+        .addGroupBy('c.nombre')
+        .addGroupBy('c.apellido')
+        .orderBy('c.id', 'ASC');
+
+      const result = await query.getRawMany();
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener los datos de las audiometrias por cliente: ' + error,
       );
     }
   }

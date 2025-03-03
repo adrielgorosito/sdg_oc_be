@@ -33,6 +33,10 @@ export class RecetaLentesAereosService {
     try {
       const receta = await this.rlaRepository.findOne({
         where: { id },
+        relations: {
+          cliente: true,
+          detallesRecetaLentesAereos: true,
+        },
       });
 
       if (!receta) {
