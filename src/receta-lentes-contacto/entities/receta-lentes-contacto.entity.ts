@@ -63,7 +63,7 @@ export class RecetaLentesContacto extends BaseEntity {
   od_diametro: number;
 
   @Column()
-  od_marca: number;
+  od_marca: string;
 
   @Column()
   oi_cb: number;
@@ -81,7 +81,7 @@ export class RecetaLentesContacto extends BaseEntity {
   oi_diametro: number;
 
   @Column()
-  oi_marca: number;
+  oi_marca: string;
 
   @Column()
   observaciones: string;
