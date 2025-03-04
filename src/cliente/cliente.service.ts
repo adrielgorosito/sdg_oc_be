@@ -165,6 +165,7 @@ export class ClienteService {
         relations: {
           recetasLentesAereos: true,
           recetasLentesContacto: true,
+          historiaClinicaLentesContacto: true,
         },
       });
 
