@@ -210,4 +210,26 @@ export class ClienteService {
       );
     }
   }
+
+  async getAudiometriasPorCliente(id: number) {
+    try {
+      const cliente = await this.clienteRepository.findOne({
+        where: { id: id },
+        relations: {
+          audiometrias: true,
+        },
+      });
+
+      if (!cliente) {
+        throw new NotFoundException(`Cliente con id ${id} no encontrado`);
+      }
+
+      return cliente;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener el cliente' + error,
+      );
+    }
+  }
 }
