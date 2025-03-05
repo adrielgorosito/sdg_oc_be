@@ -54,4 +54,9 @@ export class ClienteController {
   async getUltimaFechaAudiometrias() {
     return await this.clienteService.getUltimaFechaAudiometrias();
   }
+
+  @Get('audiometrias/:id')
+  async getAudiometriasPorCliente(@Param('id') id: number) {
+    return await this.clienteService.getAudiometriasPorCliente(id);
+  }
 }
