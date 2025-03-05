@@ -163,8 +163,13 @@ export class ClienteService {
       const cliente = await this.clienteRepository.findOne({
         where: { id: id },
         relations: {
-          recetasLentesAereos: true,
-          recetasLentesContacto: true,
+          recetasLentesAereos: {
+            detallesRecetaLentesAereos: true,
+          },
+          recetasLentesContacto: {
+            pruebasLentesContacto: true,
+          },
+          historiaClinicaLentesContacto: true,
         },
       });
 

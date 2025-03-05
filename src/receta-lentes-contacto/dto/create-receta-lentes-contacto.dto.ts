@@ -93,9 +93,9 @@ export class CreateRecetaLentesContactoDTO extends BaseDTO {
   @IsNotEmpty()
   od_diametro: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  od_marca: number;
+  od_marca: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -117,9 +117,9 @@ export class CreateRecetaLentesContactoDTO extends BaseDTO {
   @IsNotEmpty()
   oi_diametro: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  oi_marca: number;
+  oi_marca: string;
 
   @IsString()
   @IsOptional()
