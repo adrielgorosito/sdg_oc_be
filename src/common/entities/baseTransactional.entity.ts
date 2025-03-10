@@ -18,8 +18,6 @@ export abstract class BaseTransactionalEntity {
     type: 'datetime2',
     nullable: true,
     default: null,
-    onUpdate: 'CURRENT_TIMESTAMP',
-    update: false,
   })
-  updatedAt?: Date;
+  updatedAt: Date | null = null;
 }

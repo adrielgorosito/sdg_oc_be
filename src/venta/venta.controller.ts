@@ -44,8 +44,8 @@ export class VentaController {
   findByCliente(@Param('id') id: number) {
     return this.ventaService.findByCliente(id);
   }
-  @Get('cliente/dni/:dni')
-  findByClienteDni(@Param('dni') dni: number) {
-    return this.ventaService.findByClienteDni(dni);
+  @Get('cliente/nroDocumento/:nroDocumento')
+  findByClienteNroDocumento(@Param('nroDocumento') nroDocumento: number) {
+    return this.ventaService.findByClienteNroDocumento(nroDocumento);
   }
 }

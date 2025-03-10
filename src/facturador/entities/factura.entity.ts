@@ -1,33 +1,33 @@
-import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { LineaFactura } from './lineaFactura.entity';
-
+import { Venta } from 'src/venta/entities/venta.entity';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { TipoComprobante } from '../enums/tipo-comprobante.enum';
+import { TipoDocumento } from '../enums/tipo-documento.enum';
 @Entity()
 export class Factura extends BaseTransactionalEntity {
   @Column()
-  numeroFactura: string;
+  numeroComprobante: string;
 
-  @Column()
-  CAE: string;
+  @Column({ type: 'bigint' })
+  CAE: number;
 
-  @Column()
+  @Column({ type: 'datetime2' })
   fechaEmision: Date;
 
-  @Column()
-  fechaVencimiento: Date;
+  @Column({ enum: TipoComprobante })
+  tipoComprobante: TipoComprobante;
 
-  @Column()
-  total: number;
+  @Column({ enum: TipoDocumento })
+  tipoDocumento: TipoDocumento;
 
-  @Column()
-  estado: string;
+  @Column({ type: 'bigint' })
+  numeroDocumento: number;
 
-  @ManyToOne(() => Cliente)
-  cliente: Cliente;
+  @OneToOne(() => Venta, { nullable: true })
+  @JoinColumn()
+  venta: Venta;
 
-  @OneToMany(() => LineaFactura, (lineaFactura) => lineaFactura.factura, {
-    cascade: true,
-  })
-  lineasFactura: LineaFactura[];
+  @OneToOne(() => Factura, { nullable: true })
+  @JoinColumn()
+  facturaRelacionada: Factura;
 }

@@ -18,6 +18,7 @@ import {
   IParamsFECAESolicitar,
   IParamsFECompUltimoAutorizado,
   IRequest,
+  ResultadoProcesado,
   WsServicesNamesEnum,
 } from '../interfaces/ISoap';
 import {
@@ -171,6 +172,9 @@ export function generateSoapRequest(
       ${bodyContent}
     </soapenv:Body>
   </soapenv:Envelope>`;
+
+  console.log('xml', xml);
+
   return {
     method: 'POST',
     headers: {
@@ -387,4 +391,64 @@ export function extraerPuntoVentaYTipoComprobante(
     PtoVta: factura.FeCAEReq.FeCabReq.PtoVta,
     CbteTipo: factura.FeCAEReq.FeCabReq.CbteTipo,
   };
+}
+
+export function procesarRespuestaAFIP(
+  respuesta: IFECAESolicitarResult,
+): ResultadoProcesado {
+  const { Errors } = respuesta;
+  const { Resultado, PtoVta, CbteTipo } = respuesta?.FeCabResp;
+  const { CAE, CbteHasta, Observaciones, CbteFch, DocNro, DocTipo } =
+    respuesta?.FeDetResp?.FECAEDetResponse;
+
+  const numeroFactura = `${PtoVta.toString().padStart(4, '0')}-${CbteHasta.toString().padStart(8, '0')}`;
+  if (Resultado === 'A') {
+    return {
+      CAE,
+      numeroFactura,
+      cbteTipo: CbteTipo,
+      fechaFactura: CbteFch,
+      docNro: DocNro,
+      docTipo: DocTipo,
+    };
+  }
+
+  // Si hay errores, los procesamos
+  const erroresLimpios: Array<{ codigo: number; mensaje: string }> = [];
+
+  // Procesamos errores generales si existen
+  if (Errors) {
+    if (Array.isArray(Errors.Err)) {
+      erroresLimpios.push(
+        ...Errors.Err.map((err) => ({
+          codigo: err.Code,
+          mensaje: err.Msg,
+        })),
+      );
+    } else if (Errors.Err) {
+      // Si es un objeto individual
+      erroresLimpios.push({
+        codigo: Errors.Err.Code,
+        mensaje: Errors.Err.Msg,
+      });
+    }
+  }
+  // Procesamos observaciones si existen
+  if (Observaciones) {
+    if (Array.isArray(Observaciones.Obs)) {
+      erroresLimpios.push(
+        ...Observaciones.Obs.map((obs) => ({
+          codigo: obs.Code,
+          mensaje: obs.Msg,
+        })),
+      );
+    } else if (Observaciones.Obs) {
+      erroresLimpios.push({
+        codigo: Observaciones.Obs.Code,
+        mensaje: Observaciones.Obs.Msg,
+      });
+    }
+  }
+
+  return { errores: erroresLimpios };
 }

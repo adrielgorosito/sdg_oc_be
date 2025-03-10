@@ -1,3 +1,5 @@
+import { TipoComprobante } from '../enums/tipo-comprobante.enum';
+
 export enum WsServicesNamesEnum {
   FECAESolicitar = 'FECAESolicitar',
   FECompUltimoAutorizado = 'FECompUltimoAutorizado',
@@ -57,8 +59,8 @@ export interface IParamsFECAESolicitar {
         ImpOpEx: number;
         ImpTrib: number;
         ImpIVA: number;
-        FchServDesde: string;
-        FchServHasta: string;
+        FchServDesde?: string;
+        FchServHasta?: string;
         CondicionIVAReceptorId: number;
         FchVtoPago: string;
         MonId: string;
@@ -124,103 +126,65 @@ export interface IFECompUltimoAutorizadoResult {
 }
 
 export interface IFECAESolicitarResult {
-  FeCAERes: {
-    FeCabRes: {
-      Cuit: number;
-      PtoVta: number;
-      CbteTipo: number;
-      FchProceso: string;
-      CantReg: number;
+  FeCabResp: {
+    Cuit: number;
+    PtoVta: number;
+    CbteTipo: number;
+    FchProceso: string;
+    CantReg: number;
+    Resultado: string;
+    Reproceso: string;
+  };
+  FeDetResp: {
+    FECAEDetResponse: {
+      Concepto: number;
+      DocTipo: number;
+      DocNro: number;
+      CbteDesde: number;
+      CbteHasta: number;
       Resultado: string;
-      Reproceso: string;
-    };
-    FeDetResp: {
-      FEDetResponse: {
-        Concepto: number;
-        DocTipo: number;
-        DocNro: number;
-        CbteDesde: number;
-        CbteHasta: number;
-        Resultado: string;
-        CAE: string;
-        CbteFch: string;
-        CAEFchVto: string;
-        Obs?: {
-          Observaciones: {
-            Code: number;
-            Msg: string;
-          }[];
-        };
+      CAE: number;
+      CbteFch: Date;
+      CAEFchVto: string;
+      Observaciones?: {
+        Obs:
+          | {
+              Code: number;
+              Msg: string;
+            }[]
+          | { Code: number; Msg: string };
       };
     };
-    Events?: {
-      Evt: {
-        Code: number;
-        Msg: string;
-      }[];
-    };
-    Errors?: {
-      Err: {
-        Code: number;
-        Msg: string;
-      }[];
-    };
+  };
+  Events?: {
+    Evt:
+      | {
+          Code: number;
+          Msg: string;
+        }[]
+      | { Code: number; Msg: string };
+  };
+  Errors?: {
+    Err:
+      | {
+          Code: number;
+          Msg: string;
+        }[]
+      | { Code: number; Msg: string };
   };
 }
 
-export const facturaPrueba: IParamsFECAESolicitar = {
-  FeCAEReq: {
-    FeCabReq: {
-      CantReg: 1,
-      PtoVta: 12,
-      CbteTipo: 1, // FACTURA A
-    },
-    FeDetReq: {
-      FECAEDetRequest: {
-        Concepto: 1, // Productos
-        DocTipo: 80, // CUIT
-        DocNro: 20111111112,
-        CbteDesde: 1,
-        CbteHasta: 1,
-        CbteFch: '20250221',
-        ImpTotal: 176.25,
-        ImpTotConc: 0,
-        ImpNeto: 150,
-        ImpOpEx: 0,
-        ImpTrib: 0,
-        ImpIVA: 26.25,
-        FchServDesde: '',
-        FchServHasta: '',
-        FchVtoPago: '',
-        MonId: 'PES',
-        MonCotiz: 1,
-        CondicionIVAReceptorId: 1,
-        /* Tributos: {
-          Tributo: [
-            {
-              Id: 99,
-              Desc: 'Impuesto Municipal Matanza',
-              BaseImp: 150,
-              Alic: 5.2,
-              Importe: 7.8,
-            },
-          ],
-        },*/
-        Iva: {
-          AlicIva: [
-            {
-              Id: 5,
-              BaseImp: 100,
-              Importe: 21,
-            },
-            {
-              Id: 4,
-              BaseImp: 50,
-              Importe: 5.25,
-            },
-          ],
-        },
-      },
-    },
-  },
-};
+export interface IProcesadoExitoso {
+  CAE: number;
+  numeroFactura: string;
+  cbteTipo: TipoComprobante;
+  fechaFactura: Date;
+  docNro: number;
+  docTipo: number;
+}
+
+export interface IProcesadoError {
+  errores: Array<{ codigo: number; mensaje: string }>;
+}
+
+export type ResultadoProcesado = IProcesadoExitoso | IProcesadoError;

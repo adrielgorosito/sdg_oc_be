@@ -11,13 +11,9 @@ export class FacturadorController {
 
   @Get('ultimonumero')
   async getUltimoNumero() {
-    return this.facturadorService.getLastBillNumber({
+    return this.facturadorService.getUltimoComprobante({
       PtoVta: 12,
       CbteTipo: 1,
     });
-  }
-  @Get('facturar')
-  async facturar() {
-    return this.facturadorService.createBill();
   }
 }

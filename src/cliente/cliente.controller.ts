@@ -10,6 +10,7 @@ import {
 import { ClienteService } from './cliente.service';
 import { CreateClienteDTO } from './dto/create-cliente.dto';
 import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { TipoDocumento } from './enums/tipo-documento.enum';
 
 @Controller('cliente')
 export class ClienteController {
@@ -23,6 +24,14 @@ export class ClienteController {
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.clienteService.findOne(id);
+  }
+
+  @Get('nroDocumento/:nroDocumento/tipoDocumento/:tipoDocumento')
+  findByNroDocumento(
+    @Param('nroDocumento') nroDocumento: number,
+    @Param('tipoDocumento') tipoDocumento: TipoDocumento,
+  ) {
+    return this.clienteService.findByNroDocumento(nroDocumento, tipoDocumento);
   }
 
   @Post()

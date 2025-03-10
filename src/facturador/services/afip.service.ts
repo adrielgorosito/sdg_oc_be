@@ -1,5 +1,12 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Token } from '../entities/token.entity';
 import { AfipAuthError } from '../errors/afip.errors';
 import {
   IDatosAfip,
@@ -24,35 +31,79 @@ export class AfipService {
     privateKeyPath: this.config.get('AFIP_PRIVATE_KEY_PATH'),
     tokensExpireInHours: this.config.get('AFIP_TOKENS_EXPIRE_IN_HOURS'),
   };
-  private token: string | null =
-    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMjM4NjI3NjI4MyIgZ2VuX3RpbWU9IjE3NDAxNTk5NDUiIGV4cF90aW1lPSIxNzQwMjAzMjA1Ii8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=';
-  private sign: string | null =
-    'Z7Nvu4tWQ2lAGBKyJXSP8ufkPeAifo3wKWKnq8SIEIHwKC5AiGePJl3OYK0lF42gqeq0Ev5ETFfBsGSeu+If9mO/F0cZaS/Cqv3azWiXZ+/BOftQSxB9aupalhYx94vhmLQ/bNcCL0aejyOMm5CakdgZ9bvJtmQWSF1W+bVfvdM=';
-  private tokenExpiration: Date | null = new Date(
-    '2025-02-22T02:46:45.602-03:00',
-  );
-
-  constructor(private config: ConfigService) {}
+  private token: string | null;
+  private sign: string | null;
+  private tokenExpiration: Date | null;
+  constructor(
+    private config: ConfigService,
+    @InjectRepository(Token)
+    private readonly tokenRepository: Repository<Token>,
+  ) {}
 
   public async getToken(): Promise<IParamsAuth> {
     const cuit = this.config.get('AFIP_CUIT');
+    let tokenFromDB: Token | null;
     if (
       this.token &&
-      this.tokenExpiration &&
+      this.tokenExpiration?.toISOString() &&
       this.sign &&
-      !isExpired(this.tokenExpiration.toISOString())
+      !isExpired(this.tokenExpiration?.toISOString())
     ) {
       return {
         Token: this.token,
         Sign: this.sign,
         Cuit: cuit,
       };
+    } else if (!this.token || !this.sign) {
+      tokenFromDB = await this.tokenRepository.findOne({
+        where: {
+          id: 1,
+        },
+      });
+      if (
+        tokenFromDB &&
+        !isExpired(tokenFromDB.tokenExpiration.toISOString())
+      ) {
+        this.token = tokenFromDB.token;
+        this.sign = tokenFromDB.sign;
+        this.tokenExpiration = tokenFromDB.tokenExpiration;
+        return {
+          Token: tokenFromDB.token,
+          Sign: tokenFromDB.sign,
+          Cuit: cuit,
+        };
+      }
     }
-    const responseFromAfip: ILoginResponse = await this.getTokensFromNetwork();
+    const tokenCredentials = await this.getTokensFromNetwork();
+    console.log(tokenCredentials);
 
-    this.token = responseFromAfip.credentials.token;
-    this.sign = responseFromAfip.credentials.sign;
-    this.tokenExpiration = new Date(responseFromAfip.header.expirationTime);
+    this.token = tokenCredentials.credentials.token;
+    this.sign = tokenCredentials.credentials.sign;
+    this.tokenExpiration = new Date(tokenCredentials.header.expirationTime);
+
+    try {
+      if (tokenFromDB) {
+        await this.tokenRepository.update(
+          { id: 1 },
+          {
+            token: this.token,
+            sign: this.sign,
+            tokenExpiration: new Date(this.tokenExpiration),
+          },
+        );
+      } else {
+        await this.tokenRepository.save({
+          id: 1,
+          token: this.token,
+          sign: this.sign,
+          tokenExpiration: this.tokenExpiration,
+        });
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'No se pudo guardar el token' + error,
+      );
+    }
 
     return {
       Token: this.token,
@@ -66,9 +117,15 @@ export class AfipService {
       await generateLoginXml(),
       this.soapConfig,
     );
-    return (await this.execMethod(WsServicesNamesEnum.LoginCms, {
-      certBase64: signedData,
-    })) as ILoginResponse;
+
+    const tokenCredentials = (await this.execMethod(
+      WsServicesNamesEnum.LoginCms,
+      {
+        certBase64: signedData,
+      },
+    )) as ILoginResponse;
+
+    return tokenCredentials;
   }
 
   public async execMethod(method: WsServicesNamesEnum, params: IDatosAfip) {
@@ -88,7 +145,8 @@ export class AfipService {
     );
     if (!response.ok) {
       throw new ServiceUnavailableException(
-        `Error en servicio AFIP ${method}: ${response.status} - ${response.statusText}`,
+        `Error en servicio AFIP ${method}: ${response.status} - ${response.statusText} \n
+        ${await response.text()}`,
       );
     }
     const xmlResponse = await response.text();

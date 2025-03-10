@@ -2,17 +2,22 @@ import { Audiometria } from 'src/audiometria/entities/audiometria.entity';
 import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { TipoContribuyente } from 'src/facturador/enums/condicion-iva.enum';
 import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
 import { Localidad } from 'src/localidad/entities/localidad.entity';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { TipoDocumento } from '../enums/tipo-documento.enum';
 
 @Entity()
 export class Cliente extends BaseEntity {
-  @Column({ unique: true })
-  dni: number;
+  @Column({ unique: true, type: 'bigint' })
+  nroDocumento: number;
+
+  @Column({ enum: TipoDocumento })
+  tipoDocumento: TipoDocumento;
 
   @Column()
   nombre: string;
@@ -37,6 +42,9 @@ export class Cliente extends BaseEntity {
 
   @Column()
   domicilio: string;
+
+  @Column({ enum: TipoContribuyente })
+  categoriaFiscal: TipoContribuyente;
 
   @ManyToOne(() => Localidad, (localidad) => localidad.clientes)
   localidad: Localidad;

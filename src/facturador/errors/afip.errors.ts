@@ -11,6 +11,7 @@ export class AfipError extends HttpException {
         message,
         error: 'AfipError',
         type,
+        statusCode,
       },
       statusCode,
     );

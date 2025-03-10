@@ -24,6 +24,7 @@
     "migration:revert": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./src/config/typeorm.config.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.5.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^10.0.0",
@@ -32,6 +33,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.0",
+    "bcrypt": "^5.1.1",
     "@types/multer": "^1.4.12",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -44,7 +46,8 @@
     "nvm": "^0.0.4",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "typeorm-extension": "^3.6.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -54,6 +57,7 @@
     "@swc/core": "^1.10.9",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.2",
+    "@types/mssql": "^9.1.7",
     "@types/node": "^20.3.1",
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",

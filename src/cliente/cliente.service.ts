@@ -1,17 +1,18 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { Cliente } from './entities/cliente.entity';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { Repository } from 'typeorm';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { Cliente } from './entities/cliente.entity';
+import { TipoDocumento } from './enums/tipo-documento.enum';
 
 @Injectable()
 export class ClienteService {
@@ -65,14 +66,49 @@ export class ClienteService {
     }
   }
 
+  async findByNroDocumento(nroDocumento: number, tipoDocumento: TipoDocumento) {
+    try {
+      const cliente = await this.clienteRepository.findOne({
+        where: { nroDocumento: nroDocumento, tipoDocumento: tipoDocumento },
+        relations: {
+          localidad: true,
+          clienteObrasSociales: { obraSocial: true },
+          cuentaCorriente: true,
+          historiaClinicaLentesContacto: true,
+          ventas: true,
+          audiometrias: true,
+          recetasLentesAereos: true,
+          recetasLentesContacto: true,
+        },
+      });
+
+      if (!cliente) {
+        throw new NotFoundException(
+          `Cliente con nroDocumento ${nroDocumento} y tipoDocumento ${tipoDocumento} no encontrado`,
+        );
+      }
+
+      return cliente;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener el cliente' + error,
+      );
+    }
+  }
+
   async create(createClienteDto: CreateClienteDTO) {
     try {
       const clienteExistente = await this.clienteRepository.findOne({
-        where: { dni: createClienteDto.dni },
+        where: {
+          nroDocumento: createClienteDto.nroDocumento,
+        },
       });
 
       if (clienteExistente) {
-        throw new BadRequestException('Ya existe un cliente con ese DNI');
+        throw new BadRequestException(
+          'Ya existe un cliente con ese Numero de Documento',
+        );
       }
 
       const cliente = this.clienteRepository.create(createClienteDto);
