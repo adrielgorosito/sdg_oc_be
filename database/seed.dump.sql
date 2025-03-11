@@ -2487,13 +2487,13 @@ VALUES
 (GETDATE(), NULL, '2023-10-19', 'Lejos', 'Dr. Smith', 'Cristal S', 'Blanco', 'Armazón S', 'Tratamiento S', 9);
 
 -- Insertar en la tabla [dbo].[detalles_receta_lentes_aereos]
-INSERT INTO [dbo].[detalles_receta_lentes_aereos] ([numeroDetalle], [recetaLentesAereosId], [tipo_detalle], [od_esferico], [od_cilindrico], [od_grados], [od_dnp], [od_diametro], [oi_esferico], [oi_cilindrico], [oi_grados], [oi_dnp], [oi_diametro], [observaciones])
+INSERT INTO [dbo].[detalles_receta_lentes_aereos] ([numeroDetalle], [recetaLentesAereosId], [tipo_detalle], [od_esferico], [od_cilindrico], [od_grados], [oi_esferico], [oi_cilindrico], [oi_grados], [dnp], [observaciones])
 VALUES 
-(1, 1, 'Cerca', '-2.00', '-0.50', '180', '12', '70', '-1.75', '-0.25', '170', '12', '70', 'Sin observaciones'),
-(2, 1, 'Lejos', '-1.50', '-0.75', '175', '12', '70', '-1.25', '-0.50', '165', '12', '70', 'Leve astigmatismo'),
-(1, 2, 'Cerca', '-2.50', '-0.25', '180', '12', '70', '-2.00', '-0.30', '160', '12', '70', 'Visión algo borrosa'),
-(1, 3, 'Lejos', '-1.75', '-0.50', '170', '12', '70', '-1.50', '-0.25', '165', '12', '70', 'Poca agudeza visual'),
-(1, 4, 'Cerca', '-2.50', '-0.25', '180', '12', '70', '-2.00', '-0.30', '160', '12', '70', 'Visión algo borrosa');
+(1, 1, 'Cerca', '-2.00', '-0.50', '180', '-1.75', '-0.25', '170', '12', 'Sin observaciones'),
+(2, 1, 'Lejos', '-1.50', '-0.75', '175', '-1.25', '-0.50', '165', '12', 'Leve astigmatismo'),
+(1, 2, 'Cerca', '-2.50', '-0.25', '180', '-2.00', '-0.30', '160', '12', 'Visión algo borrosa'),
+(1, 3, 'Lejos', '-1.75', '-0.50', '170', '-1.50', '-0.25', '165', '12', 'Poca agudeza visual'),
+(1, 4, 'Cerca', '-2.50', '-0.25', '180', '-2.00', '-0.30', '160', '12', 'Visión algo borrosa');
 
 -- Insertar en la tabla [dbo].[historia_clinica_lentes_contacto]
 INSERT INTO [dbo].[historia_clinica_lentes_contacto] ([createdAt], [updatedAt], [patologicas], [traumaticas], [sensLuzNatural], [sensLuzArtificial], [sensHumo], [sensFrio], [sensPolvo], [observacionesSens], [transtornosNeurologicos], [regimenEventual], [glandulasEndocinas], [sistemaCardiovascular], [embarazo], [estomatologia], [caries], [digestivo], [alergiaDigestiva], [alergiaRespiratoria], [alergiaCutanea], [alergiaOtras], [rinitisPrimaveral], [sinusitisCronica], [observacionesAntecedentes], [antibioticos], [antiestaminicos], [pildoraContraceptiva], [anorexigenos], [neurolepticos], [tratamientoDigestivo], [dirueticos], [tranquilizantes], [corticoides], [parasimpaticoliticos], [clienteId])

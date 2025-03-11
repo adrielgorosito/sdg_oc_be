@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { TipoReceta } from 'src/common/enums/tipo-receta.enum';
 
 export class CreateDetallesRecetaLentesAereosDTO {
@@ -6,35 +6,26 @@ export class CreateDetallesRecetaLentesAereosDTO {
   @IsEnum(TipoReceta)
   tipo_detalle: string;
 
-  @IsString()
-  od_esferico: string;
+  @IsNumber()
+  od_esferico: number;
 
-  @IsString()
-  od_cilindrico: string;
+  @IsNumber()
+  od_cilindrico: number;
 
-  @IsString()
-  od_grados: string;
+  @IsNumber()
+  od_grados: number;
 
-  @IsString()
-  od_dnp: string;
+  @IsNumber()
+  oi_esferico: number;
 
-  @IsString()
-  od_diametro: string;
+  @IsNumber()
+  oi_cilindrico: number;
 
-  @IsString()
-  oi_esferico: string;
+  @IsNumber()
+  oi_grados: number;
 
-  @IsString()
-  oi_cilindrico: string;
-
-  @IsString()
-  oi_grados: string;
-
-  @IsString()
-  oi_dnp: string;
-
-  @IsString()
-  oi_diametro: string;
+  @IsNumber()
+  dnp: number;
 
   @IsOptional()
   @IsString()
