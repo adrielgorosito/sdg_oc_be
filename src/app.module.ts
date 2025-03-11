@@ -23,6 +23,7 @@ import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-a
 import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
 import { UserModule } from './user/user.module';
 import { VentaModule } from './venta/venta.module';
+import { VentaObraSocialModule } from './venta-obra-social/venta-obra-social.module';
 
 @Module({
   providers: [
@@ -85,6 +86,7 @@ import { VentaModule } from './venta/venta.module';
     UserModule,
     AuthModule,
     FacturadorModule,
+    VentaObraSocialModule,
   ],
 })
 export class AppModule {}

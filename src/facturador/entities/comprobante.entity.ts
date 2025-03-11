@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 import { TipoDocumento } from '../enums/tipo-documento.enum';
 @Entity()
-export class Factura extends BaseTransactionalEntity {
+export class Comprobante extends BaseTransactionalEntity {
   @Column()
   numeroComprobante: string;
 
@@ -27,7 +27,16 @@ export class Factura extends BaseTransactionalEntity {
   @JoinColumn()
   venta: Venta;
 
-  @OneToOne(() => Factura, { nullable: true })
+  @OneToOne(() => Comprobante, { nullable: true })
   @JoinColumn()
-  facturaRelacionada: Factura;
+  facturaRelacionada: Comprobante;
+
+  @Column({ type: 'decimal', precision: 9, scale: 2 })
+  importeTotal: number;
+
+  @Column({ type: 'decimal', precision: 9, scale: 2, nullable: true })
+  importeIva: number;
+
+  @Column({ type: 'decimal', precision: 9, scale: 2, nullable: true })
+  importeNeto: number;
 }

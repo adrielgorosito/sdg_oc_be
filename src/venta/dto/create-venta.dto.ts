@@ -14,6 +14,7 @@ import { BaseTransactionalDTO } from 'src/common/dtos/baseTransactional.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CreateLineaVentaDTO } from 'src/linea-venta/dto/create-linea-venta.dto';
 import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
+import { CreateVentaObraSocialDTO } from 'src/venta-obra-social/dto/create-venta-obra-social.dto';
 
 export class CreateVentaDTO extends BaseTransactionalDTO {
   @IsNotEmpty()
@@ -46,4 +47,9 @@ export class CreateVentaDTO extends BaseTransactionalDTO {
   @IsBoolean()
   @IsNotEmpty()
   facturarASuNombre: boolean;
+
+  @IsArray()
+  @ValidateNested()
+  @Type(() => CreateVentaObraSocialDTO)
+  ventaObraSocial: CreateVentaObraSocialDTO[];
 }

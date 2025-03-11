@@ -2,7 +2,7 @@
 /dist
 /node_modules
 /build
-
+/AFIP
 # Logs
 logs
 *.log

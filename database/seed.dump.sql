@@ -2418,21 +2418,21 @@ INSERT INTO [dbo].[localidad] (id, provinciaId, localidad) VALUES
 -- Insertar en la tabla [dbo].[cliente]
 INSERT INTO [dbo].[cliente] ([createdAt], [updatedAt], [nroDocumento], [tipoDocumento], [nombre], [apellido], [email], [telefono], [sexo], [fechaNac], [observaciones], [domicilio], [localidadId], [categoriaFiscal])
 VALUES 
-(GETDATE(), NULL, 20123456789, 'CUIT', 'Juan', 'Perez', 'juan.perez@example.com', '12345678', 'Masculino', '1980-01-01', 'Cliente frecuente', 'Calle Falsa 123', 1 , 1),
-(GETDATE(), NULL, 87654321, 'DNI', 'Maria', 'Gomez', 'maria.gomez@example.com', '98765432', 'Femenino', '1990-05-15', 'Nuevo cliente', 'Avenida Siempre Viva 456', 2, 6),
-(GETDATE(), NULL, 20114323218, 'CUIT', 'Carlos', 'Lopez', 'carlos.lopez@example.com', '11432321', 'Masculino', '1995-07-23', 'Cliente habitual', 'Calle Verdadera 789', 1, 1),
-(GETDATE(), NULL, 44332211, 'DNI', 'Ana', 'Martinez', 'ana.martinez@example.com', '55443322', 'Femenino', '1988-09-10', 'Cliente nuevo', 'Boulevard Libertad 321', 3, 6),
-(GETDATE(), NULL, 55667788, 'DNI', 'Elena', 'Sanchez', 'elena.sanchez@example.com', '99887766', 'Femenino', '1985-03-15', 'Cliente regular', 'Calle Luna 234', 2, 6),
-(GETDATE(), NULL, 99887766, 'DNI', 'Lucas', 'Diaz', 'lucas.diaz@example.com', '66778899', 'Masculino', '1992-11-02', 'Cliente ocasional', 'Avenida Sol 890', 1, 6),
-(GETDATE(), NULL, 33445566,  'DNI',   'Sofia', 'Reyes', 'sofia.reyes@example.com', '11223344', 'Femenino', '2000-02-14', 'Cliente nuevo', 'Calle del Parque 567', 3, 6),
-(GETDATE(), NULL, 22334455, 'DNI', 'Roberto', 'Gonzalez', 'roberto.gonzalez@example.com', '55667788', 'Masculino', '1983-07-19', 'Cliente frecuente', 'Calle de la Luna 111', 2, 6),
-(GETDATE(), NULL, 20265544331, 'CUIT', 'David', 'Torres', 'david.torres@example.com', '26554433', 'Masculino', '1979-08-25', 'Cliente leal', 'Calle Rápida 600', 1, 1),
-(GETDATE(), NULL, 88776655, 'DNI', 'Patricia', 'Alvarez', 'patricia.alvarez@example.com', '44556623', 'Femenino', '1998-12-05', 'Cliente nueva', 'Avenida de la Paz 800', 3, 6);
+(GETDATE(), NULL, 20123456789, 80, 'Juan', 'Perez', 'juan.perez@example.com', '12345678', 'Masculino', '1980-01-01', 'Cliente frecuente', 'Calle Falsa 123', 1 , 1),
+(GETDATE(), NULL, 87654321, 96, 'Maria', 'Gomez', 'maria.gomez@example.com', '98765432', 'Femenino', '1990-05-15', 'Nuevo cliente', 'Avenida Siempre Viva 456', 2, 6),
+(GETDATE(), NULL, 20114323218, 80, 'Carlos', 'Lopez', 'carlos.lopez@example.com', '11432321', 'Masculino', '1995-07-23', 'Cliente habitual', 'Calle Verdadera 789', 1, 1),
+(GETDATE(), NULL, 44332211, 96, 'Ana', 'Martinez', 'ana.martinez@example.com', '55443322', 'Femenino', '1988-09-10', 'Cliente nuevo', 'Boulevard Libertad 321', 3, 6),
+(GETDATE(), NULL, 55667788, 96, 'Elena', 'Sanchez', 'elena.sanchez@example.com', '99887766', 'Femenino', '1985-03-15', 'Cliente regular', 'Calle Luna 234', 2, 6),
+(GETDATE(), NULL, 99887766, 96, 'Lucas', 'Diaz', 'lucas.diaz@example.com', '66778899', 'Masculino', '1992-11-02', 'Cliente ocasional', 'Avenida Sol 890', 1, 6),
+(GETDATE(), NULL, 33445566,  96,   'Sofia', 'Reyes', 'sofia.reyes@example.com', '11223344', 'Femenino', '2000-02-14', 'Cliente nuevo', 'Calle del Parque 567', 3, 6),
+(GETDATE(), NULL, 22334455, 96, 'Roberto', 'Gonzalez', 'roberto.gonzalez@example.com', '55667788', 'Masculino', '1983-07-19', 'Cliente frecuente', 'Calle de la Luna 111', 2, 6),
+(GETDATE(), NULL, 20265544331, 80, 'David', 'Torres', 'david.torres@example.com', '26554433', 'Masculino', '1979-08-25', 'Cliente leal', 'Calle Rápida 600', 1, 1),
+(GETDATE(), NULL, 88776655, 96, 'Patricia', 'Alvarez', 'patricia.alvarez@example.com', '44556623', 'Femenino', '1998-12-05', 'Cliente nueva', 'Avenida de la Paz 800', 3, 6);
 
 SET IDENTITY_INSERT [dbo].[cliente] ON;
 INSERT INTO [dbo].[cliente] ([id], [createdAt], [updatedAt], [nroDocumento], [tipoDocumento], [nombre], [apellido], [email], [telefono], [sexo], [fechaNac], [observaciones], [domicilio], [localidadId], [categoriaFiscal])
 VALUES 
-(0, GETDATE(), NULL, 0,'DNI', 'CONSUMIDOR_FINAL', 'CONSUMIDOR_FINAL', 'CONSUMIDOR_FINAL', '0', 'Masculino', '1900-01-01', 'CONSUMIDOR_FINAL', 'CONSUMIDOR_FINAL', 1, 5);
+(0, GETDATE(), NULL, 0, 96, 'CONSUMIDOR_FINAL', 'CONSUMIDOR_FINAL', 'CONSUMIDOR_FINAL', '0', 'Masculino', '1900-01-01', 'CONSUMIDOR_FINAL', 'CONSUMIDOR_FINAL', 1, 5);
 SET IDENTITY_INSERT [dbo].[cliente] OFF;
 
 -- Insertar en la tabla [dbo].[receta_lentes_contacto]

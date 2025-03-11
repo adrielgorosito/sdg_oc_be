@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { Factura } from 'src/facturador/entities/factura.entity';
+import { Comprobante } from 'src/facturador/entities/comprobante.entity';
 import { Token } from 'src/facturador/entities/token.entity';
 import { FacturadorModule } from 'src/facturador/facturador.module';
 import { AfipService } from 'src/facturador/services/afip.service';
@@ -23,7 +23,7 @@ import { VentaService } from './venta.service';
       Marca,
       Proveedor,
       Token,
-      Factura,
+      Comprobante,
     ]),
     ProductoModule,
     FacturadorModule,
