@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
 import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
 import { UpdateClienteDTO } from './dto/update-cliente.dto';
 import { TipoDocumento } from './enums/tipo-documento.enum';
 
@@ -17,8 +19,8 @@ export class ClienteController {
   constructor(private readonly clienteService: ClienteService) {}
 
   @Get()
-  findAll() {
-    return this.clienteService.findAll();
+  findAll(@Query() paginateClienteDTO: PaginateClienteDTO) {
+    return this.clienteService.findAll(paginateClienteDTO);
   }
 
   @Get(':id')

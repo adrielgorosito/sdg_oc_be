@@ -34,6 +34,7 @@ export class ProductoService {
         razonSocialProveedor,
         marcaId,
         proveedorId,
+        filtro,
       } = paginateProductoDTO;
 
       const queryBuilder = this.productoRepository
@@ -72,6 +73,12 @@ export class ProductoService {
       }
       if (proveedorId) {
         queryBuilder.andWhere('proveedor.id = :proveedorId', { proveedorId });
+      }
+      if (filtro) {
+        queryBuilder.andWhere(
+          'LOWER(producto.descripcion) LIKE LOWER(:filtro) OR LOWER(marca.nombre) LIKE LOWER(:filtro) OR LOWER(proveedor.razonSocial) LIKE LOWER(:filtro) OR LOWER(producto.categoria) LIKE LOWER(:filtro)',
+          { filtro: `%${filtro}%` },
+        );
       }
 
       const [items, total] = await queryBuilder.getManyAndCount();

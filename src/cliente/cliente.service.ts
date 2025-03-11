@@ -10,6 +10,7 @@ import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-len
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
 import { Repository } from 'typeorm';
 import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
 import { UpdateClienteDTO } from './dto/update-cliente.dto';
 import { Cliente } from './entities/cliente.entity';
 import { TipoDocumento } from './enums/tipo-documento.enum';
@@ -21,18 +22,88 @@ export class ClienteService {
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
-  async findAll() {
+  async findAll(paginateClienteDTO: PaginateClienteDTO) {
     try {
-      const clientes = await this.clienteRepository.find({
-        relations: {
-          localidad: { provincia: true },
-        },
-      });
+      const {
+        limit,
+        offset,
+        nombre,
+        filtro,
+        nroDocumento,
+        localidadId,
+        provinciaId,
+        nombreLocalidad,
+        nombreProvincia,
+      } = paginateClienteDTO;
 
-      return clientes;
+      const queryBuilder = this.clienteRepository
+        .createQueryBuilder('cliente')
+        .leftJoinAndSelect('cliente.localidad', 'localidad')
+        .leftJoinAndSelect('localidad.provincia', 'provincia')
+        .orderBy('cliente.apellido', 'ASC')
+        .addOrderBy('cliente.nombre', 'ASC')
+        .take(limit)
+        .skip(offset);
+
+      if (filtro) {
+        queryBuilder.andWhere(
+          'CONCAT(LOWER(cliente.nombre), SPACE(1), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento',
+          {
+            nombre: `%${filtro}%`,
+            nroDocumento: `%${filtro}%`,
+          },
+        );
+      }
+      if (nombre) {
+        queryBuilder.andWhere(
+          'CONCAT(LOWER(cliente.nombre), " ", LOWER(cliente.apellido)) LIKE LOWER(:nombre)',
+          {
+            nombre: `%${nombre}%`,
+          },
+        );
+      }
+      if (nroDocumento) {
+        queryBuilder.andWhere('cliente.nroDocumento LIKE :nroDocumento', {
+          nroDocumento: `%${nroDocumento}%`,
+        });
+      }
+      if (localidadId) {
+        queryBuilder.andWhere('localidad.id = :localidadId', { localidadId });
+      }
+      if (provinciaId) {
+        queryBuilder.andWhere('provincia.id = :provinciaId', { provinciaId });
+      }
+
+      if (nombreLocalidad) {
+        queryBuilder.andWhere(
+          'LOWER(localidad.nombre) LIKE LOWER(:nombreLocalidad)',
+          {
+            nombreLocalidad: `%${nombreLocalidad}%`,
+          },
+        );
+      }
+
+      if (nombreProvincia) {
+        queryBuilder.andWhere(
+          'LOWER(localidad.nombre) LIKE LOWER(:nombreProvincia)',
+          {
+            nombreProvincia: `%${nombreProvincia}%`,
+          },
+        );
+      }
+
+      const [items, total] = await queryBuilder.getManyAndCount();
+      return {
+        items,
+        total,
+        limit,
+        offset,
+        nextPage: total > offset + limit ? offset + limit : null,
+        previousPage: offset > 0 ? offset - limit : null,
+      };
     } catch (error) {
       throw new InternalServerErrorException(
-        'Error al obtener los clientes' + error,
+        'Error al obtener los clientes: ' + error,
       );
     }
   }
