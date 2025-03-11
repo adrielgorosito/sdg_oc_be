@@ -1,0 +1,358 @@
+{
+  "MONOTRIBUTISTA": {
+    "id": 6,
+    "comprobantes": [
+      {
+        "Id": 6,
+        "Descripcion": "Factura B"
+      },
+      {
+        "Id": 7,
+        "Descripcion": "Nota de Débito B"
+      },
+      {
+        "Id": 8,
+        "Descripcion": "Nota de Crédito B"
+      },
+      {
+        "Id": 9,
+        "Descripcion": "Recibos B"
+      },
+      {
+        "Id": 10,
+        "Descripcion": "Notas de Venta al contado B"
+      },
+      {
+        "Id": 64,
+        "Descripcion": "Liquidacion B"
+      },
+      {
+        "Id": 35,
+        "Descripcion": "Cbtes. B del Anexo I,Apartado A,inc. f),R.G. Nro. 1415"
+      },
+      {
+        "Id": 40,
+        "Descripcion": "Otros comprobantes B que cumplan con R.G.Nro. 1415"
+      },
+      {
+        "Id": 61,
+        "Descripcion": "Cta de Vta y Liquido prod. B"
+      },
+      {
+        "Id": 11,
+        "Descripcion": "Factura C"
+      },
+      {
+        "Id": 12,
+        "Descripcion": "Nota de Débito C"
+      },
+      {
+        "Id": 13,
+        "Descripcion": "Nota de Crédito C"
+      },
+      {
+        "Id": 15,
+        "Descripcion": "Recibo C"
+      }
+    ]
+  },
+  "RESPONSABLE_INSCRIPTO": {
+    "id": 1,
+    "comprobantes": [
+      {
+        "Id": 1,
+        "Descripcion": "Factura A"
+      },
+      {
+        "Id": 2,
+        "Descripcion": "Nota de Débito A"
+      },
+      {
+        "Id": 3,
+        "Descripcion": "Nota de Crédito A"
+      },
+      {
+        "Id": 4,
+        "Descripcion": "Recibos A"
+      },
+      {
+        "Id": 5,
+        "Descripcion": "Notas de Venta al contado A"
+      },
+      {
+        "Id": 6,
+        "Descripcion": "Factura B"
+      },
+      {
+        "Id": 7,
+        "Descripcion": "Nota de Débito B"
+      },
+      {
+        "Id": 8,
+        "Descripcion": "Nota de Crédito B"
+      },
+      {
+        "Id": 9,
+        "Descripcion": "Recibos B"
+      },
+      {
+        "Id": 10,
+        "Descripcion": "Notas de Venta al contado B"
+      },
+      {
+        "Id": 63,
+        "Descripcion": "Liquidacion A"
+      },
+      {
+        "Id": 64,
+        "Descripcion": "Liquidacion B"
+      },
+      {
+        "Id": 34,
+        "Descripcion": "Cbtes. A del Anexo I, Apartado A,inc.f),R.G.Nro. 1415"
+      },
+      {
+        "Id": 35,
+        "Descripcion": "Cbtes. B del Anexo I,Apartado A,inc. f),R.G. Nro. 1415"
+      },
+      {
+        "Id": 39,
+        "Descripcion": "Otros comprobantes A que cumplan con R.G.Nro. 1415"
+      },
+      {
+        "Id": 40,
+        "Descripcion": "Otros comprobantes B que cumplan con R.G.Nro. 1415"
+      },
+      {
+        "Id": 60,
+        "Descripcion": "Cta de Vta y Liquido prod. A"
+      },
+      {
+        "Id": 61,
+        "Descripcion": "Cta de Vta y Liquido prod. B"
+      },
+      {
+        "Id": 51,
+        "Descripcion": "Factura M"
+      },
+      {
+        "Id": 52,
+        "Descripcion": "Nota de Débito M"
+      },
+      {
+        "Id": 53,
+        "Descripcion": "Nota de Crédito M"
+      },
+      {
+        "Id": 54,
+        "Descripcion": "Recibo M"
+      },
+      {
+        "Id": 201,
+        "Descripcion": "Factura de Crédito electrónica MiPyMEs (FCE) A"
+      },
+      {
+        "Id": 202,
+        "Descripcion": "Nota de Débito electrónica MiPyMEs (FCE) A"
+      },
+      {
+        "Id": 203,
+        "Descripcion": "Nota de Crédito electrónica MiPyMEs (FCE) A"
+      },
+      {
+        "Id": 206,
+        "Descripcion": "Factura de Crédito electrónica MiPyMEs (FCE) B"
+      },
+      {
+        "Id": 207,
+        "Descripcion": "Nota de Débito electrónica MiPyMEs (FCE) B"
+      },
+      {
+        "Id": 208,
+        "Descripcion": "Nota de Crédito electrónica MiPyMEs (FCE) B"
+      },
+      {
+        "Id": 211,
+        "Descripcion": "Factura de Crédito electrónica MiPyMEs (FCE) C"
+      },
+      {
+        "Id": 212,
+        "Descripcion": "Nota de Débito electrónica MiPyMEs (FCE) C"
+      },
+      {
+        "Id": 213,
+        "Descripcion": "Nota de Crédito electrónica MiPyMEs (FCE) C"
+      }
+    ]
+  },
+  "CONSUMIDOR_FINAL": {
+    "id": 5,
+    "comprobantes": [
+      {
+        "Id": 6,
+        "Descripcion": "Factura B"
+      },
+      {
+        "Id": 7,
+        "Descripcion": "Nota de Débito B"
+      },
+      {
+        "Id": 8,
+        "Descripcion": "Nota de Crédito B"
+      },
+      {
+        "Id": 9,
+        "Descripcion": "Recibos B"
+      },
+      {
+        "Id": 10,
+        "Descripcion": "Notas de Venta al contado B"
+      },
+      {
+        "Id": 11,
+        "Descripcion": "Factura C"
+      },
+      {
+        "Id": 12,
+        "Descripcion": "Nota de Débito C"
+      },
+      {
+        "Id": 13,
+        "Descripcion": "Nota de Crédito C"
+      },
+      {
+        "Id": 15,
+        "Descripcion": "Recibo C"
+      }
+    ]
+  },
+  "EXENTO": {
+    "id": 4,
+    "comprobantes": [
+      {
+        "Id": 1,
+        "Descripcion": "Factura A"
+      },
+      {
+        "Id": 2,
+        "Descripcion": "Nota de Débito A"
+      },
+      {
+        "Id": 3,
+        "Descripcion": "Nota de Crédito A"
+      },
+      {
+        "Id": 4,
+        "Descripcion": "Recibos A"
+      },
+      {
+        "Id": 5,
+        "Descripcion": "Notas de Venta al contado A"
+      },
+      {
+        "Id": 6,
+        "Descripcion": "Factura B"
+      },
+      {
+        "Id": 7,
+        "Descripcion": "Nota de Débito B"
+      },
+      {
+        "Id": 8,
+        "Descripcion": "Nota de Crédito B"
+      },
+      {
+        "Id": 9,
+        "Descripcion": "Recibos B"
+      },
+      {
+        "Id": 10,
+        "Descripcion": "Notas de Venta al contado B"
+      },
+      {
+        "Id": 63,
+        "Descripcion": "Liquidacion A"
+      },
+      {
+        "Id": 64,
+        "Descripcion": "Liquidacion B"
+      },
+      {
+        "Id": 34,
+        "Descripcion": "Cbtes. A del Anexo I, Apartado A,inc.f),R.G.Nro. 1415"
+      },
+      {
+        "Id": 35,
+        "Descripcion": "Cbtes. B del Anexo I,Apartado A,inc. f),R.G. Nro. 1415"
+      },
+      {
+        "Id": 39,
+        "Descripcion": "Otros comprobantes A que cumplan con R.G.Nro. 1415"
+      },
+      {
+        "Id": 40,
+        "Descripcion": "Otros comprobantes B que cumplan con R.G.Nro. 1415"
+      },
+      {
+        "Id": 60,
+        "Descripcion": "Cta de Vta y Liquido prod. A"
+      },
+      {
+        "Id": 61,
+        "Descripcion": "Cta de Vta y Liquido prod. B"
+      },
+      {
+        "Id": 51,
+        "Descripcion": "Factura M"
+      },
+      {
+        "Id": 52,
+        "Descripcion": "Nota de Débito M"
+      },
+      {
+        "Id": 53,
+        "Descripcion": "Nota de Crédito M"
+      },
+      {
+        "Id": 54,
+        "Descripcion": "Recibo M"
+      },
+      {
+        "Id": 201,
+        "Descripcion": "Factura de Crédito electrónica MiPyMEs (FCE) A"
+      },
+      {
+        "Id": 202,
+        "Descripcion": "Nota de Débito electrónica MiPyMEs (FCE) A"
+      },
+      {
+        "Id": 203,
+        "Descripcion": "Nota de Crédito electrónica MiPyMEs (FCE) A"
+      },
+      {
+        "Id": 206,
+        "Descripcion": "Factura de Crédito electrónica MiPyMEs (FCE) B"
+      },
+      {
+        "Id": 207,
+        "Descripcion": "Nota de Débito electrónica MiPyMEs (FCE) B"
+      },
+      {
+        "Id": 208,
+        "Descripcion": "Nota de Crédito electrónica MiPyMEs (FCE) B"
+      },
+      {
+        "Id": 211,
+        "Descripcion": "Factura de Crédito electrónica MiPyMEs (FCE) C"
+      },
+      {
+        "Id": 212,
+        "Descripcion": "Nota de Débito electrónica MiPyMEs (FCE) C"
+      },
+      {
+        "Id": 213,
+        "Descripcion": "Nota de Crédito electrónica MiPyMEs (FCE) C"
+      }
+    ]
+  }
+}

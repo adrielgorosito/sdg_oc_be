@@ -7,8 +7,10 @@ import { AudiometriaModule } from './audiometria/audiometria.module';
 import { AuthModule } from './auth/auth.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
 import { ClienteModule } from './cliente/cliente.module';
+import { DatabaseService } from './config/database.service';
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
+import { FacturadorModule } from './facturador/facturador.module';
 import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-contacto/historia-clinica-lentes-contacto.module';
 import { LocalidadModule } from './localidad/localidad.module';
 import { MarcaModule } from './marca/marca.module';
@@ -28,6 +30,7 @@ import { VentaModule } from './venta/venta.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    DatabaseService,
   ],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -52,8 +55,8 @@ import { VentaModule } from './venta/venta.module';
         migrationsRun: false,
         autoLoadEntities: true,
         logging: true,
-        synchronize: false,
-        dropSchema: false,
+        synchronize: true,
+        dropSchema: true,
       }),
       inject: [ConfigService],
     }),
@@ -81,6 +84,7 @@ import { VentaModule } from './venta/venta.module';
     ProvinciaModule,
     UserModule,
     AuthModule,
+    FacturadorModule,
   ],
 })
 export class AppModule {}

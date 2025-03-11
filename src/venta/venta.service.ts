@@ -1,23 +1,110 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateVentaDTO } from './dto/create-venta.dto';
-import { UpdateVentaDTO } from './dto/update-venta.dto';
-import { Venta } from './entities/venta.entity';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { AfipAuthError, AfipError } from 'src/facturador/errors/afip.errors';
+import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
+import { FacturadorService } from 'src/facturador/services/facturador.service';
+import { ProductoService } from 'src/producto/producto.service';
+import { DataSource, Repository } from 'typeorm';
+import { CreateVentaDTO } from './dto/create-venta.dto';
+import { UpdateVentaDTO } from './dto/update-venta.dto';
+import { Venta } from './entities/venta.entity';
+import { crearDatosFactura } from './utils/factura.utils';
 @Injectable()
 export class VentaService {
   constructor(
+    private readonly dataSource: DataSource,
+    private readonly productoService: ProductoService,
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
+    private readonly facturadorService: FacturadorService,
   ) {}
+
+  async create(createVentaDto: CreateVentaDTO): Promise<any> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    let venta: Venta;
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      const clienteExistente = await queryRunner.manager.findOne(Cliente, {
+        where: { id: createVentaDto.cliente.id },
+      });
+
+      if (!clienteExistente) {
+        throw new NotFoundException('Cliente no encontrado');
+      }
+
+      const nuevaVenta = queryRunner.manager.create(Venta, createVentaDto);
+
+      for (const linea of nuevaVenta.lineasDeVenta) {
+        await this.productoService.descontarStock(
+          linea.producto.id,
+          linea.cantidad,
+          queryRunner,
+        );
+      }
+
+      const importe = createVentaDto.lineasDeVenta.reduce(
+        (total, linea) => total + linea.precioIndividual * linea.cantidad,
+        0,
+      );
+
+      nuevaVenta.importe = importe;
+      nuevaVenta.cliente = clienteExistente;
+
+      venta = await queryRunner.manager.save(Venta, nuevaVenta);
+
+      await queryRunner.manager.queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.manager.queryRunner.rollbackTransaction();
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw error;
+    }
+    try {
+      await queryRunner.startTransaction();
+
+      const datosFactura = crearDatosFactura(
+        venta,
+        createVentaDto.facturarASuNombre,
+      );
+      const facturaDesdeAfipAfip: IProcesadoExitoso =
+        (await this.facturadorService.crearFactura(
+          datosFactura,
+        )) as IProcesadoExitoso;
+
+      const facturaPersistida = await this.facturadorService.guardarFactura(
+        facturaDesdeAfipAfip,
+        venta,
+      );
+
+      await queryRunner.manager.queryRunner.commitTransaction();
+      return { venta, factura: facturaPersistida };
+    } catch (error) {
+      await queryRunner.manager.queryRunner.rollbackTransaction();
+
+      if (
+        error instanceof AfipAuthError ||
+        error instanceof ServiceUnavailableException ||
+        error instanceof AfipError
+      ) {
+        return { venta, factura: { error: error.message } };
+      }
+
+      return { venta, factura: { error: error.message } };
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async findAll() {
     try {
@@ -63,31 +150,6 @@ export class VentaService {
       throw new InternalServerErrorException(
         'Error al obtener la venta: ' + error,
       );
-    }
-  }
-
-  async create(createVentaDto: CreateVentaDTO): Promise<Venta> {
-    try {
-      const clienteExistente = await this.clienteRepository.findOne({
-        where: { id: createVentaDto.cliente.id },
-      });
-
-      if (!clienteExistente) {
-        throw new NotFoundException('Cliente no encontrado');
-      }
-
-      const importe = createVentaDto.lineasDeVenta.reduce(
-        (total, linea) => total + linea.precioIndividual * linea.cantidad,
-        0,
-      );
-
-      const nuevaVenta = this.ventaRepository.create(createVentaDto);
-      nuevaVenta.importe = importe;
-
-      return await this.ventaRepository.save(nuevaVenta);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(error);
     }
   }
 
@@ -159,14 +221,16 @@ export class VentaService {
     }
   }
 
-  async findByClienteDni(dni: number) {
+  async findByClienteNroDocumento(nroDocumento: number) {
     try {
       const cliente = await this.clienteRepository.findOne({
-        where: { dni },
+        where: { nroDocumento },
       });
 
       if (!cliente) {
-        throw new NotFoundException(`Cliente con DNI ${dni} no encontrado`);
+        throw new NotFoundException(
+          `Cliente con nroDocumento ${nroDocumento} `,
+        );
       }
       const ventas = await this.ventaRepository.find({
         where: { cliente: cliente },

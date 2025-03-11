@@ -1,11 +1,13 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDate,
   IsNotEmpty,
   IsNumber,
   IsObject,
   IsOptional,
+  IsString,
   ValidateNested,
 } from 'class-validator';
 import { BaseTransactionalDTO } from 'src/common/dtos/baseTransactional.dto';
@@ -18,9 +20,9 @@ export class CreateVentaDTO extends BaseTransactionalDTO {
   @IsDate()
   fecha: Date;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  numeroFactura: number;
+  numeroFactura: string;
 
   @IsOptional()
   @IsNumber()
@@ -40,4 +42,8 @@ export class CreateVentaDTO extends BaseTransactionalDTO {
   @ValidateNested()
   @Type(() => CreateLineaVentaDTO)
   lineasDeVenta: CreateLineaVentaDTO[];
+
+  @IsBoolean()
+  @IsNotEmpty()
+  facturarASuNombre: boolean;
 }

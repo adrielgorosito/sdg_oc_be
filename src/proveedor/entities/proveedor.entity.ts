@@ -7,8 +7,8 @@ export class Proveedor extends BaseEntity {
   @OneToMany(() => Producto, (producto) => producto.proveedor)
   productos: Producto[];
 
-  @Column()
-  cuit: string;
+  @Column({ unique: true, type: 'bigint' })
+  cuit: number;
 
   @Column()
   razonSocial: string;
