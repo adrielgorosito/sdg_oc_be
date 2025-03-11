@@ -13,35 +13,26 @@ export class DetallesRecetaLentesAereos {
   @Column({ enum: TipoReceta })
   tipo_detalle: string;
 
-  @Column()
-  od_esferico: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  od_esferico: number;
 
-  @Column()
-  od_cilindrico: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  od_cilindrico: number;
 
-  @Column()
-  od_grados: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  od_grados: number;
 
-  @Column()
-  od_dnp: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  oi_esferico: number;
 
-  @Column()
-  od_diametro: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  oi_cilindrico: number;
 
-  @Column()
-  oi_esferico: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  oi_grados: number;
 
-  @Column()
-  oi_cilindrico: string;
-
-  @Column()
-  oi_grados: string;
-
-  @Column()
-  oi_dnp: string;
-
-  @Column()
-  oi_diametro: string;
+  @Column('decimal', { precision: 9, scale: 2 })
+  dnp: number;
 
   @Column({ nullable: true })
   observaciones: string;
