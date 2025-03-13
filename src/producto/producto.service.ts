@@ -48,18 +48,18 @@ export class ProductoService {
       if (categoria) {
         queryBuilder.andWhere(
           'LOWER(producto.categoria) LIKE LOWER(:categoria)',
-          { categoria: `%${categoria}%` },
+          { categoria: `%${categoria.toLowerCase().trim()}%` },
         );
       }
       if (descripcion) {
         queryBuilder.andWhere(
           'LOWER(producto.descripcion) LIKE LOWER(:descripcion)',
-          { descripcion: `%${descripcion}%` },
+          { descripcion: `%${descripcion.toLowerCase().trim()}%` },
         );
       }
       if (nombreMarca) {
         queryBuilder.andWhere('LOWER(marca.nombre) LIKE LOWER(:nombreMarca)', {
-          nombreMarca: `%${nombreMarca}%`,
+          nombreMarca: `%${nombreMarca.toLowerCase().trim()}%`,
         });
       }
       if (marcaId) {
@@ -68,7 +68,9 @@ export class ProductoService {
       if (razonSocialProveedor) {
         queryBuilder.andWhere(
           'LOWER(proveedor.razonSocial) LIKE LOWER(:razonSocialProveedor)',
-          { razonSocialProveedor: `%${razonSocialProveedor}%` },
+          {
+            razonSocialProveedor: `%${razonSocialProveedor.toLowerCase().trim()}%`,
+          },
         );
       }
       if (proveedorId) {
@@ -77,7 +79,9 @@ export class ProductoService {
       if (filtro) {
         queryBuilder.andWhere(
           'LOWER(producto.descripcion) LIKE LOWER(:filtro) OR LOWER(marca.nombre) LIKE LOWER(:filtro) OR LOWER(proveedor.razonSocial) LIKE LOWER(:filtro) OR LOWER(producto.categoria) LIKE LOWER(:filtro)',
-          { filtro: `%${filtro}%` },
+          {
+            filtro: `%${filtro.toLowerCase().trim()}%`,
+          },
         );
       }
 
