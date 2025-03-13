@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns/parse';
-import { Venta } from 'src/venta/entities/venta.entity';
 import { Repository } from 'typeorm';
-import { Factura } from '../../facturador/entities/factura.entity';
+import { Comprobante } from '../entities/comprobante.entity';
 import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
 import {
   IFECAESolicitarResult,
   IFECompUltimoAutorizadoResult,
   IParamsFECAESolicitar,
   IParamsFECompUltimoAutorizado,
-  IProcesadoExitoso,
   ResultadoProcesado,
   WsServicesNamesEnum,
 } from '../interfaces/ISoap';
@@ -24,8 +21,8 @@ import { AfipService } from './afip.service';
 export class FacturadorService {
   constructor(
     private readonly afipService: AfipService,
-    @InjectRepository(Factura)
-    private readonly facturaRepository: Repository<Factura>,
+    @InjectRepository(Comprobante)
+    private readonly facturaRepository: Repository<Comprobante>,
   ) {}
 
   public async crearFactura(datosFactura: IParamsFECAESolicitar) {
@@ -70,25 +67,8 @@ export class FacturadorService {
     }
     return response;
   }
-  public async guardarFactura(factura: IProcesadoExitoso, venta: Venta) {
-    const fechaFactura = parse(
-      factura.fechaFactura.toString(),
-      'yyyyMMdd',
-      new Date(),
-    );
-
-    const nuevaFactura = await this.facturaRepository.create({
-      CAE: factura.CAE,
-      fechaEmision: fechaFactura,
-      numeroComprobante: factura.numeroFactura,
-      tipoDocumento: factura.docTipo,
-      numeroDocumento: factura.docNro,
-      tipoComprobante: factura.cbteTipo,
-      venta: venta,
-    });
-
-    const facturaGuardada = await this.facturaRepository.save(nuevaFactura);
-
+  public async guardarFactura(factura: Comprobante) {
+    const facturaGuardada = await this.facturaRepository.save(factura);
     delete facturaGuardada.venta;
     return facturaGuardada;
   }

@@ -1,4 +1,4 @@
 export enum TipoDocumento {
-  DNI = 'DNI',
-  CUIT = 'CUIT',
+  DNI = 96,
+  CUIT = 80,
 }

@@ -17,7 +17,7 @@ import { ValidateTipoDocumento } from 'src/common/decorators/validate-tipo-docum
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CreateCuentaCorrienteDTO } from 'src/cuenta-corriente/dto/create-cuenta-corriente.dto';
-import { TipoContribuyente } from 'src/facturador/enums/condicion-iva.enum';
+import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
 
 export class CreateClienteDTO extends BaseDTO {
   @ValidateDocumento()
@@ -53,8 +53,8 @@ export class CreateClienteDTO extends BaseDTO {
   fechaNac: Date;
 
   @IsNotEmpty()
-  @IsEnum(TipoContribuyente)
-  categoriaFiscal: TipoContribuyente;
+  @IsEnum(CondicionIva)
+  categoriaFiscal: CondicionIva;
 
   @IsOptional()
   @IsString()

@@ -5,7 +5,9 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Comprobante } from 'src/facturador/entities/comprobante.entity';
 import { AfipAuthError, AfipError } from 'src/facturador/errors/afip.errors';
 import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
 import { FacturadorService } from 'src/facturador/services/facturador.service';
@@ -30,10 +32,12 @@ export class VentaService {
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
     const queryRunner = this.dataSource.createQueryRunner();
     let venta: Venta;
+    let importeAFacturar: number;
+    let clienteExistente: Cliente;
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const clienteExistente = await queryRunner.manager.findOne(Cliente, {
+      clienteExistente = await queryRunner.manager.findOne(Cliente, {
         where: { id: createVentaDto.cliente.id },
       });
 
@@ -57,7 +61,13 @@ export class VentaService {
       );
 
       nuevaVenta.importe = importe;
-      nuevaVenta.cliente = clienteExistente;
+
+      importeAFacturar =
+        importe -
+        createVentaDto.ventaObraSocial.reduce(
+          (total, ventaObraSocial) => total + ventaObraSocial.importe,
+          0,
+        );
 
       venta = await queryRunner.manager.save(Venta, nuevaVenta);
 
@@ -74,18 +84,33 @@ export class VentaService {
       await queryRunner.startTransaction();
 
       const datosFactura = crearDatosFactura(
-        venta,
+        clienteExistente,
+        importeAFacturar,
         createVentaDto.facturarASuNombre,
       );
-      const facturaDesdeAfipAfip: IProcesadoExitoso =
+      const facturaDesdeAfip: IProcesadoExitoso =
         (await this.facturadorService.crearFactura(
           datosFactura,
         )) as IProcesadoExitoso;
 
-      const facturaPersistida = await this.facturadorService.guardarFactura(
-        facturaDesdeAfipAfip,
-        venta,
-      );
+      const nuevaFactura = await queryRunner.manager.create(Comprobante, {
+        CAE: facturaDesdeAfip.CAE,
+        fechaEmision: parse(
+          facturaDesdeAfip.fechaFactura.toString(),
+          'yyyyMMdd',
+          new Date(),
+        ),
+        numeroComprobante: facturaDesdeAfip.numeroFactura,
+        tipoDocumento: facturaDesdeAfip.docTipo,
+        numeroDocumento: facturaDesdeAfip.docNro,
+        tipoComprobante: facturaDesdeAfip.cbteTipo,
+        venta: venta,
+        importeTotal: importeAFacturar,
+        importeIva: Math.round((importeAFacturar / 1.21) * 0.21),
+        importeNeto: Math.round(importeAFacturar / 1.21),
+      });
+      const facturaPersistida =
+        await this.facturadorService.guardarFactura(nuevaFactura);
 
       await queryRunner.manager.queryRunner.commitTransaction();
       return { venta, factura: facturaPersistida };

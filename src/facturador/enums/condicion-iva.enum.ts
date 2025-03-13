@@ -1,4 +1,4 @@
-export enum TipoContribuyente {
+export enum CondicionIva {
   RESPONSABLE_INSCRIPTO = 1,
   EXENTO = 4,
   CONSUMIDOR_FINAL = 5,
