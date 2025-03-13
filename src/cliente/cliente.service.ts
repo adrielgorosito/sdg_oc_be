@@ -46,19 +46,21 @@ export class ClienteService {
         .skip(offset);
 
       if (filtro) {
+        console.log(filtro.toLowerCase().replace(' ', ''));
+
         queryBuilder.andWhere(
-          'CONCAT(LOWER(cliente.nombre), SPACE(1), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento',
+          'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento',
           {
-            nombre: `%${filtro}%`,
+            nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
             nroDocumento: `%${filtro}%`,
           },
         );
       }
       if (nombre) {
         queryBuilder.andWhere(
-          'CONCAT(LOWER(cliente.nombre), " ", LOWER(cliente.apellido)) LIKE LOWER(:nombre)',
+          'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre)',
           {
-            nombre: `%${nombre}%`,
+            nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
           },
         );
       }
@@ -78,7 +80,7 @@ export class ClienteService {
         queryBuilder.andWhere(
           'LOWER(localidad.nombre) LIKE LOWER(:nombreLocalidad)',
           {
-            nombreLocalidad: `%${nombreLocalidad}%`,
+            nombreLocalidad: `%${nombreLocalidad.toLowerCase().trim()}%`,
           },
         );
       }
@@ -87,7 +89,7 @@ export class ClienteService {
         queryBuilder.andWhere(
           'LOWER(localidad.nombre) LIKE LOWER(:nombreProvincia)',
           {
-            nombreProvincia: `%${nombreProvincia}%`,
+            nombreProvincia: `%${nombreProvincia.toLowerCase().trim()}%`,
           },
         );
       }
