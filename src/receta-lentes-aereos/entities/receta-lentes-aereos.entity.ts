@@ -27,6 +27,9 @@ export class RecetaLentesAereos extends BaseEntity {
   @Column()
   tratamiento: string;
 
+  @Column({ nullable: true })
+  observaciones: string;
+
   @ManyToOne(() => Cliente, (cliente) => cliente.recetasLentesAereos)
   cliente: Cliente;
 
