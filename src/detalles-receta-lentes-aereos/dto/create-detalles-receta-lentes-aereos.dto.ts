@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 import { TipoReceta } from 'src/common/enums/tipo-receta.enum';
 
 export class CreateDetallesRecetaLentesAereosDTO {
@@ -26,8 +26,4 @@ export class CreateDetallesRecetaLentesAereosDTO {
 
   @IsNumber()
   dnp: number;
-
-  @IsOptional()
-  @IsString()
-  observaciones: string;
 }

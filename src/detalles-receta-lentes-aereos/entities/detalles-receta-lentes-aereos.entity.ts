@@ -34,9 +34,6 @@ export class DetallesRecetaLentesAereos {
   @Column('decimal', { precision: 9, scale: 2 })
   dnp: number;
 
-  @Column({ nullable: true })
-  observaciones: string;
-
   @ManyToOne(
     () => RecetaLentesAereos,
     (recetaLentesAereos) => recetaLentesAereos.detallesRecetaLentesAereos,

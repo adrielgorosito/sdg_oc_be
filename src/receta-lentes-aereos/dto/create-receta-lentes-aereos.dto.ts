@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsObject,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -43,6 +44,10 @@ export class CreateRecetaLentesAereosDTO extends BaseDTO {
   @IsString()
   @IsNotEmpty()
   tratamiento: string;
+
+  @IsOptional()
+  @IsString()
+  observaciones: string;
 
   @IsObject()
   @ValidateNested()
