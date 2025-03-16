@@ -21,7 +21,7 @@ export class RecetaLentesAereos extends BaseEntity {
   @Column()
   color: string;
 
-  @Column()
+  @Column({ nullable: true })
   armazon: string;
 
   @Column()
