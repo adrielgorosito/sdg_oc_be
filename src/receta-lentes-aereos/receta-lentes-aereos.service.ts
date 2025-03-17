@@ -1,7 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateRecetaLentesAereosDTO } from './dto/create-receta-lentes-aereos.dto';
-import { UpdateRecetaLentesAereosDTO } from './dto/update-receta-lentes-aereos.dto';
 import { RecetaLentesAereos } from './entities/receta-lentes-aereos.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import {
@@ -9,6 +8,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { DetallesRecetaLentesAereos } from 'src/detalles-receta-lentes-aereos/entities/detalles-receta-lentes-aereos.entity';
 
 @Injectable()
 export class RecetaLentesAereosService {
@@ -80,11 +80,12 @@ export class RecetaLentesAereosService {
 
   async update(
     id: number,
-    rlaDTO: UpdateRecetaLentesAereosDTO,
+    rlaDTO: CreateRecetaLentesAereosDTO,
   ): Promise<RecetaLentesAereos> {
     try {
       const recetaExistente = await this.rlaRepository.findOne({
         where: { id },
+        relations: ['detallesRecetaLentesAereos'],
       });
 
       if (!recetaExistente) {
@@ -93,12 +94,29 @@ export class RecetaLentesAereosService {
         );
       }
 
-      Object.assign(recetaExistente, rlaDTO);
+      if (recetaExistente.detallesRecetaLentesAereos.length > 0) {
+        await this.rlaRepository.manager
+          .getRepository(DetallesRecetaLentesAereos)
+          .remove(recetaExistente.detallesRecetaLentesAereos);
+      }
+
+      const nuevosDetalles = rlaDTO.detallesRecetaLentesAereos.map(
+        (detalle, index) => ({
+          ...detalle,
+          numeroDetalle: index + 1,
+        }),
+      );
+
+      Object.assign(recetaExistente, {
+        ...rlaDTO,
+        detallesRecetaLentesAereos: nuevosDetalles,
+      });
+
       return await this.rlaRepository.save(recetaExistente);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
-        'Error al actualizar la receta de lentes aéreos: ' + error,
+        'Error al actualizar la receta de lentes aéreos: ' + error.message,
       );
     }
   }
