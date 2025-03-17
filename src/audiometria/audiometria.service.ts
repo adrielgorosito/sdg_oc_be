@@ -124,22 +124,69 @@ export class AudiometriaService {
   async update(
     id: number,
     audiometriaDTO: UpdateAudiometriaDTO,
+    pdf?: Express.Multer.File,
   ): Promise<Audiometria> {
     try {
       const audiometriaExistente = await this.audiometriaRepository.findOne({
         where: { id },
+        relations: ['cliente'],
       });
 
       if (!audiometriaExistente) {
         throw new NotFoundException(`Audiometría con id ${id} no encontrada`);
       }
 
+      if (pdf) {
+        if (
+          !pdf.originalname.toLowerCase().endsWith('.pdf') ||
+          pdf.size === 0
+        ) {
+          throw new BadRequestException('El archivo debe ser un PDF válido');
+        }
+
+        if (audiometriaExistente.linkPDF) {
+          try {
+            await fs.unlink(audiometriaExistente.linkPDF);
+          } catch (error) {
+            throw new Error('Error eliminando PDF anterior: ' + error.message);
+          }
+        }
+
+        const clienteId =
+          audiometriaDTO.cliente?.id || audiometriaExistente.cliente.id;
+        const fechaInforme =
+          audiometriaDTO.fechaInforme || audiometriaExistente.fechaInforme;
+
+        const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
+        await fs.mkdir(uploadDir, { recursive: true });
+
+        const formattedDate = format(fechaInforme, 'yyyyMMdd');
+        const baseName = `audiometria-cliente-${clienteId}-${formattedDate}`;
+        let newFileName = `${baseName}.pdf`;
+        let counter = 1;
+
+        while (await fileExists(join(uploadDir, newFileName))) {
+          newFileName = `${baseName}-${counter}.pdf`;
+          counter++;
+        }
+
+        const filePath = join(uploadDir, newFileName);
+        await fs.writeFile(filePath, pdf.buffer);
+
+        audiometriaDTO.linkPDF = filePath;
+      }
+
       Object.assign(audiometriaExistente, audiometriaDTO);
       return await this.audiometriaRepository.save(audiometriaExistente);
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       throw new InternalServerErrorException(
-        'Error al actualizar la audiometría: ' + error,
+        `Error al actualizar audiometría: ${error.message}`,
       );
     }
   }
