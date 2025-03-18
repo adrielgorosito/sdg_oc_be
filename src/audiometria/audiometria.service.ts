@@ -94,21 +94,12 @@ export class AudiometriaService {
       const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
       await fs.mkdir(uploadDir, { recursive: true });
 
-      const formattedDate = format(audiometriaDTO.fechaInforme, 'yyyyMMdd');
-      const newFileName = `audiometria-cliente-${audiometriaDTO.cliente.id}-${formattedDate}.pdf`;
+      const fileName = Date.now().toString();
 
-      let finalFileName = newFileName;
-      let counter = 1;
-
-      while (await fileExists(join(uploadDir, finalFileName))) {
-        finalFileName = `${newFileName.slice(0, -4)}-${counter}.pdf`;
-        counter++;
-      }
-
-      const filePath = join(uploadDir, finalFileName);
+      const filePath = join(uploadDir, fileName + '.pdf');
       await fs.writeFile(filePath, pdf.buffer);
 
-      audiometriaDTO.linkPDF = filePath;
+      audiometriaDTO.linkPDF = fileName;
 
       const audiometria = this.audiometriaRepository.create(audiometriaDTO);
       return await this.audiometriaRepository.save(audiometria);
