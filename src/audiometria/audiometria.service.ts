@@ -7,7 +7,6 @@ import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { ConfigService } from '@nestjs/config';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { format } from 'date-fns';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import {
@@ -135,36 +134,25 @@ export class AudiometriaService {
           throw new BadRequestException('El archivo debe ser un PDF válido');
         }
 
+        const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
+        await fs.mkdir(uploadDir, { recursive: true });
+
         if (audiometriaExistente.linkPDF) {
           try {
-            await fs.unlink(audiometriaExistente.linkPDF);
+            const filePath = join(uploadDir, audiometriaExistente.linkPDF);
+            console.log('FILEPATH: ' + filePath);
+            await fs.unlink(filePath);
           } catch (error) {
             throw new Error('Error eliminando PDF anterior: ' + error.message);
           }
         }
 
-        const clienteId =
-          audiometriaDTO.cliente?.id || audiometriaExistente.cliente.id;
-        const fechaInforme =
-          audiometriaDTO.fechaInforme || audiometriaExistente.fechaInforme;
-
-        const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
-        await fs.mkdir(uploadDir, { recursive: true });
-
-        const formattedDate = format(fechaInforme, 'yyyyMMdd');
-        const baseName = `audiometria-cliente-${clienteId}-${formattedDate}`;
-        let newFileName = `${baseName}.pdf`;
-        let counter = 1;
-
-        while (await fileExists(join(uploadDir, newFileName))) {
-          newFileName = `${baseName}-${counter}.pdf`;
-          counter++;
-        }
-
+        const newFileName = Date.now().toString() + '.pdf';
         const filePath = join(uploadDir, newFileName);
+
         await fs.writeFile(filePath, pdf.buffer);
 
-        audiometriaDTO.linkPDF = filePath;
+        audiometriaDTO.linkPDF = newFileName;
       }
 
       Object.assign(audiometriaExistente, audiometriaDTO);
@@ -203,15 +191,5 @@ export class AudiometriaService {
 
   async uploadPDF() {
     return null;
-  }
-}
-
-async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch (error) {
-    if (error.code === 'ENOENT') return false;
-    throw error;
   }
 }
