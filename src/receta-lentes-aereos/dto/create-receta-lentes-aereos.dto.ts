@@ -38,7 +38,7 @@ export class CreateRecetaLentesAereosDTO extends BaseDTO {
   color: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   armazon: string;
 
   @IsString()

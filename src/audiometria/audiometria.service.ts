@@ -7,7 +7,6 @@ import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { ConfigService } from '@nestjs/config';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { format } from 'date-fns';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import {
@@ -94,21 +93,12 @@ export class AudiometriaService {
       const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
       await fs.mkdir(uploadDir, { recursive: true });
 
-      const formattedDate = format(audiometriaDTO.fechaInforme, 'yyyyMMdd');
-      const newFileName = `audiometria-cliente-${audiometriaDTO.cliente.id}-${formattedDate}.pdf`;
+      const fileName = Date.now().toString() + '.pdf';
 
-      let finalFileName = newFileName;
-      let counter = 1;
-
-      while (await fileExists(join(uploadDir, finalFileName))) {
-        finalFileName = `${newFileName.slice(0, -4)}-${counter}.pdf`;
-        counter++;
-      }
-
-      const filePath = join(uploadDir, finalFileName);
+      const filePath = join(uploadDir, fileName);
       await fs.writeFile(filePath, pdf.buffer);
 
-      audiometriaDTO.linkPDF = filePath;
+      audiometriaDTO.linkPDF = fileName;
 
       const audiometria = this.audiometriaRepository.create(audiometriaDTO);
       return await this.audiometriaRepository.save(audiometria);
@@ -124,22 +114,58 @@ export class AudiometriaService {
   async update(
     id: number,
     audiometriaDTO: UpdateAudiometriaDTO,
+    pdf?: Express.Multer.File,
   ): Promise<Audiometria> {
     try {
       const audiometriaExistente = await this.audiometriaRepository.findOne({
         where: { id },
+        relations: ['cliente'],
       });
 
       if (!audiometriaExistente) {
         throw new NotFoundException(`Audiometría con id ${id} no encontrada`);
       }
 
+      if (pdf) {
+        if (
+          !pdf.originalname.toLowerCase().endsWith('.pdf') ||
+          pdf.size === 0
+        ) {
+          throw new BadRequestException('El archivo debe ser un PDF válido');
+        }
+
+        const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
+        await fs.mkdir(uploadDir, { recursive: true });
+
+        if (audiometriaExistente.linkPDF) {
+          try {
+            const filePath = join(uploadDir, audiometriaExistente.linkPDF);
+            console.log('FILEPATH: ' + filePath);
+            await fs.unlink(filePath);
+          } catch (error) {
+            throw new Error('Error eliminando PDF anterior: ' + error.message);
+          }
+        }
+
+        const newFileName = Date.now().toString() + '.pdf';
+        const filePath = join(uploadDir, newFileName);
+
+        await fs.writeFile(filePath, pdf.buffer);
+
+        audiometriaDTO.linkPDF = newFileName;
+      }
+
       Object.assign(audiometriaExistente, audiometriaDTO);
       return await this.audiometriaRepository.save(audiometriaExistente);
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       throw new InternalServerErrorException(
-        'Error al actualizar la audiometría: ' + error,
+        `Error al actualizar audiometría: ${error.message}`,
       );
     }
   }
@@ -165,15 +191,5 @@ export class AudiometriaService {
 
   async uploadPDF() {
     return null;
-  }
-}
-
-async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch (error) {
-    if (error.code === 'ENOENT') return false;
-    throw error;
   }
 }
