@@ -2543,18 +2543,18 @@ VALUES
 -- Insertar en la tabla [dbo].[cuenta_corriente]
 INSERT INTO [dbo].[cuenta_corriente] ([createdAt], [updatedAt], [saldo], [estado], [clienteId])
 VALUES 
-(GETDATE(), NULL, 1000.00, 'ACTIVO', 1),
-(GETDATE(), NULL, 500.00, 'ACTIVO', 2),
-(GETDATE(), NULL, 750.00, 'ACTIVO', 3),
-(GETDATE(), NULL, 600.00, 'ACTIVO', 4);
+(GETDATE(), NULL, 500.00, 'ACTIVO', 1),
+(GETDATE(), NULL, 200.00, 'ACTIVO', 2),
+(GETDATE(), NULL, 300, 'ACTIVO', 3),
+(GETDATE(), NULL, 150.00, 'ACTIVO', 4);
 
 -- Insertar en la tabla [dbo].[movimiento]
-INSERT INTO [dbo].[movimiento] ([createdAt], [updatedAt], [fechaMovimiento], [tipoMovimiento], [importe], [formaPago], [cuentaCorrienteId])
+INSERT INTO [dbo].[movimiento] ([createdAt], [updatedAt], [fechaMovimiento], [tipoMovimiento], [importe], [cuentaCorrienteId])
 VALUES 
-(GETDATE(), NULL, '2023-10-01', 'Depósito', 500, 'EFECTIVO', 1),
-(GETDATE(), NULL, '2023-10-02', 'Retiro', 200, 'TARJETA_DEBITO', 2),
-(GETDATE(), NULL, '2023-10-03', 'Depósito', 300, 'EFECTIVO', 3),
-(GETDATE(), NULL, '2023-10-04', 'Retiro', 150, 'TARJETA_CREDITO', 4);
+(GETDATE(), NULL, '2023-10-01', 'PAGO', 500, 1),
+(GETDATE(), NULL, '2023-10-02', 'PAGO', 200,  2),
+(GETDATE(), NULL, '2023-10-03', 'PAGO', 300, 3),
+(GETDATE(), NULL, '2023-10-04', 'PAGO', 150, 4);
 
 -- Insertar en la tabla [dbo].[proveedor]
 INSERT INTO [dbo].[proveedor] ([createdAt], [updatedAt], [cuit], [razonSocial], [telefono], [email])
@@ -2620,4 +2620,4 @@ VALUES
 (GETDATE(), NULL, 'janedoe', 'Jane Doe', 'janedoe123', 'user');
 
 
-INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMjQ1NjY2NjIxOCIgZ2VuX3RpbWU9IjE3NDExODcyMTAiIGV4cF90aW1lPSIxNzQxMjMwNDcwIi8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=','ccx17bmpr9YGMO6YWYJLQz5ALBgrw/JNE1ExpkiiJHuaR4Cg0z/btdAVAZAYIeySZOEuRNgvL0t9d6kXeyKyAqJeJuqNUldO6Ehpxd836SXMMD3HD9AAWX1PYjqne7Rh+iPJQEKJdWXvTiXQrzC0by8tEilIsi2iDG1w+T1OgQo=','2025-03-06 00:07:50.1780000');
+INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMzI0OTMyMzA3NiIgZ2VuX3RpbWU9IjE3NDIyNTk4ODIiIGV4cF90aW1lPSIxNzQyMzAzMTQyIi8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=',' ff07hr5w9dyp/c/9FZDzJ2/ZAQb7OdAzrQRg9hBIw7mXjkC1Ig8bZCtcNFDChv8w2+iun3ML4QrWhWg6U4QpqImkV6K2rtTUWYaS+xnvjwYXK8V0yAjnEAzE09kKyEgYJiVYWRW4kML7vADZaBLKue3zyklD0Lr5TPq5IfwGINs=','2025-03-18 10:05:42.4300000');
