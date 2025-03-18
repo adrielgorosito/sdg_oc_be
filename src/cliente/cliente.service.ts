@@ -1,19 +1,19 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { Cliente } from './entities/cliente.entity';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { TipoDocumento } from './enums/tipo-documento.enum';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
-import { Repository } from 'typeorm';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { Cliente } from './entities/cliente.entity';
-import { TipoDocumento } from './enums/tipo-documento.enum';
 
 @Injectable()
 export class ClienteService {
@@ -46,8 +46,6 @@ export class ClienteService {
         .skip(offset);
 
       if (filtro) {
-        console.log(filtro.toLowerCase().replace(' ', ''));
-
         queryBuilder.andWhere(
           'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento',
           {

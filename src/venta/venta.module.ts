@@ -4,6 +4,7 @@ import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { Factura } from 'src/facturador/entities/factura.entity';
+import { Comprobante } from 'src/facturador/entities/comprobante.entity';
 import { Token } from 'src/facturador/entities/token.entity';
 import { FacturadorModule } from 'src/facturador/facturador.module';
 import { AfipService } from 'src/facturador/services/afip.service';
@@ -29,6 +30,7 @@ import { VentaService } from './venta.service';
       Factura,
       CuentaCorriente,
       Movimiento,
+      Comprobante,
     ]),
     ProductoModule,
     FacturadorModule,

@@ -1,28 +1,25 @@
 import { ConfigService } from '@nestjs/config';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { TipoContribuyente } from 'src/facturador/enums/condicion-iva.enum';
+import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
 import { TipoComprobante } from 'src/facturador/enums/tipo-comprobante.enum';
 import { TipoDocumento } from 'src/facturador/enums/tipo-documento.enum';
 import { AfipValidationError } from 'src/facturador/errors/afip.errors';
 import { IParamsFECAESolicitar } from 'src/facturador/interfaces/ISoap';
-import { Venta } from 'src/venta/entities/venta.entity';
-
-const IVA_TASA = 0.21;
-const BASE_IMPONIBLE_TASA = 1.21;
 
 export const crearDatosFactura = (
-  venta: Venta,
+  cliente: Cliente,
+  importeAFacturar: number,
   facturarASuNombre: boolean,
 ): IParamsFECAESolicitar => {
   const configService = new ConfigService();
 
   const { cbteTipo, docTipo, condicionIVA } = obtenerCbteTipoYTipoDoc(
-    venta.cliente,
+    cliente,
     facturarASuNombre,
   );
 
-  const importeNeto = Math.round(venta.importe / BASE_IMPONIBLE_TASA);
-  const importeIVA = Math.round(importeNeto * IVA_TASA);
+  const importeNeto = Math.round(importeAFacturar / 1.21);
+  const importeIVA = Math.round((importeAFacturar / 1.21) * 0.21);
 
   return {
     FeCAEReq: {
@@ -35,12 +32,12 @@ export const crearDatosFactura = (
         FECAEDetRequest: {
           Concepto: 1,
           DocTipo: docTipo,
-          DocNro: !facturarASuNombre ? 0 : venta.cliente.nroDocumento,
+          DocNro: !facturarASuNombre ? 0 : cliente.nroDocumento,
           CbteDesde: null,
           CbteHasta: null,
           FchVtoPago: null,
           CbteFch: new Date().toISOString().split('T')[0].replace(/-/g, ''),
-          ImpTotal: venta.importe,
+          ImpTotal: importeAFacturar,
           ImpTotConc: 0,
           CondicionIVAReceptorId: condicionIVA,
           ImpNeto: importeNeto,
@@ -70,35 +67,35 @@ const obtenerCbteTipoYTipoDoc = (
 ): { cbteTipo: number; docTipo: number; condicionIVA: number } => {
   if (!facturarASuNombre) {
     return {
-      condicionIVA: TipoContribuyente.CONSUMIDOR_FINAL,
+      condicionIVA: CondicionIva.CONSUMIDOR_FINAL,
       cbteTipo: TipoComprobante.FACTURA_B,
       docTipo: TipoDocumento.CONSUMIDOR_FINAL,
     };
   }
   switch (cliente.categoriaFiscal) {
-    case TipoContribuyente.MONOTRIBUTISTA:
+    case CondicionIva.MONOTRIBUTISTA:
       return {
-        condicionIVA: TipoContribuyente.MONOTRIBUTISTA,
+        condicionIVA: CondicionIva.CONSUMIDOR_FINAL,
         cbteTipo: TipoComprobante.FACTURA_B,
-        docTipo: TipoDocumento.DNI,
+        docTipo: cliente.tipoDocumento,
       };
-    case TipoContribuyente.RESPONSABLE_INSCRIPTO:
+    case CondicionIva.RESPONSABLE_INSCRIPTO:
       return {
-        condicionIVA: TipoContribuyente.RESPONSABLE_INSCRIPTO,
+        condicionIVA: CondicionIva.RESPONSABLE_INSCRIPTO,
         cbteTipo: TipoComprobante.FACTURA_A,
         docTipo: TipoDocumento.CUIT,
       };
-    case TipoContribuyente.EXENTO:
+    case CondicionIva.EXENTO:
       return {
-        condicionIVA: TipoContribuyente.EXENTO,
+        condicionIVA: CondicionIva.EXENTO,
         cbteTipo: TipoComprobante.FACTURA_B,
-        docTipo: TipoDocumento.CUIT,
+        docTipo: cliente.tipoDocumento,
       };
-    case TipoContribuyente.CONSUMIDOR_FINAL:
+    case CondicionIva.CONSUMIDOR_FINAL:
       return {
-        condicionIVA: TipoContribuyente.CONSUMIDOR_FINAL,
+        condicionIVA: CondicionIva.CONSUMIDOR_FINAL,
         cbteTipo: TipoComprobante.FACTURA_B,
-        docTipo: TipoDocumento.DNI,
+        docTipo: cliente.tipoDocumento,
       };
     default:
       throw new AfipValidationError('Categoria fiscal no válida');

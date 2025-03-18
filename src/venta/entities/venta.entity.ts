@@ -1,8 +1,9 @@
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
-import { Factura } from 'src/facturador/entities/factura.entity';
+import { Comprobante } from 'src/facturador/entities/comprobante.entity';
 import { LineaVenta } from 'src/linea-venta/entities/linea-venta.entity';
 import { MedioDePago } from 'src/medio-de-pago/entities/medio-de-pago.entity';
+import { VentaObraSocial } from 'src/venta-obra-social/entities/venta-obra-social.entity';
 import {
   BeforeInsert,
   Column,
@@ -36,8 +37,19 @@ export class Venta extends BaseTransactionalEntity {
   })
   mediosDePago: MedioDePago[];
 
-  @OneToOne(() => Factura, (factura) => factura.venta, { nullable: true })
-  factura: Factura;
+  @OneToOne(() => Comprobante, (comprobante) => comprobante.venta, {
+    nullable: true,
+  })
+  comprobante: Comprobante;
+
+  @OneToMany(
+    () => VentaObraSocial,
+    (ventaObraSocial) => ventaObraSocial.venta,
+    {
+      cascade: true,
+    },
+  )
+  ventaObraSocial: VentaObraSocial[];
 
   @BeforeInsert()
   asignarNumerosPago() {
