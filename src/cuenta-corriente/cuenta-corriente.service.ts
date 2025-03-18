@@ -1,14 +1,16 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CuentaCorriente } from './entities/cuenta-corriente.entity';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { CreateCuentaCorrienteDTO } from './dto/create-cuenta-corriente.dto';
-import { UpdateCuentaCorrienteDTO } from './dto/update-cuenta-corriente.dto';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { Movimiento } from 'src/movimiento/entities/movimiento.entity';
+import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
+import { EntityManager, Repository } from 'typeorm';
+import { CreateCuentaCorrienteDTO } from './dto/create-cuenta-corriente.dto';
+import { UpdateCuentaCorrienteDTO } from './dto/update-cuenta-corriente.dto';
 
 @Injectable()
 export class CuentaCorrienteService {
@@ -17,6 +19,8 @@ export class CuentaCorrienteService {
     private cuentaCorrienteRepository: Repository<CuentaCorriente>,
     @InjectRepository(Cliente)
     private clienteRepository: Repository<Cliente>,
+    @InjectRepository(Movimiento)
+    private movimientoRepository: Repository<Movimiento>,
   ) {}
 
   async findAll(): Promise<CuentaCorriente[]> {
@@ -116,5 +120,55 @@ export class CuentaCorrienteService {
         'Error al eliminar la cuenta corriente: ' + error,
       );
     }
+  }
+
+  async afectarCuentaCorriente(
+    clienteId: number,
+    importe: number,
+    tipoMovimiento: TipoMovimiento,
+    entityManager?: EntityManager,
+  ): Promise<CuentaCorriente> {
+    const cuentaCorriente = await this.cuentaCorrienteRepository.findOne({
+      where: { id: clienteId },
+      relations: ['movimientos'],
+    });
+
+    if (!cuentaCorriente) {
+      throw new NotFoundException(
+        `Cuenta corriente con id ${clienteId} no encontrada`,
+      );
+    }
+
+    switch (tipoMovimiento) {
+      case TipoMovimiento.VENTA:
+        cuentaCorriente.saldo -= importe;
+        break;
+      case TipoMovimiento.PAGO:
+        cuentaCorriente.saldo += importe;
+        break;
+      case TipoMovimiento.DEVOLUCION:
+        cuentaCorriente.saldo += importe;
+        break;
+    }
+
+    const movimiento = entityManager
+      ? entityManager.create(Movimiento, {
+          fechaMovimiento: new Date(),
+          importe: importe,
+          tipoMovimiento: tipoMovimiento,
+        })
+      : this.movimientoRepository.create({
+          fechaMovimiento: new Date(),
+          importe: importe,
+          tipoMovimiento: tipoMovimiento,
+        });
+
+    cuentaCorriente.movimientos.push(movimiento);
+
+    const cuentaCorrienteActualizada = entityManager
+      ? entityManager.save(CuentaCorriente, cuentaCorriente)
+      : await this.cuentaCorrienteRepository.save(cuentaCorriente);
+
+    return cuentaCorrienteActualizada;
   }
 }

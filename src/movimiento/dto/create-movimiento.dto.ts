@@ -1,38 +1,23 @@
-import { Type } from 'class-transformer';
 import {
   IsDate,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsObject,
-  IsString,
-  ValidateNested,
+  IsOptional,
 } from 'class-validator';
-import { IsFormaPago } from 'src/common/decorators/is-forma-pago.decorator';
-import { IsTipoMovimiento } from 'src/common/decorators/is-tipo-movimiento.decorator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
-import { UpdateCuentaCorrienteDTO } from 'src/cuenta-corriente/dto/update-cuenta-corriente.dto';
+import { TipoMovimiento } from '../enums/tipo-movimiento.enum';
 
 export class CreateMovimientoDTO extends BaseDTO {
-  @IsNotEmpty()
+  @IsOptional()
   @IsDate()
   fechaMovimiento: Date;
 
   @IsNotEmpty()
-  @IsString()
-  @IsTipoMovimiento()
-  tipoMovimiento: string;
+  @IsEnum(TipoMovimiento)
+  tipoMovimiento: TipoMovimiento;
 
   @IsNotEmpty()
   @IsNumber()
   importe: number;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsFormaPago()
-  formaPago: string;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => UpdateCuentaCorrienteDTO)
-  cuentaCorriente: UpdateCuentaCorrienteDTO;
 }

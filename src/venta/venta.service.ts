@@ -7,10 +7,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { Comprobante } from 'src/facturador/entities/comprobante.entity';
 import { AfipAuthError, AfipError } from 'src/facturador/errors/afip.errors';
 import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
 import { FacturadorService } from 'src/facturador/services/facturador.service';
+import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
+import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ProductoService } from 'src/producto/producto.service';
 import { DataSource, Repository } from 'typeorm';
 import { CreateVentaDTO } from './dto/create-venta.dto';
@@ -27,6 +30,7 @@ export class VentaService {
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
     private readonly facturadorService: FacturadorService,
+    private readonly cuentaCorrienteService: CuentaCorrienteService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -39,6 +43,11 @@ export class VentaService {
       await queryRunner.startTransaction();
       clienteExistente = await queryRunner.manager.findOne(Cliente, {
         where: { id: createVentaDto.cliente.id },
+        relations: {
+          cuentaCorriente: {
+            movimientos: true,
+          },
+        },
       });
 
       if (!clienteExistente) {
@@ -68,6 +77,26 @@ export class VentaService {
           (total, ventaObraSocial) => total + ventaObraSocial.importe,
           0,
         );
+
+      const medioDePagoCC = createVentaDto.mediosDePago.find(
+        (medio) =>
+          medio.tipoMedioDePago === TipoMedioDePagoEnum.CUENTA_CORRIENTE,
+      );
+
+      if (medioDePagoCC) {
+        if (!clienteExistente.cuentaCorriente) {
+          throw new NotFoundException('Cuenta corriente no encontrada');
+        }
+
+        const cuentaCorrienteActualizada =
+          await this.cuentaCorrienteService.afectarCuentaCorriente(
+            clienteExistente.id,
+            medioDePagoCC.importe,
+            TipoMovimiento.VENTA,
+            queryRunner.manager,
+          );
+        clienteExistente.cuentaCorriente = cuentaCorrienteActualizada;
+      }
 
       venta = await queryRunner.manager.save(Venta, nuevaVenta);
 

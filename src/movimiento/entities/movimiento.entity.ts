@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
+import { TipoMovimiento } from '../enums/tipo-movimiento.enum';
 
 @Entity()
 export class Movimiento extends BaseEntity {
@@ -8,13 +9,10 @@ export class Movimiento extends BaseEntity {
   fechaMovimiento: Date;
 
   @Column()
-  tipoMovimiento: string;
+  tipoMovimiento: TipoMovimiento;
 
   @Column()
   importe: number;
-
-  @Column()
-  formaPago: string;
 
   @ManyToOne(
     () => CuentaCorriente,
