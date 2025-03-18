@@ -94,9 +94,9 @@ export class AudiometriaService {
       const uploadDir = join(process.cwd(), 'uploads', 'audiometrias');
       await fs.mkdir(uploadDir, { recursive: true });
 
-      const fileName = Date.now().toString();
+      const fileName = Date.now().toString() + '.pdf';
 
-      const filePath = join(uploadDir, fileName + '.pdf');
+      const filePath = join(uploadDir, fileName);
       await fs.writeFile(filePath, pdf.buffer);
 
       audiometriaDTO.linkPDF = fileName;
