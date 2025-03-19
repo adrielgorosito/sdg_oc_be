@@ -5,11 +5,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
-import { UpdateRecetaLentesAereosDTO } from './dto/update-receta-lentes-aereos.dto';
 
 @Controller('receta-lentes-aereos')
 export class RecetaLentesAereosController {
@@ -30,10 +29,10 @@ export class RecetaLentesAereosController {
     return await this.rlaService.create(rlaDTO);
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() rlaDTO: UpdateRecetaLentesAereosDTO,
+    @Body() rlaDTO: CreateRecetaLentesAereosDTO,
   ) {
     return await this.rlaService.update(id, rlaDTO);
   }

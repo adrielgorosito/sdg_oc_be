@@ -30,7 +30,7 @@ export class AudiometriaController {
 
   @Post()
   @UseInterceptors(FileInterceptor('pdf'))
-  async createOne(
+  async create(
     @Body('audiometriaDTO') audiometriaDTOString: string,
     @UploadedFile() pdf: Express.Multer.File,
   ) {
@@ -40,11 +40,15 @@ export class AudiometriaController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('pdf'))
   async update(
     @Param('id') id: number,
-    @Body() audiometriaDTO: UpdateAudiometriaDTO,
+    @Body('audiometriaDTO') audiometriaDTOString: string,
+    @UploadedFile() pdf?: Express.Multer.File,
   ) {
-    return await this.audiometriaService.update(id, audiometriaDTO);
+    const audiometriaDTO: UpdateAudiometriaDTO =
+      JSON.parse(audiometriaDTOString);
+    return await this.audiometriaService.update(id, audiometriaDTO, pdf);
   }
 
   @Delete(':id')

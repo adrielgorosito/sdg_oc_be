@@ -2465,25 +2465,25 @@ VALUES
 -- Insertar en la tabla [dbo].[receta_lentes_aereos]
 INSERT INTO [dbo].[receta_lentes_aereos] ([createdAt], [updatedAt], [fecha], [tipoReceta], [oftalmologo], [cristal], [color], [armazon], [tratamiento], [observaciones], [clienteId])
 VALUES 
-(GETDATE(), NULL, '2023-10-01', 'Multifocal', 'Dr. Smith', 'Cristal A', 'Negro', 'Armazón A', 'Tratamiento A', 'Sin observaciones', 1),
-(GETDATE(), NULL, '2023-10-02', 'Cerca', 'Dr. Johnson', 'Cristal B', 'Marrón', 'Armazón B', 'Tratamiento B', 'Sin observaciones', 2),
+(GETDATE(), NULL, '2023-10-01', 'Multifocal', 'Dr. Smith', 'Cristal A', 'Negro', NULL, 'Tratamiento A', 'Sin observaciones', 1),
+(GETDATE(), NULL, '2023-10-02', 'Cerca', 'Dr. Johnson', 'Cristal B', 'Marrón', NULL, 'Tratamiento B', 'Sin observaciones', 2),
 (GETDATE(), NULL, '2023-10-11', 'Lejos', 'Dr. Smith', 'Cristal K', 'Violeta', 'Armazón K', 'Tratamiento K', 'Sin observaciones', 2),
-(GETDATE(), NULL, '2023-10-12', 'Cerca', 'Dr. Johnson', 'Cristal L', 'Rosa', 'Armazón L', 'Tratamiento L', 'Sin observaciones', 2),
+(GETDATE(), NULL, '2023-10-12', 'Cerca', 'Dr. Johnson', 'Cristal L', 'Rosa', NULL, 'Tratamiento L', 'Sin observaciones', 2),
 (GETDATE(), NULL, '2023-10-13', 'Lejos', 'Dr. Smith', 'Cristal M', 'Azul', 'Armazón M', 'Tratamiento M', 'Sin observaciones', 2),
 (GETDATE(), NULL, '2023-10-03', 'Lejos', 'Dr. Smith', 'Cristal C', 'Azul', 'Armazón C', 'Tratamiento C', 'Visión algo borrosa', 3),
 (GETDATE(), NULL, '2023-10-14', 'Cerca', 'Dr. Johnson', 'Cristal N', 'Negro', 'Armazón N', 'Tratamiento N', 'Visión algo borrosa', 3),
 (GETDATE(), NULL, '2023-10-15', 'Lejos', 'Dr. Smith', 'Cristal O', 'Verde', 'Armazón O', 'Tratamiento O', 'Poca agudeza visual', 3),
 (GETDATE(), NULL, '2023-10-04', 'Cerca', 'Dr. Johnson', 'Cristal D', 'Rojo', 'Armazón D', 'Tratamiento D', 'Leve astigmatismo', 4),
 (GETDATE(), NULL, '2023-10-08', 'Cerca', 'Dr. Johnson', 'Cristal H', 'Rosa', 'Armazón H', 'Tratamiento H', 'Leve astigmatismo', 4),
-(GETDATE(), NULL, '2023-10-16', 'Cerca', 'Dr. Johnson', 'Cristal P', 'Marrón', 'Armazón P', 'Tratamiento P', 'Leve astigmatismo', 4),
-(GETDATE(), NULL, '2023-10-05', 'Lejos', 'Dr. Smith', 'Cristal E', 'Verde', 'Armazón E', 'Tratamiento E', 'Poca agudeza visual', 5),
+(GETDATE(), NULL, '2023-10-16', 'Cerca', 'Dr. Johnson', 'Cristal P', 'Marrón', NULL, 'Tratamiento P', 'Leve astigmatismo', 4),
+(GETDATE(), NULL, '2023-10-05', 'Lejos', 'Dr. Smith', 'Cristal E', 'Verde', NULL, 'Tratamiento E', 'Poca agudeza visual', 5),
 (GETDATE(), NULL, '2023-10-06', 'Cerca', 'Dr. Johnson', 'Cristal F', 'Amarillo', 'Armazón F', 'Tratamiento F', 'Poca agudeza visual', 5),
 (GETDATE(), NULL, '2023-10-07', 'Lejos', 'Dr. Smith', 'Cristal G', 'Blanco', 'Armazón G', 'Tratamiento G', 'Visión algo borrosa', 7),
 (GETDATE(), NULL, '2023-10-09', 'Lejos', 'Dr. Smith', 'Cristal I', 'Gris', 'Armazón I', 'Tratamiento I', 'Poca agudeza visual', 7),
-(GETDATE(), NULL, '2023-10-17', 'Lejos', 'Dr. Smith', 'Cristal Q', 'Amarillo', 'Armazón Q', 'Tratamiento Q', 'Poca agudeza visual', 7),
+(GETDATE(), NULL, '2023-10-17', 'Lejos', 'Dr. Smith', 'Cristal Q', 'Amarillo', NULL, 'Tratamiento Q', 'Poca agudeza visual', 7),
 (GETDATE(), NULL, '2023-10-10', 'Cerca', 'Dr. Johnson', 'Cristal J', 'Naranja', 'Armazón J', 'Tratamiento J', 'Poca agudeza visual', 8),
 (GETDATE(), NULL, '2023-10-18', 'Cerca', 'Dr. Johnson', 'Cristal R', 'Rojo', 'Armazón R', 'Tratamiento R', 'Visión algo borrosa', 8),
-(GETDATE(), NULL, '2023-10-20', 'Cerca', 'Dr. Johnson', 'Cristal T', 'Gris', 'Armazón T', 'Tratamiento T', 'Poca agudeza visual', 8),
+(GETDATE(), NULL, '2023-10-20', 'Cerca', 'Dr. Johnson', 'Cristal T', 'Gris', NULL, 'Tratamiento T', 'Poca agudeza visual', 8),
 (GETDATE(), NULL, '2023-10-19', 'Lejos', 'Dr. Smith', 'Cristal S', 'Blanco', 'Armazón S', 'Tratamiento S', 'Visión algo borrosa', 9);
 
 -- Insertar en la tabla [dbo].[detalles_receta_lentes_aereos]
