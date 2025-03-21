@@ -6,9 +6,9 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 
 @Controller('receta-lentes-contacto')
@@ -26,14 +26,14 @@ export class RecetaLentesContactoController {
   }
 
   @Post()
-  async createOne(
+  async create(
     @Body()
     rlcDTO: CreateRecetaLentesContactoDTO,
   ) {
     return await this.rlcService.create(rlcDTO);
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(
     @Param('id') id: number,
     @Body()

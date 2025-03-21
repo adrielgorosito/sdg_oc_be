@@ -66,7 +66,7 @@ export class PruebasLentesContacto {
   @Column()
   od_edema: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   observaciones: string;
 
   @ManyToOne(

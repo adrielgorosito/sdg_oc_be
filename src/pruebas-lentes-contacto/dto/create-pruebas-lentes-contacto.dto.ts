@@ -86,5 +86,5 @@ export class CreatePruebasLentesContactoDTO extends BaseDTO {
 
   @IsString()
   @IsOptional()
-  observaciones: string;
+  observaciones?: string;
 }

@@ -83,7 +83,7 @@ export class RecetaLentesContacto extends BaseEntity {
   @Column()
   oi_marca: string;
 
-  @Column()
+  @Column({ nullable: true })
   observaciones: string;
 
   @ManyToOne(() => Cliente, (cliente) => cliente.recetasLentesContacto, {
@@ -94,6 +94,7 @@ export class RecetaLentesContacto extends BaseEntity {
   @OneToMany(
     () => PruebasLentesContacto,
     (pruebasLentesContacto) => pruebasLentesContacto.recetaLentesContacto,
+    { cascade: true },
   )
   pruebasLentesContacto: PruebasLentesContacto[];
 
