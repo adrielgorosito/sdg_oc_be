@@ -9,13 +9,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { PruebasLentesContacto } from 'src/pruebas-lentes-contacto/entities/pruebas-lentes-contacto.entity';
 
 @Injectable()
 export class RecetaLentesContactoService {
   constructor(
     @InjectRepository(RecetaLentesContacto)
     private rlcRepository: Repository<RecetaLentesContacto>,
-
     @InjectRepository(Cliente)
     private clienteRepository: Repository<Cliente>,
   ) {}
@@ -75,7 +75,6 @@ export class RecetaLentesContactoService {
       }
 
       const receta = this.rlcRepository.create(rlcDTO);
-
       return await this.rlcRepository.save(receta);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -92,6 +91,7 @@ export class RecetaLentesContactoService {
     try {
       const recetaExistente = await this.rlcRepository.findOne({
         where: { id },
+        relations: ['pruebasLentesContacto'],
       });
 
       if (!recetaExistente) {
@@ -100,7 +100,24 @@ export class RecetaLentesContactoService {
         );
       }
 
-      Object.assign(recetaExistente, rlcDTO);
+      if (recetaExistente.pruebasLentesContacto.length > 0) {
+        await this.rlcRepository.manager
+          .getRepository(PruebasLentesContacto)
+          .remove(recetaExistente.pruebasLentesContacto);
+      }
+
+      const nuevasPruebas = rlcDTO.pruebasLentesContacto
+        ? rlcDTO.pruebasLentesContacto.map((prueba, index) => ({
+            ...prueba,
+            numeroPrueba: index + 1,
+          }))
+        : [];
+
+      Object.assign(recetaExistente, {
+        ...rlcDTO,
+        pruebasLentesContacto: nuevasPruebas,
+      });
+
       return await this.rlcRepository.save(recetaExistente);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
