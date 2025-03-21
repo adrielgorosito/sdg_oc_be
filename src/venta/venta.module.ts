@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { Factura } from 'src/facturador/entities/factura.entity';
 import { Comprobante } from 'src/facturador/entities/comprobante.entity';
 import { Token } from 'src/facturador/entities/token.entity';
 import { FacturadorModule } from 'src/facturador/facturador.module';
@@ -27,7 +26,6 @@ import { VentaService } from './venta.service';
       Marca,
       Proveedor,
       Token,
-      Factura,
       CuentaCorriente,
       Movimiento,
       Comprobante,
