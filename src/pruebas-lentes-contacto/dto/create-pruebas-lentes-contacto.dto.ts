@@ -29,7 +29,7 @@ export class CreatePruebasLentesContactoDTO extends BaseDTO {
   od_cb: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   od_marca: string;
 
   @IsNumber()
@@ -53,7 +53,7 @@ export class CreatePruebasLentesContactoDTO extends BaseDTO {
   oi_cb: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   oi_marca: string;
 
   @IsBoolean()

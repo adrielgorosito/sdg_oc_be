@@ -23,7 +23,7 @@ export class RecetaLentesContacto extends BaseEntity {
   @Column()
   quet_m2_oi: number;
 
-  @Column()
+  @Column({ nullable: true })
   observaciones_queterometria: string;
 
   @Column()

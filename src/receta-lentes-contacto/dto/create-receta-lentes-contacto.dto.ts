@@ -41,7 +41,7 @@ export class CreateRecetaLentesContactoDTO extends BaseDTO {
   quet_m2_oi: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   observaciones_queterometria: string;
 
   @IsBoolean()

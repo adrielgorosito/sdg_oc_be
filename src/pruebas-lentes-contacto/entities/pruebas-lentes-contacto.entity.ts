@@ -24,7 +24,7 @@ export class PruebasLentesContacto {
   @Column()
   od_cb: number;
 
-  @Column()
+  @Column({ nullable: true })
   od_marca: string;
 
   @Column()
@@ -42,7 +42,7 @@ export class PruebasLentesContacto {
   @Column()
   oi_cb: number;
 
-  @Column()
+  @Column({ nullable: true })
   oi_marca: string;
 
   @Column()
