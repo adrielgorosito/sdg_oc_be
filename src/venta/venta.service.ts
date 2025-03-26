@@ -56,14 +56,6 @@ export class VentaService {
 
       const nuevaVenta = queryRunner.manager.create(Venta, createVentaDto);
 
-      for (const linea of nuevaVenta.lineasDeVenta) {
-        await this.productoService.descontarStock(
-          linea.producto.id,
-          linea.cantidad,
-          queryRunner,
-        );
-      }
-
       const importe = createVentaDto.lineasDeVenta.reduce(
         (total, linea) => total + linea.precioIndividual * linea.cantidad,
         0,

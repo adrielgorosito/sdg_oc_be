@@ -8,19 +8,19 @@ import { CategoriaEnum } from '../enums/categoria.enum';
 @Entity()
 export class Producto extends BaseEntity {
   @Column()
+  codProv: string;
+
+  @Column()
   descripcion: string;
+
+  @Column({ enum: CategoriaEnum })
+  categoria: CategoriaEnum;
 
   @Column('decimal', { precision: 9, scale: 2 })
   precio: number;
 
   @Column('decimal', { precision: 9, scale: 2 })
   precioSugerido: number;
-
-  @Column({ default: 0 })
-  stock: number;
-
-  @Column({ enum: CategoriaEnum })
-  categoria: CategoriaEnum;
 
   @ManyToOne(() => Marca, (marca) => marca.productos, { onDelete: 'CASCADE' })
   marca: Marca;

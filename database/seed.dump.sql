@@ -2573,12 +2573,12 @@ VALUES
 (GETDATE(), NULL, 'Marca D');
 
 -- Insertar en la tabla [dbo].[producto]
-INSERT INTO [dbo].[producto] ([createdAt], [updatedAt], [descripcion], [precio], [precioSugerido], [stock], [categoria], [marcaId], [proveedorId])
+INSERT INTO [dbo].[producto] ([createdAt], [updatedAt], [codProv], [descripcion], [categoria], [precio], [precioSugerido], [marcaId], [proveedorId])
 VALUES 
-(GETDATE(), NULL, 'Lentes de sol', 150.00, 150.00, 0, 'LENTES_DE_SOL', 1, 1),
-(GETDATE(), NULL, 'Lentes de contacto', 200.00, 150.00, 10, 'LENTES_DE_CONTACTO', 2, 2),
-(GETDATE(), NULL, 'Lentes de vista', 250.00, 200.00, 5, 'LENTES_AEREOS', 3, 3),
-(GETDATE(), NULL, 'Lentes de sol polarizados', 300.00, 350.00, 2, 'LENTES_DE_SOL', 4, 4);
+(GETDATE(), NULL, 'A1', 'Lentes de sol', 'LENTES DE SOL', 150.00, 150.00, 1, 1),
+(GETDATE(), NULL, 'A2', 'Lentes de contacto', 'LENTES DE CONTACTO', 200.00, 150.00, 2, 2),
+(GETDATE(), NULL, 'A3', 'Lentes de vista', 'LENTES AEREOS', 250.00, 200.00, 3, 3),
+(GETDATE(), NULL, 'A4', 'Lentes de sol polarizados', 'LENTES DE SOL', 300.00, 350.00, 4, 4);
 
 -- Insertar en la tabla [dbo].[venta]
 DECLARE @venta1 UNIQUEIDENTIFIER = NEWID();

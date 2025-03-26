@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsNumber,
   IsObject,
-  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -15,17 +14,15 @@ import { CategoriaEnum } from '../enums/categoria.enum';
 export class CreateProductoDTO extends BaseDTO {
   @IsNotEmpty()
   @IsString()
+  codProv: string;
+
+  @IsNotEmpty()
+  @IsString()
   descripcion: string;
 
-  @IsObject()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  proveedor: RelationDTO;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => RelationDTO)
-  marca: RelationDTO;
+  @IsNotEmpty()
+  @IsEnum(CategoriaEnum)
+  categoria: CategoriaEnum;
 
   @IsNotEmpty()
   @IsNumber()
@@ -35,11 +32,13 @@ export class CreateProductoDTO extends BaseDTO {
   @IsNumber()
   precioSugerido: number;
 
-  @IsOptional()
-  @IsNumber()
-  stock: number;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => RelationDTO)
+  marca: RelationDTO;
 
-  @IsNotEmpty()
-  @IsEnum(CategoriaEnum)
-  categoria: CategoriaEnum;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => RelationDTO)
+  proveedor: RelationDTO;
 }
