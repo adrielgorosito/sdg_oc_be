@@ -73,8 +73,6 @@ export class ExcelService {
     const productos: Partial<Producto>[] = [];
     const worksheet = workbook.getWorksheet('Productos');
 
-    console.log(worksheet.rowCount);
-
     for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
       const codProv = this.getPlainText(
         worksheet.getRow(rowNumber).getCell(1).value,
@@ -88,17 +86,11 @@ export class ExcelService {
       const precioLista = Math.round(
         Number(this.getPlainText(worksheet.getRow(rowNumber).getCell(4).value)),
       );
-      const precioSugeridoVenta = Math.round(
+      const precio = Math.round(
         Number(this.getPlainText(worksheet.getRow(rowNumber).getCell(5).value)),
       );
 
-      if (
-        !codProv ||
-        !descripcion ||
-        !categoria ||
-        !precioLista ||
-        !precioSugeridoVenta
-      ) {
+      if (!codProv || !descripcion || !categoria || !precioLista || !precio) {
         throw new BadRequestException(
           'El archivo contiene productos con valores nulos en campos obligatorios',
         );
@@ -110,14 +102,12 @@ export class ExcelService {
           categoria.replace(/ /g, '_'),
       );
 
-      console.log(categoriaKey);
-
       productos.push({
         codProv,
         descripcion,
         categoria: CategoriaEnum[categoriaKey],
-        precio: Math.round(Number(precioLista)),
-        precioSugerido: Math.round(Number(precioSugeridoVenta)),
+        precioLista: Math.round(Number(precioLista)),
+        precio: Math.round(Number(precio)),
       });
     }
 

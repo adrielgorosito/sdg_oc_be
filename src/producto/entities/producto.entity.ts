@@ -17,10 +17,10 @@ export class Producto extends BaseEntity {
   categoria: CategoriaEnum;
 
   @Column('decimal', { precision: 9, scale: 2 })
-  precio: number;
+  precioLista: number;
 
   @Column('decimal', { precision: 9, scale: 2 })
-  precioSugerido: number;
+  precio: number;
 
   @ManyToOne(() => Marca, (marca) => marca.productos, { onDelete: 'CASCADE' })
   marca: Marca;
