@@ -18,7 +18,6 @@ export class DatabaseService implements OnModuleInit {
 
   async ejecutarDump() {
     try {
-      console.log('Conectando a SQL Server...');
       const pool = await sql.connect(configDataBase);
       const dumpPath = path.join(process.cwd(), 'database', 'seed.dump.sql');
 

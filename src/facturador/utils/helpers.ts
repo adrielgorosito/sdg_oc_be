@@ -173,8 +173,6 @@ export function generateSoapRequest(
     </soapenv:Body>
   </soapenv:Envelope>`;
 
-  console.log('xml', xml);
-
   return {
     method: 'POST',
     headers: {
@@ -401,11 +399,11 @@ export function procesarRespuestaAFIP(
   const { CAE, CbteHasta, Observaciones, CbteFch, DocNro, DocTipo } =
     respuesta?.FeDetResp?.FECAEDetResponse;
 
-  const numeroFactura = `${PtoVta.toString().padStart(4, '0')}-${CbteHasta.toString().padStart(8, '0')}`;
+  const numeroComprobante = `${PtoVta.toString().padStart(4, '0')}-${CbteHasta.toString().padStart(8, '0')}`;
   if (Resultado === 'A') {
     return {
       CAE,
-      numeroFactura,
+      numeroComprobante,
       cbteTipo: CbteTipo,
       fechaFactura: CbteFch,
       docNro: DocNro,

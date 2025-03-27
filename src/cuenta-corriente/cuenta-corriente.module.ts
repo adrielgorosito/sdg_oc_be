@@ -10,5 +10,6 @@ import { CuentaCorriente } from './entities/cuenta-corriente.entity';
   imports: [TypeOrmModule.forFeature([CuentaCorriente, Movimiento, Cliente])],
   controllers: [CuentaCorrienteController],
   providers: [CuentaCorrienteService],
+  exports: [CuentaCorrienteService],
 })
 export class CuentaCorrienteModule {}
