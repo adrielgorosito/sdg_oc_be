@@ -16,6 +16,7 @@ export interface IParamsFECompUltimoAutorizado {
   PtoVta: number;
   CbteTipo: number;
 }
+
 interface FeCabReq {
   CantReg: number;
   PtoVta: number;
@@ -37,6 +38,7 @@ interface Tributo {
 interface Comprobantes {
   CbteAsoc: Comprobante[];
 }
+
 interface Comprobante {
   Tipo: number;
   PtoVta: number;
@@ -44,6 +46,7 @@ interface Comprobante {
   Cuit: string;
   CbteFch: string;
 }
+
 interface Iva {
   AlicIva: AlicIva[];
 }
@@ -53,6 +56,7 @@ interface AlicIva {
   BaseImp: number;
   Importe: number;
 }
+
 export interface IParamsFECAESolicitar {
   FeCAEReq: {
     FeCabReq: FeCabReq;
