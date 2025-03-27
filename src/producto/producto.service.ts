@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Marca } from 'src/marca/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
-import { QueryRunner, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateProductoDTO } from './dto/create-producto.dto';
 import { PaginateProductoDTO } from './dto/paginate-producto.dto';
 import { UpdateProductoDTO } from './dto/update-producto.dto';
@@ -192,25 +192,6 @@ export class ProductoService {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar el producto: ' + error,
-      );
-    }
-  }
-
-  async descontarStock(id: number, cantidad: number, queryRunner: QueryRunner) {
-    try {
-      const producto = await queryRunner.manager.findOne(Producto, {
-        where: { id },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (!producto) {
-        throw new NotFoundException(`Producto con id ${id} no encontrado`);
-      }
-      producto.stock -= cantidad;
-      await queryRunner.manager.save(Producto, producto);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException(
-        'Error al descontar el stock: ' + error,
       );
     }
   }
