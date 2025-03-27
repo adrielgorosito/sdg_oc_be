@@ -10,6 +10,7 @@ import { Producto } from '../entities/producto.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { Marca } from 'src/marca/entities/marca.entity';
 import * as ExcelJS from 'exceljs';
+import { CategoriaEnum } from '../enums/categoria.enum';
 
 @Injectable()
 export class ExcelService {
@@ -49,12 +50,14 @@ export class ExcelService {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(file.buffer);
 
-      const productos = this.getTemplate(workbook).map((producto) => ({
-        ...producto,
-        proveedor: proveedorExistente,
-        marca: marcaExistente,
-        updatedAt: null,
-      }));
+      const productos: Producto[] = this.getTemplate(workbook).map(
+        (producto) => ({
+          ...producto,
+          proveedor: proveedorExistente,
+          marca: marcaExistente,
+          updatedAt: null,
+        }),
+      );
 
       return await this.productoRepository.save(productos);
     } catch (error) {
@@ -67,8 +70,10 @@ export class ExcelService {
   }
 
   private getTemplate(workbook: ExcelJS.Workbook): any[] {
-    const productos = [];
+    const productos: Partial<Producto>[] = [];
     const worksheet = workbook.getWorksheet('Productos');
+
+    console.log(worksheet.rowCount);
 
     for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
       const codProv = this.getPlainText(
@@ -99,10 +104,18 @@ export class ExcelService {
         );
       }
 
+      const categoriaKey = Object.keys(CategoriaEnum).find(
+        (k) =>
+          CategoriaEnum[k as keyof typeof CategoriaEnum] ===
+          categoria.replace(/ /g, '_'),
+      );
+
+      console.log(categoriaKey);
+
       productos.push({
         codProv,
         descripcion,
-        categoria,
+        categoria: CategoriaEnum[categoriaKey],
         precio: Math.round(Number(precioLista)),
         precioSugerido: Math.round(Number(precioSugeridoVenta)),
       });

@@ -2575,10 +2575,10 @@ VALUES
 -- Insertar en la tabla [dbo].[producto]
 INSERT INTO [dbo].[producto] ([createdAt], [updatedAt], [codProv], [descripcion], [categoria], [precio], [precioSugerido], [marcaId], [proveedorId])
 VALUES 
-(GETDATE(), NULL, 'A1', 'Lentes de sol', 'LENTES DE SOL', 150.00, 150.00, 1, 1),
-(GETDATE(), NULL, 'A2', 'Lentes de contacto', 'LENTES DE CONTACTO', 200.00, 150.00, 2, 2),
-(GETDATE(), NULL, 'A3', 'Lentes de vista', 'LENTES AEREOS', 250.00, 200.00, 3, 3),
-(GETDATE(), NULL, 'A4', 'Lentes de sol polarizados', 'LENTES DE SOL', 300.00, 350.00, 4, 4);
+(GETDATE(), NULL, 'A1', 'Lentes de sol', 'LENTES_DE_SOL', 150.00, 150.00, 1, 1),
+(GETDATE(), NULL, 'A2', 'Lentes de contacto', 'LENTES_DE_CONTACTO', 200.00, 150.00, 2, 2),
+(GETDATE(), NULL, 'A3', 'Lentes de vista', 'LENTES_AEREOS', 250.00, 200.00, 3, 3),
+(GETDATE(), NULL, 'A4', 'Lentes de sol polarizados', 'LENTES_DE_SOL', 300.00, 350.00, 4, 4);
 
 -- Insertar en la tabla [dbo].[venta]
 DECLARE @venta1 UNIQUEIDENTIFIER = NEWID();
