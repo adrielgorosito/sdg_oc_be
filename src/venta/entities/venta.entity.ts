@@ -42,6 +42,9 @@ export class Venta extends BaseTransactionalEntity {
   })
   comprobante: Comprobante;
 
+  @Column({ nullable: true, type: 'text' })
+  observaciones: string;
+
   @OneToMany(
     () => VentaObraSocial,
     (ventaObraSocial) => ventaObraSocial.venta,

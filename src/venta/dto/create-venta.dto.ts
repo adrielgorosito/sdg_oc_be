@@ -1,8 +1,8 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsBoolean,
   IsDate,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsObject,
@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { BaseTransactionalDTO } from 'src/common/dtos/baseTransactional.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
+import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
 import { CreateLineaVentaDTO } from 'src/linea-venta/dto/create-linea-venta.dto';
 import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
 import { CreateVentaObraSocialDTO } from 'src/venta-obra-social/dto/create-venta-obra-social.dto';
@@ -27,7 +28,7 @@ export class CreateVentaDTO extends BaseTransactionalDTO {
 
   @IsOptional()
   @IsNumber()
-  descuentoPorcentaje: number;
+  descuentoPorcentaje: number = 0;
 
   @IsObject()
   @ValidateNested()
@@ -44,9 +45,13 @@ export class CreateVentaDTO extends BaseTransactionalDTO {
   @Type(() => CreateLineaVentaDTO)
   lineasDeVenta: CreateLineaVentaDTO[];
 
-  @IsBoolean()
+  @IsEnum(CondicionIva)
   @IsNotEmpty()
-  facturarASuNombre: boolean;
+  condicionIva: CondicionIva;
+
+  @IsString()
+  @IsOptional()
+  observaciones: string;
 
   @IsArray()
   @ValidateNested()

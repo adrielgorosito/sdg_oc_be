@@ -16,6 +16,7 @@ export interface IParamsFECompUltimoAutorizado {
   PtoVta: number;
   CbteTipo: number;
 }
+
 interface FeCabReq {
   CantReg: number;
   PtoVta: number;
@@ -33,6 +34,19 @@ interface Tributo {
   Alic: number;
   Importe: number;
 }
+
+interface Comprobantes {
+  CbteAsoc: Comprobante[];
+}
+
+interface Comprobante {
+  Tipo: number;
+  PtoVta: number;
+  Nro: number;
+  Cuit: string;
+  CbteFch: string;
+}
+
 interface Iva {
   AlicIva: AlicIva[];
 }
@@ -42,6 +56,7 @@ interface AlicIva {
   BaseImp: number;
   Importe: number;
 }
+
 export interface IParamsFECAESolicitar {
   FeCAEReq: {
     FeCabReq: FeCabReq;
@@ -67,6 +82,7 @@ export interface IParamsFECAESolicitar {
         MonCotiz: number;
         Iva?: Iva;
         Tributos?: Tributos;
+        CbtesAsoc?: Comprobantes;
       };
     };
   };
@@ -176,7 +192,7 @@ export interface IFECAESolicitarResult {
 
 export interface IProcesadoExitoso {
   CAE: number;
-  numeroFactura: string;
+  numeroComprobante: string;
   cbteTipo: TipoComprobante;
   fechaFactura: Date;
   docNro: number;
