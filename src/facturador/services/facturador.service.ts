@@ -86,8 +86,7 @@ export class FacturadorService {
         throw new NotFoundException('Factura relacionada no encontrada');
       }
 
-      ///valdiacion de tipo de comprobante
-
+      ///validación de tipo de comprobante
       const datosComprobante = await crearDatosNotaDeCreditoDebito(
         comprobanteDTO,
         facturaRelacionada,
