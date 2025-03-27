@@ -7,6 +7,7 @@ import { AudiometriaModule } from './audiometria/audiometria.module';
 import { AuthModule } from './auth/auth.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
 import { ClienteModule } from './cliente/cliente.module';
+import { CommonsModule } from './common/commons.module';
 import { DatabaseService } from './config/database.service';
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
@@ -16,15 +17,15 @@ import { LocalidadModule } from './localidad/localidad.module';
 import { MarcaModule } from './marca/marca.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
+import { ParametrosModule } from './parametros/parametros.module';
 import { ProductoModule } from './producto/producto.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
 import { ProvinciaModule } from './provincia/provincia.module';
 import { RecetaLentesAereosModule } from './receta-lentes-aereos/receta-lentes-aereos.module';
 import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lentes-contacto.module';
 import { UserModule } from './user/user.module';
-import { VentaModule } from './venta/venta.module';
 import { VentaObraSocialModule } from './venta-obra-social/venta-obra-social.module';
-import { CommonsModule } from './common/commons.module';
+import { VentaModule } from './venta/venta.module';
 
 @Module({
   providers: [
@@ -58,7 +59,7 @@ import { CommonsModule } from './common/commons.module';
         autoLoadEntities: true,
         logging: true,
         synchronize: true,
-        dropSchema: true,
+        dropSchema: false,
       }),
       inject: [ConfigService],
     }),
@@ -89,6 +90,7 @@ import { CommonsModule } from './common/commons.module';
     FacturadorModule,
     VentaObraSocialModule,
     CommonsModule,
+    ParametrosModule,
   ],
 })
 export class AppModule {}

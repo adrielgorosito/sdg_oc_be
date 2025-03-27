@@ -1,36 +1,35 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { Comprobante } from 'src/facturador/entities/comprobante.entity';
-import { AfipAuthError, AfipError } from 'src/facturador/errors/afip.errors';
 import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
 import { FacturadorService } from 'src/facturador/services/facturador.service';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
-import { ProductoService } from 'src/producto/producto.service';
+import { ParametrosService } from 'src/parametros/parametros.service';
 import { DataSource, Repository } from 'typeorm';
+import { crearDatosFactura } from '../facturador/utils/comprobante.utils';
 import { CreateVentaDTO } from './dto/create-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
 import { Venta } from './entities/venta.entity';
-import { crearDatosFactura } from './utils/factura.utils';
 @Injectable()
 export class VentaService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly productoService: ProductoService,
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
     private readonly facturadorService: FacturadorService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
+    private readonly parametrosService: ParametrosService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -41,6 +40,7 @@ export class VentaService {
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
+
       clienteExistente = await queryRunner.manager.findOne(Cliente, {
         where: { id: createVentaDto.cliente.id },
         relations: {
@@ -56,14 +56,6 @@ export class VentaService {
 
       const nuevaVenta = queryRunner.manager.create(Venta, createVentaDto);
 
-      for (const linea of nuevaVenta.lineasDeVenta) {
-        await this.productoService.descontarStock(
-          linea.producto.id,
-          linea.cantidad,
-          queryRunner,
-        );
-      }
-
       const importe = createVentaDto.lineasDeVenta.reduce(
         (total, linea) => total + linea.precioIndividual * linea.cantidad,
         0,
@@ -71,12 +63,36 @@ export class VentaService {
 
       nuevaVenta.importe = importe;
 
+      const descuento = (importe * createVentaDto.descuentoPorcentaje) / 100;
+
       importeAFacturar =
         importe -
         createVentaDto.ventaObraSocial.reduce(
           (total, ventaObraSocial) => total + ventaObraSocial.importe,
           0,
+        ) -
+        descuento;
+
+      const importeMaximoAFacturar = parseInt(
+        (await this.parametrosService.getParam('AFIP_IMPORTE_MAXIMO_FACTURAR'))
+          .value,
+      );
+      if (importeAFacturar > importeMaximoAFacturar) {
+        throw new BadRequestException(
+          'El importe a facturar no puede ser mayor a ' +
+            importeMaximoAFacturar,
         );
+      }
+
+      const importeMediosDePago = createVentaDto.mediosDePago.reduce(
+        (total, medio) => total + medio.importe,
+        0,
+      );
+      if (importeMediosDePago !== importeAFacturar) {
+        throw new BadRequestException(
+          'El importe de los medios de pago no es igual al importe a facturar',
+        );
+      }
 
       const medioDePagoCC = createVentaDto.mediosDePago.find(
         (medio) =>
@@ -85,7 +101,7 @@ export class VentaService {
 
       if (medioDePagoCC) {
         if (!clienteExistente.cuentaCorriente) {
-          throw new NotFoundException('Cuenta corriente no encontrada');
+          throw new NotFoundException('Cliente no posee cuenta corriente');
         }
 
         const cuentaCorrienteActualizada =
@@ -112,11 +128,13 @@ export class VentaService {
     try {
       await queryRunner.startTransaction();
 
-      const datosFactura = crearDatosFactura(
+      const datosFactura = await crearDatosFactura(
         clienteExistente,
         importeAFacturar,
-        createVentaDto.facturarASuNombre,
+        createVentaDto.condicionIva,
+        this.parametrosService,
       );
+
       const facturaDesdeAfip: IProcesadoExitoso =
         (await this.facturadorService.crearFactura(
           datosFactura,
@@ -129,31 +147,20 @@ export class VentaService {
           'yyyyMMdd',
           new Date(),
         ),
-        numeroComprobante: facturaDesdeAfip.numeroFactura,
-        tipoDocumento: facturaDesdeAfip.docTipo,
-        numeroDocumento: facturaDesdeAfip.docNro,
+        numeroComprobante: facturaDesdeAfip.numeroComprobante,
         tipoComprobante: facturaDesdeAfip.cbteTipo,
         venta: venta,
         importeTotal: importeAFacturar,
-        importeIva: Math.round((importeAFacturar / 1.21) * 0.21),
-        importeNeto: Math.round(importeAFacturar / 1.21),
       });
-      const facturaPersistida =
-        await this.facturadorService.guardarFactura(nuevaFactura);
+      const facturaPersistida = await this.facturadorService.guardarComprobante(
+        nuevaFactura,
+        queryRunner.manager,
+      );
 
       await queryRunner.manager.queryRunner.commitTransaction();
       return { venta, factura: facturaPersistida };
     } catch (error) {
       await queryRunner.manager.queryRunner.rollbackTransaction();
-
-      if (
-        error instanceof AfipAuthError ||
-        error instanceof ServiceUnavailableException ||
-        error instanceof AfipError
-      ) {
-        return { venta, factura: { error: error.message } };
-      }
-
       return { venta, factura: { error: error.message } };
     } finally {
       await queryRunner.release();
