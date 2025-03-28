@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
@@ -14,12 +14,18 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
 
 @Injectable()
 export class ClienteService {
   constructor(
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
+    @InjectRepository(ClienteObraSocial)
+    private readonly cosRepository: Repository<Cliente>,
+    @InjectRepository(ObraSocial)
+    private readonly obraSocialRepository: Repository<Cliente>,
   ) {}
 
   async findAll(paginateClienteDTO: PaginateClienteDTO) {
@@ -174,6 +180,9 @@ export class ClienteService {
         where: {
           nroDocumento: createClienteDto.nroDocumento,
         },
+        relations: {
+          clienteObrasSociales: { obraSocial: true },
+        },
       });
 
       if (clienteExistente) {
@@ -182,10 +191,27 @@ export class ClienteService {
         );
       }
 
+      if (createClienteDto.clienteObrasSociales?.length) {
+        const obraSocialIds = createClienteDto.clienteObrasSociales.map(
+          (cos) => cos.obraSocial.id,
+        );
+
+        const obrasSocialesExistentes = await this.cosRepository.count({
+          where: { id: In(obraSocialIds) },
+        });
+
+        if (obrasSocialesExistentes !== obraSocialIds.length) {
+          throw new NotFoundException(
+            'Hay una o más obras sociales que no existen',
+          );
+        }
+      }
+
       const cliente = this.clienteRepository.create(createClienteDto);
       cliente.cuentaCorriente = new CuentaCorriente();
       return await this.clienteRepository.save(cliente);
     } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
         'Error al crear el cliente' + error,
@@ -197,11 +223,29 @@ export class ClienteService {
     try {
       const clienteExistente = await this.clienteRepository.findOne({
         where: { id },
+        relations: { clienteObrasSociales: { obraSocial: true } },
       });
 
       if (!clienteExistente) {
         throw new NotFoundException(`Cliente con id ${id} no encontrado`);
       }
+
+      if (updateClienteDto.clienteObrasSociales?.length) {
+        const obraSocialIds = updateClienteDto.clienteObrasSociales.map(
+          (cos) => cos.obraSocial.id,
+        );
+
+        const obrasSocialesExistentes = await this.cosRepository.count({
+          where: { id: In(obraSocialIds) },
+        });
+
+        if (obrasSocialesExistentes !== obraSocialIds.length) {
+          throw new NotFoundException(
+            'Hay una o más obras sociales que no existen',
+          );
+        }
+      }
+
       Object.assign(clienteExistente, updateClienteDto);
 
       return await this.clienteRepository.save(clienteExistente);
