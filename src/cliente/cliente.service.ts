@@ -1,19 +1,19 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
+import { Cliente } from './entities/cliente.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { TipoDocumento } from './enums/tipo-documento.enum';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
-import { Repository } from 'typeorm';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { Cliente } from './entities/cliente.entity';
-import { TipoDocumento } from './enums/tipo-documento.enum';
 
 @Injectable()
 export class ClienteService {
@@ -73,7 +73,6 @@ export class ClienteService {
       if (provinciaId) {
         queryBuilder.andWhere('provincia.id = :provinciaId', { provinciaId });
       }
-
       if (nombreLocalidad) {
         queryBuilder.andWhere(
           'LOWER(localidad.nombre) LIKE LOWER(:nombreLocalidad)',
@@ -82,7 +81,6 @@ export class ClienteService {
           },
         );
       }
-
       if (nombreProvincia) {
         queryBuilder.andWhere(
           'LOWER(localidad.nombre) LIKE LOWER(:nombreProvincia)',
@@ -93,6 +91,7 @@ export class ClienteService {
       }
 
       const [items, total] = await queryBuilder.getManyAndCount();
+
       return {
         items,
         total,
