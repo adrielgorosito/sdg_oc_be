@@ -2585,13 +2585,33 @@ DECLARE @venta1 UNIQUEIDENTIFIER = NEWID();
 DECLARE @venta2 UNIQUEIDENTIFIER = NEWID();
 DECLARE @venta3 UNIQUEIDENTIFIER = NEWID();
 DECLARE @venta4 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta5 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta6 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta7 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta8 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta9 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta10 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta11 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta12 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta13 UNIQUEIDENTIFIER = NEWID();
+DECLARE @venta14 UNIQUEIDENTIFIER = NEWID();
 
 INSERT INTO [dbo].[venta] ([id], [createdAt], [updatedAt], [fecha], [descuentoPorcentaje], [importe], [clienteId])
 VALUES 
 (@venta1, GETDATE(), NULL, '2023-10-01',  10, 270, 1),
-(@venta2, GETDATE(), NULL, '2023-10-02', 5, 190, 2),
-(@venta3, GETDATE(), NULL, '2023-10-03',  15, 215, 3),
-(@venta4, GETDATE(), NULL, '2023-10-04', 20, 240, 4);
+(@venta2, GETDATE(), NULL, '2023-10-02', 5, 190, 1),
+(@venta3, GETDATE(), NULL, '2023-10-03',  15, 215, 1),
+(@venta4, GETDATE(), NULL, '2023-10-04', 20, 240, 1),
+(@venta5, GETDATE(), NULL, '2023-10-05', 10, 350, 2),
+(@venta6, GETDATE(), NULL, '2023-10-06',  5, 410, 2),
+(@venta7, GETDATE(), NULL, '2023-10-07', 15, 290, 3),
+(@venta8, GETDATE(), NULL, '2023-10-08',  8, 380, 5),
+(@venta9, GETDATE(), NULL, '2023-10-09', 12, 500, 6),
+(@venta10, GETDATE(), NULL, '2023-10-10', 20, 450, 7),
+(@venta11, GETDATE(), NULL, '2023-10-11',  7, 340, 8),
+(@venta12, GETDATE(), NULL, '2023-10-12', 10, 275, 9),
+(@venta13, GETDATE(), NULL, '2023-10-13', 18, 620, 10),
+(@venta14, GETDATE(), NULL, '2023-10-14',  5, 330, 10);
 
 -- Insertar en la tabla [dbo].[linea_venta]
 INSERT INTO [dbo].[linea_venta] ([id], [createdAt], [updatedAt], [cantidad], [precioIndividual], [ventaId], [productoId])
@@ -2626,3 +2646,42 @@ INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwg
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_PTO_VTA', '12', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_CUIT', '20409667482', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_IMPORTE_MAXIMO_FACTURAR', '417000', GETDATE(), NULL);
+
+-- Insertar en la tabla [dbo].[comprobante]
+DECLARE @factura1 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura2 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura3 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura4 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura5 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura6 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura7 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura8 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura9 UNIQUEIDENTIFIER = NEWID();
+DECLARE @factura10 UNIQUEIDENTIFIER = NEWID();
+
+INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId])
+VALUES 
+(@factura1, GETDATE(), NULL, '0001-00000001', '12345678901234', '2024-03-01', 1, 15000.00, @venta1, NULL),
+(@factura2, GETDATE(), NULL, '0001-00000002', '23456789012345', '2024-03-02', 6, 7800.50, @venta2, NULL),
+(@factura3, GETDATE(), NULL, '0001-00000003', '34567890123456', '2024-03-03', 11, 3200.75, @venta3, NULL),
+(@factura4, GETDATE(), NULL, '0001-00000004', '45678901234567', '2024-03-04', 1, 12450.25, @venta4, NULL),
+(@factura5, GETDATE(), NULL, '0001-00000005', '56789012345678', '2024-03-05', 51, 8900.90, @venta5, NULL),
+(@factura6, GETDATE(), NULL, '0001-00000006', '67890123456789', '2024-03-06', 1, 4300.60, @venta6, NULL),
+(@factura7, GETDATE(), NULL, '0001-00000007', '78901234567890', '2024-03-07', 6, 15700.30, @venta7, NULL),
+(@factura8, GETDATE(), NULL, '0001-00000008', '89012345678901', '2024-03-08', 11, 6650.80, @venta8, NULL),
+(@factura9, GETDATE(), NULL, '0001-00000009', '90123456789012', '2024-03-09', 51, 5100.45, @venta9, NULL),
+(@factura10, GETDATE(), NULL, '0001-00000010', '01234567890123', '2024-03-10', 1, 23000.00, @venta10, NULL);
+
+-- Insertar Notas de Débito / Crédito relacionadas a Facturas
+INSERT INTO [dbo].[comprobante] ([createdAt], [updatedAt], [numeroComprobante], [CAE], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId])
+VALUES 
+(GETDATE(), NULL, '0001-00000011', '11223344556677', '2024-03-11', 2, 1500.00, NULL, @factura1),
+(GETDATE(), NULL, '0001-00000012', '22334455667788', '2024-03-12', 3, 500.75, NULL, @factura1),
+(GETDATE(), NULL, '0001-00000013', '33445566778899', '2024-03-13', 12, 300.25, NULL, @factura3),
+(GETDATE(), NULL, '0001-00000014', '44556677889900', '2024-03-14', 3, 750.40, NULL, @factura4),
+(GETDATE(), NULL, '0001-00000015', '55667788990011', '2024-03-15', 52, 1800.90, NULL, @factura5),
+(GETDATE(), NULL, '0001-00000016', '66778899001122', '2024-03-16', 13, 900.60, NULL, @factura6),
+(GETDATE(), NULL, '0001-00000017', '77889900112233', '2024-03-17', 7, 2500.30, NULL, @factura7),
+(GETDATE(), NULL, '0001-00000018', '88990011223344', '2024-03-18', 8, 1200.80, NULL, @factura8),
+(GETDATE(), NULL, '0001-00000019', '99001122334455', '2024-03-19', 53, 1550.45, NULL, @factura9),
+(GETDATE(), NULL, '0001-00000020', '00112233445566', '2024-03-20', 3, 3200.00, NULL, @factura10);
