@@ -40,7 +40,7 @@ export class Venta extends BaseTransactionalEntity {
   @OneToOne(() => Comprobante, (comprobante) => comprobante.venta, {
     nullable: true,
   })
-  comprobante: Comprobante;
+  factura: Comprobante;
 
   @Column({ nullable: true, type: 'text' })
   observaciones: string;

@@ -13,7 +13,7 @@ export class DatabaseService implements OnModuleInit {
   constructor() {}
 
   async onModuleInit() {
-    await this.ejecutarDump();
+    // await this.ejecutarDump();
   }
 
   async ejecutarDump() {

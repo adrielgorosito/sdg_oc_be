@@ -6,8 +6,10 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateVentaDTO } from './dto/create-venta.dto';
+import { PaginateVentaDTO } from './dto/paginate-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
 import { VentaService } from './venta.service';
 
@@ -16,8 +18,8 @@ export class VentaController {
   constructor(private readonly ventaService: VentaService) {}
 
   @Get()
-  findAll() {
-    return this.ventaService.findAll();
+  findAll(@Query() paginateVentaDTO: PaginateVentaDTO) {
+    return this.ventaService.findAll(paginateVentaDTO);
   }
 
   @Post()
@@ -38,14 +40,5 @@ export class VentaController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ventaService.remove(id);
-  }
-
-  @Get('cliente/:id')
-  findByCliente(@Param('id') id: number) {
-    return this.ventaService.findByCliente(id);
-  }
-  @Get('cliente/nroDocumento/:nroDocumento')
-  findByClienteNroDocumento(@Param('nroDocumento') nroDocumento: number) {
-    return this.ventaService.findByClienteNroDocumento(nroDocumento);
   }
 }
