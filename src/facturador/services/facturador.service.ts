@@ -1,11 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { EntityManager, Repository } from 'typeorm';
-import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
+import { Repository, EntityManager } from 'typeorm';
 import { Comprobante } from '../entities/comprobante.entity';
+import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
+import { AfipService } from './afip.service';
+import { ParametrosService } from 'src/parametros/parametros.service';
 import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
+import { parse } from 'date-fns';
+import { crearDatosNotaDeCreditoDebito } from '../utils/comprobante.utils';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   IFECAESolicitarResult,
   IFECompUltimoAutorizadoResult,
@@ -15,19 +21,18 @@ import {
   ResultadoProcesado,
   WsServicesNamesEnum,
 } from '../interfaces/ISoap';
-import { crearDatosNotaDeCreditoDebito } from '../utils/comprobante.utils';
 import {
   extraerPuntoVentaYTipoComprobante,
   incrementarComprobante,
   procesarRespuestaAFIP,
 } from '../utils/helpers';
-import { AfipService } from './afip.service';
+
 @Injectable()
 export class FacturadorService {
   constructor(
-    private readonly afipService: AfipService,
     @InjectRepository(Comprobante)
     private readonly facturaRepository: Repository<Comprobante>,
+    private readonly afipService: AfipService,
     private readonly configService: ParametrosService,
   ) {}
 
@@ -86,7 +91,7 @@ export class FacturadorService {
         throw new NotFoundException('Factura relacionada no encontrada');
       }
 
-      ///validación de tipo de comprobante
+      // Validación de tipo de comprobante
       const datosComprobante = await crearDatosNotaDeCreditoDebito(
         comprobanteDTO,
         facturaRelacionada,
@@ -137,6 +142,7 @@ export class FacturadorService {
       throw error;
     }
   }
+
   public async guardarComprobante(
     comprobante: Comprobante,
     em?: EntityManager,
@@ -148,5 +154,30 @@ export class FacturadorService {
       delete facturaGuardada.venta;
     }
     return facturaGuardada;
+  }
+
+  async findAllByClienteId(clienteId: number): Promise<Comprobante[]> {
+    try {
+      const comprobantes = await this.facturaRepository.find({
+        where: [
+          { venta: { cliente: { id: clienteId } } },
+          { facturaRelacionada: { venta: { cliente: { id: clienteId } } } },
+        ],
+        relations: { venta: { cliente: true }, facturaRelacionada: true },
+      });
+
+      if (comprobantes.length === 0) {
+        throw new NotFoundException(
+          `No se encontraron comprobantes para el cliente con clienteId ${clienteId}`,
+        );
+      }
+
+      return comprobantes;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener los comprobantes: ' + error,
+      );
+    }
   }
 }

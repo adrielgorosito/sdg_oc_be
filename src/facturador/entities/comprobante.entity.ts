@@ -1,6 +1,13 @@
 import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 @Entity()
 export class Comprobante extends BaseTransactionalEntity {
@@ -20,9 +27,12 @@ export class Comprobante extends BaseTransactionalEntity {
   @JoinColumn()
   venta: Venta;
 
-  @OneToMany(
+  @OneToMany(() => Comprobante, (comprobante) => comprobante.facturaRelacionada)
+  facturasRelacionadas?: Comprobante[];
+
+  @ManyToOne(
     () => Comprobante,
-    (comprobante) => comprobante.facturaRelacionada,
+    (comprobante) => comprobante.facturasRelacionadas,
     { nullable: true },
   )
   @JoinColumn()
