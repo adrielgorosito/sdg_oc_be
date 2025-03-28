@@ -26,11 +26,11 @@ export class CreateProductoDTO extends BaseDTO {
 
   @IsNotEmpty()
   @IsNumber()
-  precio: number;
+  precioLista: number;
 
   @IsNotEmpty()
   @IsNumber()
-  precioSugerido: number;
+  precio: number;
 
   @IsObject()
   @ValidateNested()

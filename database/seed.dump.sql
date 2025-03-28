@@ -2573,7 +2573,7 @@ VALUES
 (GETDATE(), NULL, 'Marca D');
 
 -- Insertar en la tabla [dbo].[producto]
-INSERT INTO [dbo].[producto] ([createdAt], [updatedAt], [codProv], [descripcion], [categoria], [precio], [precioSugerido], [marcaId], [proveedorId])
+INSERT INTO [dbo].[producto] ([createdAt], [updatedAt], [codProv], [descripcion], [categoria], [precioLista], [precio], [marcaId], [proveedorId])
 VALUES 
 (GETDATE(), NULL, 'A1', 'Lentes de sol', 'LENTES_DE_SOL', 150.00, 150.00, 1, 1),
 (GETDATE(), NULL, 'A2', 'Lentes de contacto', 'LENTES_DE_CONTACTO', 200.00, 150.00, 2, 2),
