@@ -57,4 +57,9 @@ export class CuentaCorrienteController {
       movimientoDTO.tipoMovimiento,
     );
   }
+
+  @Get('cliente/:id')
+  async findOneByClienteId(@Param('id') id: number) {
+    return await this.cuentaCorrienteService.findOneByClienteId(id);
+  }
 }
