@@ -1,26 +1,27 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateVentaDTO } from './dto/create-venta.dto';
+import { PaginateVentaDTO } from './dto/paginate-venta.dto';
+import { UpdateVentaDTO } from './dto/update-venta.dto';
+import { Venta } from './entities/venta.entity';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Comprobante } from 'src/facturador/entities/comprobante.entity';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
+import { FacturadorService } from 'src/facturador/services/facturador.service';
+import { ParametrosService } from 'src/parametros/parametros.service';
+import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
+import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
+import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
+import { DataSource, In, Repository } from 'typeorm';
+import { parse } from 'date-fns';
+import { crearDatosFactura } from '../facturador/utils/comprobante.utils';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
-import { Comprobante } from 'src/facturador/entities/comprobante.entity';
-import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
-import { FacturadorService } from 'src/facturador/services/facturador.service';
-import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
-import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
-import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { DataSource, In, Repository } from 'typeorm';
-import { crearDatosFactura } from '../facturador/utils/comprobante.utils';
-import { CreateVentaDTO } from './dto/create-venta.dto';
-import { PaginateVentaDTO } from './dto/paginate-venta.dto';
-import { UpdateVentaDTO } from './dto/update-venta.dto';
-import { Venta } from './entities/venta.entity';
+
 @Injectable()
 export class VentaService {
   constructor(
@@ -39,6 +40,7 @@ export class VentaService {
     let venta: Venta;
     let importeAFacturar: number;
     let clienteExistente: Cliente;
+
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -59,9 +61,11 @@ export class VentaService {
       const obraSocialesIds = createVentaDto.ventaObraSocial.map(
         (ventaObraSocial) => ventaObraSocial.obraSocial.id,
       );
+
       const obraSociales = await queryRunner.manager.find(ObraSocial, {
         where: { id: In(obraSocialesIds) },
       });
+
       if (obraSociales.length !== obraSocialesIds.length) {
         throw new NotFoundException('Alguna obra social no encontrada');
       }
@@ -98,6 +102,7 @@ export class VentaService {
         (await this.parametrosService.getParam('AFIP_IMPORTE_MAXIMO_FACTURAR'))
           .value,
       );
+
       if (importeAFacturar > importeMaximoAFacturar) {
         throw new BadRequestException(
           'El importe a facturar no puede ser mayor a ' +
@@ -109,6 +114,7 @@ export class VentaService {
         (total, medio) => total + medio.importe,
         0,
       );
+
       if (importeMediosDePago !== importeAFacturar) {
         throw new BadRequestException(
           'El importe de los medios de pago no es igual al importe a facturar',
@@ -146,6 +152,7 @@ export class VentaService {
       }
       throw error;
     }
+
     try {
       await queryRunner.startTransaction();
 
@@ -173,6 +180,7 @@ export class VentaService {
         venta: venta,
         importeTotal: importeAFacturar,
       });
+
       const facturaPersistida = await this.facturadorService.guardarComprobante(
         nuevaFactura,
         queryRunner.manager,
@@ -199,12 +207,6 @@ export class VentaService {
         nombreCliente,
         nroDocumento: nroDocumentoCliente,
       } = paginateVentaDTO;
-
-      console.log(fechaDesde);
-      console.log(fechaHasta);
-      console.log(clienteId);
-      console.log(nombreCliente);
-      console.log(nroDocumentoCliente);
 
       const queryBuilder = this.ventaRepository
         .createQueryBuilder('venta')
@@ -236,7 +238,6 @@ export class VentaService {
           clienteId,
         });
       }
-
       if (fechaDesde) {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
           throw new BadRequestException(
@@ -274,7 +275,6 @@ export class VentaService {
       };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-
       throw new InternalServerErrorException(
         'Error al obtener las ventas: ' + error.message,
       );
