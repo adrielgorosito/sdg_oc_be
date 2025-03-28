@@ -37,4 +37,8 @@ export class PaginateClienteDTO extends PaginationDTO {
   @IsString()
   @IsOptional()
   email?: string;
+
+  @IsString()
+  @IsOptional()
+  genero?: string;
 }
