@@ -171,4 +171,26 @@ export class CuentaCorrienteService {
 
     return cuentaCorrienteActualizada;
   }
+
+  async findOneByClienteId(clienteId: number): Promise<CuentaCorriente> {
+    try {
+      const cuentaCorriente = await this.cuentaCorrienteRepository.findOne({
+        where: { cliente: { id: clienteId } },
+        relations: { cliente: true, movimientos: true },
+      });
+
+      if (!cuentaCorriente) {
+        throw new NotFoundException(
+          `Cuenta corriente con usuario de id ${clienteId} no encontrada`,
+        );
+      }
+
+      return cuentaCorriente;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener la cuenta corriente: ' + error,
+      );
+    }
+  }
 }
