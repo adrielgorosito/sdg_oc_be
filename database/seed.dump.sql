@@ -2546,7 +2546,11 @@ VALUES
 (GETDATE(), NULL, 500.00, 'ACTIVO', 1),
 (GETDATE(), NULL, 200.00, 'ACTIVO', 2),
 (GETDATE(), NULL, 300, 'ACTIVO', 3),
-(GETDATE(), NULL, 150.00, 'ACTIVO', 4);
+(GETDATE(), NULL, 150.00, 'ACTIVO', 4),
+(GETDATE(), NULL, 1000.00, 'ACTIVO', 5),
+(GETDATE(), NULL, 1200.00, 'ACTIVO', 6),
+(GETDATE(), NULL, 0, 'ACTIVO', 7),
+(GETDATE(), NULL, 1500.00, 'ACTIVO', 8);
 
 -- Insertar en la tabla [dbo].[movimiento]
 INSERT INTO [dbo].[movimiento] ([createdAt], [updatedAt], [fechaMovimiento], [tipoMovimiento], [importe], [cuentaCorrienteId])
@@ -2554,7 +2558,23 @@ VALUES
 (GETDATE(), NULL, '2023-10-01', 'PAGO', 500, 1),
 (GETDATE(), NULL, '2023-10-02', 'PAGO', 200,  2),
 (GETDATE(), NULL, '2023-10-03', 'PAGO', 300, 3),
-(GETDATE(), NULL, '2023-10-04', 'PAGO', 150, 4);
+(GETDATE(), NULL, '2023-10-04', 'PAGO', 150, 4),
+(GETDATE(), NULL, '2023-10-05', 'PAGO', 600, 5),
+(GETDATE(), NULL, '2023-10-06', 'PAGO', 250, 1),
+(GETDATE(), NULL, '2023-10-07', 'DEBITO', 400, 1),
+(GETDATE(), NULL, '2023-10-08', 'PAGO', 350, 1),
+(GETDATE(), NULL, '2023-10-09', 'DEBITO', 100, 1),
+(GETDATE(), NULL, '2023-10-10', 'CREDITO', 700, 1),
+(GETDATE(), NULL, '2023-10-11', 'PAGO', 500, 2),
+(GETDATE(), NULL, '2023-10-12', 'CREDITO', 800, 2),
+(GETDATE(), NULL, '2023-10-13', 'DEBITO', 450, 4),
+(GETDATE(), NULL, '2023-10-14', 'PAGO', 300, 4),
+(GETDATE(), NULL, '2023-10-15', 'DEBITO', 200, 4),
+(GETDATE(), NULL, '2023-10-16', 'PAGO', 100, 6),
+(GETDATE(), NULL, '2023-10-17', 'CREDITO', 900, 6),
+(GETDATE(), NULL, '2023-10-18', 'PAGO', 650, 6),
+(GETDATE(), NULL, '2023-10-19', 'DEBITO', 120, 6),
+(GETDATE(), NULL, '2023-10-20', 'CREDITO', 750, 6);
 
 -- Insertar en la tabla [dbo].[proveedor]
 INSERT INTO [dbo].[proveedor] ([createdAt], [updatedAt], [cuit], [razonSocial], [telefono], [email])
