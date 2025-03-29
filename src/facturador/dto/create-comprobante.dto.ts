@@ -5,9 +5,11 @@ import {
   IsNumber,
   IsObject,
   IsOptional,
+  IsString,
   ValidateNested,
 } from 'class-validator';
 import { RelationTransactionalDTO } from 'src/common/dtos/relation-transactional.dto';
+import { CondicionIva } from '../enums/condicion-iva.enum';
 import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 
 export class CrearComprobanteDTO {
@@ -30,4 +32,11 @@ export class CrearComprobanteDTO {
   @ValidateNested()
   @Type(() => RelationTransactionalDTO)
   venta?: RelationTransactionalDTO;
+
+  @IsEnum(CondicionIva)
+  condicionIvaCliente: CondicionIva;
+
+  @IsOptional()
+  @IsString()
+  motivo?: string;
 }

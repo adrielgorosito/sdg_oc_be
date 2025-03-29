@@ -1,26 +1,26 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateVentaDTO } from './dto/create-venta.dto';
-import { PaginateVentaDTO } from './dto/paginate-venta.dto';
-import { UpdateVentaDTO } from './dto/update-venta.dto';
-import { Venta } from './entities/venta.entity';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { Comprobante } from 'src/facturador/entities/comprobante.entity';
-import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
-import { FacturadorService } from 'src/facturador/services/facturador.service';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
-import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
-import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
-import { DataSource, In, Repository } from 'typeorm';
-import { parse } from 'date-fns';
-import { crearDatosFactura } from '../facturador/utils/comprobante.utils';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { parse } from 'date-fns';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
+import { Comprobante } from 'src/facturador/entities/comprobante.entity';
+import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
+import { FacturadorService } from 'src/facturador/services/facturador.service';
+import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
+import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { ParametrosService } from 'src/parametros/parametros.service';
+import { DataSource, In, Repository } from 'typeorm';
+import { crearDatosFactura } from '../facturador/utils/comprobante.utils';
+import { CreateVentaDTO } from './dto/create-venta.dto';
+import { PaginateVentaDTO } from './dto/paginate-venta.dto';
+import { UpdateVentaDTO } from './dto/update-venta.dto';
+import { Venta } from './entities/venta.entity';
 
 @Injectable()
 export class VentaService {
@@ -177,6 +177,7 @@ export class VentaService {
         ),
         numeroComprobante: facturaDesdeAfip.numeroComprobante,
         tipoComprobante: facturaDesdeAfip.cbteTipo,
+        condicionIvaCliente: createVentaDto.condicionIva,
         venta: venta,
         importeTotal: importeAFacturar,
       });
@@ -206,6 +207,7 @@ export class VentaService {
         clienteId,
         nombreCliente,
         nroDocumento: nroDocumentoCliente,
+        tipoComprobante,
       } = paginateVentaDTO;
 
       const queryBuilder = this.ventaRepository
@@ -214,6 +216,8 @@ export class VentaService {
         .leftJoinAndSelect('venta.lineasDeVenta', 'lineasDeVenta')
         .leftJoinAndSelect('venta.mediosDePago', 'mediosDePago')
         .leftJoinAndSelect('venta.ventaObraSocial', 'ventaObraSocial')
+        .leftJoinAndSelect('ventaObraSocial.obraSocial', 'obraSocial')
+        .leftJoinAndSelect('venta.factura', 'factura')
         .orderBy('venta.fecha', 'DESC')
         .take(limit)
         .skip(offset);
@@ -263,6 +267,12 @@ export class VentaService {
         });
       }
 
+      if (tipoComprobante) {
+        queryBuilder.andWhere('factura.tipoComprobante = :tipoComprobante', {
+          tipoComprobante,
+        });
+      }
+
       const [items, total] = await queryBuilder.getManyAndCount();
 
       return {
@@ -287,6 +297,10 @@ export class VentaService {
         where: { id },
         relations: {
           cliente: true,
+          factura: true,
+          ventaObraSocial: {
+            obraSocial: true,
+          },
           lineasDeVenta: {
             producto: true,
           },
