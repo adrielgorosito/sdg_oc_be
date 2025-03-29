@@ -1,21 +1,21 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { Cliente } from './entities/cliente.entity';
+import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
+import { TipoDocumento } from './enums/tipo-documento.enum';
+import { In, Repository } from 'typeorm';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
-import { In, Repository } from 'typeorm';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { Cliente } from './entities/cliente.entity';
-import { TipoDocumento } from './enums/tipo-documento.enum';
 
 @Injectable()
 export class ClienteService {
@@ -70,7 +70,7 @@ export class ClienteService {
         queryBuilder.andWhere(
           'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre)',
           {
-            nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
+            nombre: `%${nombre.toLowerCase().replace(' ', '').trim()}%`,
           },
         );
       }
@@ -85,7 +85,6 @@ export class ClienteService {
       if (provinciaId) {
         queryBuilder.andWhere('provincia.id = :provinciaId', { provinciaId });
       }
-
       if (nombreLocalidad) {
         queryBuilder.andWhere(
           'LOWER(localidad.nombre) LIKE LOWER(:nombreLocalidad)',
@@ -94,7 +93,6 @@ export class ClienteService {
           },
         );
       }
-
       if (nombreProvincia) {
         queryBuilder.andWhere(
           'LOWER(localidad.nombre) LIKE LOWER(:nombreProvincia)',
@@ -105,6 +103,7 @@ export class ClienteService {
       }
 
       const [items, total] = await queryBuilder.getManyAndCount();
+
       return {
         items,
         total,
