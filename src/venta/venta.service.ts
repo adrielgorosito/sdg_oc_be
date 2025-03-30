@@ -313,7 +313,13 @@ export class VentaService {
         throw new NotFoundException(`Venta con id ${id} no encontrada`);
       }
 
-      return venta;
+      const comprobantesRelacionados =
+        await this.comprobanteService.findComprobantesRelacionadosByVenta(
+          null,
+          venta,
+        );
+
+      return { venta, comprobantesRelacionados: comprobantesRelacionados };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

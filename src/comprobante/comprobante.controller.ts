@@ -22,13 +22,32 @@ export class ComprobanteController {
   ) {}
 
   @Get()
-  async findAll(@Query() paginateComprobanteDTO: PaginateComprobanteDTO) {
+  async findAllComprobantes(
+    @Query() paginateComprobanteDTO: PaginateComprobanteDTO,
+  ) {
     return this.comprobanteService.findAllComprobantes(paginateComprobanteDTO);
+  }
+
+  @Get('facturas')
+  async findAllFacturas(
+    @Query() paginateComprobanteDTO: PaginateComprobanteDTO,
+  ) {
+    return this.comprobanteService.findAllFacturas(paginateComprobanteDTO);
   }
 
   @Get('cliente/:id')
   async findAllByClienteId(@Param('id') clienteId: number) {
     return this.comprobanteService.findAllByClienteId(clienteId);
+  }
+
+  @Get('venta/:id')
+  async findAllComprobantesByVentaId(@Param('id') ventaId: string) {
+    return this.comprobanteService.findComprobantesRelacionadosByVenta(ventaId);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.comprobanteService.findOne(id);
   }
 
   @Post()

@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { ParametrosService } from 'src/parametros/parametros.service';
+import { Venta } from 'src/venta/entities/venta.entity';
 import { EntityManager, Repository } from 'typeorm';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { PaginateComprobanteDTO } from '../dto/paginate-comprobante.dto';
@@ -28,7 +29,6 @@ import {
   procesarRespuestaAFIP,
 } from '../utils/helpers';
 import { AfipService } from './afip.service';
-import { GeneradorDocumentosService } from './generador-documentos.service';
 
 @Injectable()
 export class ComprobanteService {
@@ -37,7 +37,8 @@ export class ComprobanteService {
     private readonly facturaRepository: Repository<Comprobante>,
     private readonly afipService: AfipService,
     private readonly configService: ParametrosService,
-    private readonly generadorDocumentosService: GeneradorDocumentosService,
+    @InjectRepository(Venta)
+    private readonly ventaRepository: Repository<Venta>,
   ) {}
 
   public async crearFactura(datosFactura: IParamsFECAESolicitar) {
@@ -170,7 +171,10 @@ export class ComprobanteService {
           { venta: { cliente: { id: clienteId } } },
           { facturaRelacionada: { venta: { cliente: { id: clienteId } } } },
         ],
-        relations: { venta: { cliente: true }, facturaRelacionada: true },
+        relations: {
+          venta: { cliente: true },
+          facturaRelacionada: { venta: { cliente: true } },
+        },
       });
 
       if (comprobantes.length === 0) {
@@ -350,5 +354,82 @@ export class ComprobanteService {
       nextPage: total > offset + limit ? offset + limit : null,
       previousPage: offset > 0 ? offset - limit : null,
     };
+  }
+
+  async findOne(id: string) {
+    try {
+      const comprobante = await this.facturaRepository.findOne({
+        where: { id },
+        relations: {
+          venta: {
+            lineasDeVenta: true,
+            cliente: true,
+          },
+          facturaRelacionada: {
+            venta: {
+              lineasDeVenta: true,
+              cliente: true,
+            },
+          },
+        },
+      });
+
+      if (!comprobante) {
+        throw new NotFoundException('Comprobante no encontrado');
+      }
+
+      return comprobante;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener el comprobante: ' + error,
+      );
+    }
+  }
+
+  async findComprobantesRelacionadosByVenta(ventaId?: string, venta?: Venta) {
+    try {
+      if (ventaId) {
+        venta = await this.ventaRepository.findOne({
+          where: { id: ventaId },
+          relations: { factura: true },
+        });
+      }
+
+      if (!venta) {
+        throw new NotFoundException('La venta no existe');
+      }
+
+      if (!venta.factura) {
+        throw new BadRequestException('La venta no tiene factura relacionada');
+      }
+
+      const comprobantes = await this.facturaRepository.find({
+        where: { facturaRelacionada: { id: venta.factura.id } },
+        relations: {
+          venta: {
+            lineasDeVenta: true,
+            cliente: true,
+          },
+          facturaRelacionada: {
+            venta: {
+              lineasDeVenta: true,
+              cliente: true,
+            },
+          },
+        },
+      });
+
+      return comprobantes;
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      )
+        throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener los comprobantes relacionados: ' + error,
+      );
+    }
   }
 }
