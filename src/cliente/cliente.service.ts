@@ -1,21 +1,21 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
 import { Cliente } from './entities/cliente.entity';
+import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
 import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
 import { TipoDocumento } from './enums/tipo-documento.enum';
+import { In, Repository } from 'typeorm';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
 
 @Injectable()
 export class ClienteService {
@@ -40,6 +40,7 @@ export class ClienteService {
         provinciaId,
         nombreLocalidad,
         nombreProvincia,
+        genero,
       } = paginateClienteDTO;
 
       const queryBuilder = this.clienteRepository
@@ -59,6 +60,11 @@ export class ClienteService {
             nroDocumento: `%${filtro}%`,
           },
         );
+      }
+      if (genero) {
+        queryBuilder.andWhere('cliente.sexo LIKE :genero', {
+          genero: `%${genero.toLowerCase().trim()}%`,
+        });
       }
       if (nombre) {
         queryBuilder.andWhere(
