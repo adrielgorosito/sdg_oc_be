@@ -1,18 +1,19 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { RelationTransactionalDTO } from 'src/common/dtos/relation-transactional.dto';
+import { Comprobante } from '../entities/comprobante.entity';
+import { ParametrosService } from 'src/parametros/parametros.service';
+import { Repository } from 'typeorm';
+import { IDatosDocumentos } from '../interfaces/IDatosDocumentos';
+import { obtenerDatosDocumentoParaImprimir } from '../utils/comprobante.utils';
+import Decimal from 'decimal.js';
+import * as PDFDocument from 'pdfkit';
+import * as QRCode from 'qrcode';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import Decimal from 'decimal.js';
-import * as PDFDocument from 'pdfkit';
-import * as QRCode from 'qrcode';
-import { RelationTransactionalDTO } from 'src/common/dtos/relation-transactional.dto';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { Repository } from 'typeorm';
-import { Comprobante } from '../entities/comprobante.entity';
-import { IDatosDocumentos } from '../interfaces/IDatosDocumentos';
-import { obtenerDatosDocumentoParaImprimir } from '../utils/comprobante.utils';
+
 @Injectable()
 export class GeneradorDocumentosService {
   constructor(
