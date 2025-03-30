@@ -1,9 +1,9 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { IsTipoFacturaValida } from 'src/common/decorators/is-tipo-factura-valida.decorator';
 import { PaginationDTO } from 'src/common/dtos/pagination.dto';
-import { TipoComprobante } from 'src/facturador/enums/tipo-comprobante.enum';
+import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 
-export class PaginateVentaDTO extends PaginationDTO {
+export class PaginateComprobanteDTO extends PaginationDTO {
   @IsString()
   @IsOptional()
   nombreCliente?: string;
@@ -24,8 +24,12 @@ export class PaginateVentaDTO extends PaginationDTO {
   @IsOptional()
   clienteId?: number;
 
+  @IsEnum(TipoComprobante)
   @IsOptional()
   @IsTipoFacturaValida()
+  tipoFactura?: TipoComprobante;
+
   @IsEnum(TipoComprobante)
+  @IsOptional()
   tipoComprobante?: TipoComprobante;
 }

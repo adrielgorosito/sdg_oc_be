@@ -1,17 +1,17 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityManager } from 'typeorm';
-import { Comprobante } from '../entities/comprobante.entity';
-import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
-import { AfipService } from './afip.service';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
-import { parse } from 'date-fns';
-import { crearDatosNotaDeCreditoDebito } from '../utils/comprobante.utils';
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { parse } from 'date-fns';
+import { ParametrosService } from 'src/parametros/parametros.service';
+import { EntityManager, Repository } from 'typeorm';
+import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
+import { PaginateComprobanteDTO } from '../dto/paginate-comprobante.dto';
+import { Comprobante } from '../entities/comprobante.entity';
+import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
 import {
   IFECAESolicitarResult,
   IFECompUltimoAutorizadoResult,
@@ -21,11 +21,13 @@ import {
   ResultadoProcesado,
   WsServicesNamesEnum,
 } from '../interfaces/ISoap';
+import { crearDatosNotaDeCreditoDebito } from '../utils/comprobante.utils';
 import {
   extraerPuntoVentaYTipoComprobante,
   incrementarComprobante,
   procesarRespuestaAFIP,
 } from '../utils/helpers';
+import { AfipService } from './afip.service';
 
 @Injectable()
 export class FacturadorService {
@@ -130,7 +132,6 @@ export class FacturadorService {
             'yyyyMMdd',
             new Date(),
           ),
-          tipoComprobante: comprobanteDTO.tipoComprobante,
         });
         return this.guardarComprobante(comprobante);
       }
@@ -179,5 +180,169 @@ export class FacturadorService {
         'Error al obtener los comprobantes: ' + error,
       );
     }
+  }
+
+  async findAllComprobantes(paginateComprobanteDTO: PaginateComprobanteDTO) {
+    const {
+      offset,
+      limit,
+      nombreCliente,
+      nroDocumento,
+      fechaDesde,
+      fechaHasta,
+      clienteId,
+      tipoComprobante,
+    } = paginateComprobanteDTO;
+
+    const queryBuilder = this.facturaRepository
+      .createQueryBuilder('comprobante')
+      .leftJoinAndSelect('comprobante.venta', 'venta')
+      .leftJoinAndSelect('venta.cliente', 'cliente')
+      .leftJoinAndSelect('comprobante.facturaRelacionada', 'facturaRelacionada')
+      .leftJoinAndSelect('facturaRelacionada.venta', 'ventaRelacionada')
+      .leftJoinAndSelect('ventaRelacionada.cliente', 'clienteRelacionada')
+      .take(limit)
+      .skip(offset);
+
+    if (nombreCliente) {
+      queryBuilder.andWhere('cliente.nombre LIKE :nombreCliente', {
+        nombreCliente: `%${nombreCliente}%`,
+      });
+    }
+
+    if (nroDocumento) {
+      queryBuilder.andWhere('cliente.nroDocumento LIKE :nroDocumento', {
+        nroDocumento: `%${nroDocumento}%`,
+      });
+    }
+
+    if (fechaDesde) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
+        throw new BadRequestException(
+          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
+        );
+      }
+
+      const fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
+      queryBuilder.andWhere('comprobante.fechaEmision  >= :fechaDesde ', {
+        fechaDesde: fecha,
+      });
+    }
+    if (fechaHasta) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
+        throw new BadRequestException(
+          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
+        );
+      }
+
+      const fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
+      queryBuilder.andWhere('comprobante.fechaEmision  <= :fechaHasta ', {
+        fechaHasta: fecha,
+      });
+    }
+    if (clienteId) {
+      queryBuilder.andWhere('comprobante.clienteId = :clienteId', {
+        clienteId,
+      });
+    }
+
+    if (tipoComprobante) {
+      queryBuilder.andWhere('comprobante.tipoComprobante = :tipoComprobante', {
+        tipoComprobante,
+      });
+    }
+
+    const [items, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      items,
+      total,
+      limit,
+      offset,
+      nextPage: total > offset + limit ? offset + limit : null,
+      previousPage: offset > 0 ? offset - limit : null,
+    };
+  }
+
+  async findAllFacturas(paginateComprobanteDTO: PaginateComprobanteDTO) {
+    const {
+      offset,
+      limit,
+      nombreCliente,
+      nroDocumento,
+      fechaDesde,
+      fechaHasta,
+      clienteId,
+      tipoFactura,
+    } = paginateComprobanteDTO;
+
+    const queryBuilder = this.facturaRepository
+      .createQueryBuilder('comprobante')
+      .leftJoinAndSelect('comprobante.venta', 'venta')
+      .leftJoinAndSelect('venta.cliente', 'cliente')
+      .leftJoinAndSelect('comprobante.facturaRelacionada', 'facturaRelacionada')
+      .leftJoinAndSelect('facturaRelacionada.venta', 'ventaRelacionada')
+      .leftJoinAndSelect('ventaRelacionada.cliente', 'clienteRelacionada')
+      .take(limit)
+      .skip(offset);
+
+    if (nombreCliente) {
+      queryBuilder.andWhere('cliente.nombre LIKE :nombreCliente', {
+        nombreCliente: `%${nombreCliente}%`,
+      });
+    }
+
+    if (nroDocumento) {
+      queryBuilder.andWhere('cliente.nroDocumento LIKE :nroDocumento', {
+        nroDocumento: `%${nroDocumento}%`,
+      });
+    }
+
+    if (fechaDesde) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
+        throw new BadRequestException(
+          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
+        );
+      }
+
+      const fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
+      queryBuilder.andWhere('comprobante.fechaEmision  >= :fechaDesde ', {
+        fechaDesde: fecha,
+      });
+    }
+    if (fechaHasta) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
+        throw new BadRequestException(
+          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
+        );
+      }
+
+      const fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
+      queryBuilder.andWhere('comprobante.fechaEmision  <= :fechaHasta ', {
+        fechaHasta: fecha,
+      });
+    }
+    if (clienteId) {
+      queryBuilder.andWhere('comprobante.clienteId = :clienteId', {
+        clienteId,
+      });
+    }
+
+    if (tipoFactura) {
+      queryBuilder.andWhere('comprobante.tipoComprobante = :tipoComprobante', {
+        tipoComprobante: tipoFactura,
+      });
+    }
+
+    const [items, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      items,
+      total,
+      limit,
+      offset,
+      nextPage: total > offset + limit ? offset + limit : null,
+      previousPage: offset > 0 ? offset - limit : null,
+    };
   }
 }

@@ -8,6 +8,7 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { CondicionIva } from '../enums/condicion-iva.enum';
 import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 @Entity()
 export class Comprobante extends BaseTransactionalEntity {
@@ -22,6 +23,9 @@ export class Comprobante extends BaseTransactionalEntity {
 
   @Column({ enum: TipoComprobante })
   tipoComprobante: TipoComprobante;
+
+  @Column({ enum: CondicionIva })
+  condicionIvaCliente: CondicionIva;
 
   @OneToOne(() => Venta, { nullable: true })
   @JoinColumn()
@@ -40,4 +44,7 @@ export class Comprobante extends BaseTransactionalEntity {
 
   @Column({ type: 'decimal', precision: 9, scale: 2 })
   importeTotal: number;
+
+  @Column({ nullable: true })
+  motivo?: string;
 }
