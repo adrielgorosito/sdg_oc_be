@@ -192,6 +192,7 @@ export interface IFECAESolicitarResult {
 
 export interface IProcesadoExitoso {
   CAE: number;
+  CAEFchVto: string;
   numeroComprobante: string;
   cbteTipo: TipoComprobante;
   fechaFactura: Date;

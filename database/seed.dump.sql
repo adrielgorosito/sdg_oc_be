@@ -2666,6 +2666,9 @@ INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwg
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_PTO_VTA', '12', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_CUIT', '20409667482', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_IMPORTE_MAXIMO_FACTURAR', '417000', GETDATE(), NULL);
+INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('RAZON_SOCIAL_EMPRESA', 'Optica Criado S.A.', GETDATE(), NULL);
+INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('DOMICILIO_FISCAL_EMPRESA', 'Av. Corrientes 1234', GETDATE(), NULL);
+INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('CATEGORIA_FISCAL_EMPRESA', 'Responsable Inscripto', GETDATE(), NULL);
 
 -- Insertar en la tabla [dbo].[comprobante]
 DECLARE @factura1 UNIQUEIDENTIFIER = NEWID();
@@ -2679,29 +2682,29 @@ DECLARE @factura8 UNIQUEIDENTIFIER = NEWID();
 DECLARE @factura9 UNIQUEIDENTIFIER = NEWID();
 DECLARE @factura10 UNIQUEIDENTIFIER = NEWID();
 
-INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId], [condicionIvaCliente], [motivo])
+INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId], [condicionIvaCliente], [motivo])
 VALUES 
-(@factura1, GETDATE(), NULL, '0001-00000001', '12345678901234', '2024-03-01', 1, 15000.00, @venta1, NULL, 6, NULL),
-(@factura2, GETDATE(), NULL, '0001-00000002', '23456789012345', '2024-03-02', 6, 7800.50, @venta2, NULL, 1, NULL),
-(@factura3, GETDATE(), NULL, '0001-00000003', '34567890123456', '2024-03-03', 11, 3200.75, @venta3, NULL, 6, NULL),
-(@factura4, GETDATE(), NULL, '0001-00000004', '45678901234567', '2024-03-04', 1, 12450.25, @venta4, NULL, 6, NULL),
-(@factura5, GETDATE(), NULL, '0001-00000005', '56789012345678', '2024-03-05', 51, 8900.90, @venta5, NULL, 6, NULL),
-(@factura6, GETDATE(), NULL, '0001-00000006', '67890123456789', '2024-03-06', 1, 4300.60, @venta6, NULL, 1, NULL),
-(@factura7, GETDATE(), NULL, '0001-00000007', '78901234567890', '2024-03-07', 6, 15700.30, @venta7, NULL, 6, NULL),
-(@factura8, GETDATE(), NULL, '0001-00000008', '89012345678901', '2024-03-08', 11, 6650.80, @venta8, NULL, 6, NULL),
-(@factura9, GETDATE(), NULL, '0001-00000009', '90123456789012', '2024-03-09', 51, 5100.45, @venta9, NULL, 1, NULL),
-(@factura10, GETDATE(), NULL, '0001-00000010', '01234567890123', '2024-03-10', 1, 23000.00, @venta10, NULL, 1, NULL);
+(@factura1, GETDATE(), NULL, '0001-00000001', '12345678901234', '2024-03-01', '2024-03-01', 1, 15000.00, @venta1, NULL, 6, NULL),
+(@factura2, GETDATE(), NULL, '0001-00000002', '23456789012345', '2024-03-02', '2024-03-02', 6, 7800.50, @venta2, NULL, 1, NULL),
+(@factura3, GETDATE(), NULL, '0001-00000003', '34567890123456', '2024-03-03', '2024-03-03', 11, 3200.75, @venta3, NULL, 6, NULL),
+(@factura4, GETDATE(), NULL, '0001-00000004', '45678901234567', '2024-03-04', '2024-03-04', 1, 12450.25, @venta4, NULL, 6, NULL),
+(@factura5, GETDATE(), NULL, '0001-00000005', '56789012345678', '2024-03-05', '2024-03-05', 51, 8900.90, @venta5, NULL, 6, NULL),
+(@factura6, GETDATE(), NULL, '0001-00000006', '67890123456789', '2024-03-06', '2024-03-06', 1, 4300.60, @venta6, NULL, 1, NULL),
+(@factura7, GETDATE(), NULL, '0001-00000007', '78901234567890', '2024-03-07', '2024-03-07', 6, 15700.30, @venta7, NULL, 6, NULL),
+(@factura8, GETDATE(), NULL, '0001-00000008', '89012345678901', '2024-03-08', '2024-03-08', 11, 6650.80, @venta8, NULL, 6, NULL),
+(@factura9, GETDATE(), NULL, '0001-00000009', '90123456789012', '2024-03-09', '2024-03-09', 51, 5100.45, @venta9, NULL, 1, NULL),
+(@factura10, GETDATE(), NULL, '0001-00000010', '01234567890123', '2024-03-10', '2024-03-10', 1, 23000.00, @venta10, NULL, 1, NULL);
 
 -- Insertar Notas de Débito / Crédito relacionadas a Facturas
-INSERT INTO [dbo].[comprobante] ([createdAt], [updatedAt], [numeroComprobante], [CAE], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId] , [condicionIvaCliente], [motivo])
+INSERT INTO [dbo].[comprobante] ([createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId] , [condicionIvaCliente], [motivo])
 VALUES 
-(GETDATE(), NULL, '0001-00000011', '11223344556677', '2024-03-11', 2, 1500.00, NULL, @factura1, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000012', '22334455667788', '2024-03-12', 3, 500.75, NULL, @factura1, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000013', '33445566778899', '2024-03-13', 12, 300.25, NULL, @factura3, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000014', '44556677889900', '2024-03-14', 3, 750.40, NULL, @factura4, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000015', '55667788990011', '2024-03-15', 52, 1800.90, NULL, @factura5, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000016', '66778899001122', '2024-03-16', 13, 900.60, NULL, @factura6, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000017', '77889900112233', '2024-03-17', 7, 2500.30, NULL, @factura7, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000018', '88990011223344', '2024-03-18', 8, 1200.80, NULL, @factura8, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000019', '99001122334455', '2024-03-19', 53, 1550.45, NULL, @factura9, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000020', '00112233445566', '2024-03-20', 3, 3200.00, NULL, @factura10, 8, 'Motivo de la nota de débito/crédito');
+(GETDATE(), NULL, '0001-00000011', '11223344556677', '2024-03-11', '2024-03-11', 2, 1500.00, NULL, @factura1, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000012', '22334455667788', '2024-03-12', '2024-03-12', 3, 500.75, NULL, @factura1, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000013', '33445566778899', '2024-03-13', '2024-03-13', 12, 300.25, NULL, @factura3, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000014', '44556677889900', '2024-03-14', '2024-03-14', 3, 750.40, NULL, @factura4, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000015', '55667788990011', '2024-03-15', '2024-03-15', 52, 1800.90, NULL, @factura5, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000016', '66778899001122', '2024-03-16', '2024-03-16', 13, 900.60, NULL, @factura6, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000017', '77889900112233', '2024-03-17', '2024-03-17', 7, 2500.30, NULL, @factura7, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000018', '88990011223344', '2024-03-18', '2024-03-18', 8, 1200.80, NULL, @factura8, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000019', '99001122334455', '2024-03-19', '2024-03-19', 53, 1550.45, NULL, @factura9, 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000020', '00112233445566', '2024-03-20', '2024-03-20', 3, 3200.00, NULL, @factura10, 8, 'Motivo de la nota de débito/crédito');

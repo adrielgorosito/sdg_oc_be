@@ -19,6 +19,9 @@ export class Comprobante extends BaseTransactionalEntity {
   CAE: number;
 
   @Column({ type: 'datetime2' })
+  CAEFechaVencimiento: Date;
+
+  @Column({ type: 'datetime2' })
   fechaEmision: Date;
 
   @Column({ enum: TipoComprobante })

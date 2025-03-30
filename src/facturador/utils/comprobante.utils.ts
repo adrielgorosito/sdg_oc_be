@@ -8,6 +8,8 @@ import { IParamsFECAESolicitar } from 'src/facturador/interfaces/ISoap';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { Comprobante } from '../entities/comprobante.entity';
+import { IDatosDocumentos } from '../interfaces/IDatosDocumentos';
+import { mapeoCondicionIVA, mapeoTipoComprobante } from './mapeosEnums';
 
 export const crearDatosNotaDeCreditoDebito = async (
   createComprobanteDTO: CrearComprobanteDTO,
@@ -194,4 +196,76 @@ const obtenerCbteTipoYTipoDoc = (
     default:
       throw new AfipValidationError('Categoria fiscal no válida');
   }
+};
+
+export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
+  let datosDocumentoParaImprimir: IDatosDocumentos;
+  if (
+    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_A ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_B ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_A ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_B
+  ) {
+    datosDocumentoParaImprimir = {
+      CAE: comprobante.CAE.toString(),
+      fechaEmision: comprobante.fechaEmision.toISOString(),
+      CAEVencimiento: comprobante.CAEFechaVencimiento.toISOString(),
+      cliente: {
+        apellido: comprobante.facturaRelacionada.venta.cliente.apellido,
+        condicionIVA:
+          mapeoCondicionIVA[
+            comprobante.facturaRelacionada.venta.cliente.categoriaFiscal
+          ],
+        domicilio: comprobante.facturaRelacionada.venta.cliente.domicilio,
+        nombre: comprobante.facturaRelacionada.venta.cliente.nombre,
+        documento:
+          comprobante.facturaRelacionada.venta.cliente.nroDocumento.toString(),
+      },
+      tipoComprobante: mapeoTipoComprobante[comprobante.tipoComprobante],
+      numeroComprobante: comprobante.numeroComprobante,
+      importeTotal: comprobante.importeTotal,
+    };
+  } else if (
+    comprobante.tipoComprobante === TipoComprobante.FACTURA_A ||
+    comprobante.tipoComprobante === TipoComprobante.FACTURA_B
+  ) {
+    const descuentoObraSocial = comprobante.venta.ventaObraSocial.reduce(
+      (acc, curr) => {
+        return acc + curr.importe;
+      },
+      0,
+    );
+
+    datosDocumentoParaImprimir = {
+      CAE: comprobante.CAE.toString(),
+      fechaEmision: comprobante.fechaEmision.toISOString(),
+      CAEVencimiento: comprobante.CAEFechaVencimiento.toISOString(),
+      cliente: {
+        apellido: comprobante.venta.cliente.apellido,
+        condicionIVA:
+          mapeoCondicionIVA[comprobante.venta.cliente.categoriaFiscal],
+        domicilio: comprobante.venta.cliente.domicilio,
+        nombre: comprobante.venta.cliente.nombre,
+        documento: comprobante.venta.cliente.nroDocumento.toString(),
+      },
+      venta: {
+        descuentoPorcentaje: comprobante.venta.descuentoPorcentaje,
+        descuentoObraSocial: descuentoObraSocial,
+        lineasDeVenta: comprobante.venta.lineasDeVenta.map((linea) => ({
+          cantidad: linea.cantidad,
+          precioIndividual: linea.precioIndividual,
+          producto: {
+            descripcion: linea.producto?.descripcion ?? '',
+            categoria: linea.producto?.categoria ?? '',
+            marca: linea.producto?.marca?.nombre ?? '',
+          },
+        })),
+        fecha: comprobante.venta.fecha.toISOString(),
+      },
+      tipoComprobante: mapeoTipoComprobante[comprobante.tipoComprobante],
+      numeroComprobante: comprobante.numeroComprobante,
+      importeTotal: comprobante.importeTotal,
+    };
+  }
+  return datosDocumentoParaImprimir;
 };
