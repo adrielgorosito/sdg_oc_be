@@ -396,13 +396,14 @@ export function procesarRespuestaAFIP(
 ): ResultadoProcesado {
   const { Errors } = respuesta;
   const { Resultado, PtoVta, CbteTipo } = respuesta?.FeCabResp;
-  const { CAE, CbteHasta, Observaciones, CbteFch, DocNro, DocTipo } =
+  const { CAE, CbteHasta, Observaciones, CbteFch, DocNro, DocTipo, CAEFchVto } =
     respuesta?.FeDetResp?.FECAEDetResponse;
 
   const numeroComprobante = `${PtoVta.toString().padStart(4, '0')}-${CbteHasta.toString().padStart(8, '0')}`;
   if (Resultado === 'A') {
     return {
       CAE,
+      CAEFchVto,
       numeroComprobante,
       cbteTipo: CbteTipo,
       fechaFactura: CbteFch,

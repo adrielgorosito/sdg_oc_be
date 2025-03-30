@@ -6,9 +6,10 @@ import { Comprobante } from './entities/comprobante.entity';
 import { Token } from './entities/token.entity';
 import { AfipService } from './services/afip.service';
 import { FacturadorService } from './services/facturador.service';
+import { GeneradorDocumentosService } from './services/generador-documentos.service';
 @Module({
   controllers: [ComprobanteController],
-  providers: [AfipService, FacturadorService],
+  providers: [AfipService, FacturadorService, GeneradorDocumentosService],
   imports: [TypeOrmModule.forFeature([Comprobante, Token, Parametro])],
   exports: [AfipService, FacturadorService],
 })

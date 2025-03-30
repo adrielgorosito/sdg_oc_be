@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { CondicionIva } from '../enums/condicion-iva.enum';
 import { TipoComprobante } from '../enums/tipo-comprobante.enum';
+
 @Entity()
 export class Comprobante extends BaseTransactionalEntity {
   @Column()
@@ -17,6 +18,9 @@ export class Comprobante extends BaseTransactionalEntity {
 
   @Column({ type: 'bigint' })
   CAE: number;
+
+  @Column({ type: 'datetime2' })
+  CAEFechaVencimiento: Date;
 
   @Column({ type: 'datetime2' })
   fechaEmision: Date;

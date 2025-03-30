@@ -1,16 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
-import { ParametrosService } from 'src/parametros/parametros.service';
 import { EntityManager, Repository } from 'typeorm';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { PaginateComprobanteDTO } from '../dto/paginate-comprobante.dto';
 import { Comprobante } from '../entities/comprobante.entity';
+import { ParametrosService } from 'src/parametros/parametros.service';
+import { GeneradorDocumentosService } from './generador-documentos.service';
+import { AfipService } from './afip.service';
 import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
 import {
   IFECAESolicitarResult,
@@ -27,7 +22,13 @@ import {
   incrementarComprobante,
   procesarRespuestaAFIP,
 } from '../utils/helpers';
-import { AfipService } from './afip.service';
+import { parse } from 'date-fns';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 @Injectable()
 export class FacturadorService {
@@ -36,6 +37,7 @@ export class FacturadorService {
     private readonly facturaRepository: Repository<Comprobante>,
     private readonly afipService: AfipService,
     private readonly configService: ParametrosService,
+    private readonly generadorDocumentosService: GeneradorDocumentosService,
   ) {}
 
   public async crearFactura(datosFactura: IParamsFECAESolicitar) {
@@ -104,7 +106,7 @@ export class FacturadorService {
         extraerPuntoVentaYTipoComprobante(datosComprobante),
       );
 
-      const factura = (await this.afipService.execMethod(
+      const comprobante = (await this.afipService.execMethod(
         WsServicesNamesEnum.FECAESolicitar,
         {
           factura: incrementarComprobante(
@@ -114,7 +116,7 @@ export class FacturadorService {
         },
       )) as IFECAESolicitarResult;
 
-      const resultado: ResultadoProcesado = procesarRespuestaAFIP(factura);
+      const resultado: ResultadoProcesado = procesarRespuestaAFIP(comprobante);
 
       if ('errores' in resultado && resultado.errores.length > 0) {
         throw new AfipError(
@@ -125,6 +127,7 @@ export class FacturadorService {
       } else {
         const comprobante = this.facturaRepository.create({
           ...comprobanteDTO,
+          facturasRelacionadas: [facturaRelacionada],
           numeroComprobante: (resultado as IProcesadoExitoso).numeroComprobante,
           CAE: (resultado as IProcesadoExitoso).CAE,
           fechaEmision: parse(
@@ -148,13 +151,16 @@ export class FacturadorService {
     comprobante: Comprobante,
     em?: EntityManager,
   ) {
-    const facturaGuardada = em
+    const comprobanteGuardado = em
       ? await em.save(comprobante)
       : await this.facturaRepository.save(comprobante);
-    if (facturaGuardada.venta) {
-      delete facturaGuardada.venta;
+
+    if (comprobanteGuardado.venta) {
+      delete comprobanteGuardado.venta;
     }
-    return facturaGuardada;
+    return {
+      comprobanteGuardado,
+    };
   }
 
   async findAllByClienteId(clienteId: number): Promise<Comprobante[]> {
