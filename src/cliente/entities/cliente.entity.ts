@@ -1,8 +1,8 @@
 import { Audiometria } from 'src/audiometria/entities/audiometria.entity';
 import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
 import { BaseEntity } from 'src/common/entities/base.entity';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
 import { HistoriaClinicaLentesContacto } from 'src/historia-clinica-lentes-contacto/entities/historia-clinica-lentes-contacto.entity';
 import { Localidad } from 'src/localidad/entities/localidad.entity';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';

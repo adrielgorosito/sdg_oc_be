@@ -8,10 +8,10 @@ import { AuthModule } from './auth/auth.module';
 import { ClienteObraSocialModule } from './cliente-obra-social/cliente-obra-social.module';
 import { ClienteModule } from './cliente/cliente.module';
 import { CommonsModule } from './common/commons.module';
+import { ComprobanteModule } from './comprobante/comprobante.module';
 import { DatabaseService } from './config/database.service';
 import { CuentaCorrienteModule } from './cuenta-corriente/cuenta-corriente.module';
 import { DetallesRecetaLentesAereosModule } from './detalles-receta-lentes-aereos/detalles-receta-lentes-aereos.module';
-import { FacturadorModule } from './facturador/facturador.module';
 import { HistoriaClinicaLentesContactoModule } from './historia-clinica-lentes-contacto/historia-clinica-lentes-contacto.module';
 import { LocalidadModule } from './localidad/localidad.module';
 import { MarcaModule } from './marca/marca.module';
@@ -26,7 +26,6 @@ import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lent
 import { UserModule } from './user/user.module';
 import { VentaObraSocialModule } from './venta-obra-social/venta-obra-social.module';
 import { VentaModule } from './venta/venta.module';
-
 @Module({
   providers: [
     {
@@ -87,7 +86,7 @@ import { VentaModule } from './venta/venta.module';
     ProvinciaModule,
     UserModule,
     AuthModule,
-    FacturadorModule,
+    ComprobanteModule,
     VentaObraSocialModule,
     CommonsModule,
     ParametrosModule,

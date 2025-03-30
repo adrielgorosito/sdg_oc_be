@@ -1,6 +1,6 @@
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
-import { Comprobante } from 'src/facturador/entities/comprobante.entity';
+import { Comprobante } from 'src/comprobante/entities/comprobante.entity';
 import { LineaVenta } from 'src/linea-venta/entities/linea-venta.entity';
 import { MedioDePago } from 'src/medio-de-pago/entities/medio-de-pago.entity';
 import { VentaObraSocial } from 'src/venta-obra-social/entities/venta-obra-social.entity';

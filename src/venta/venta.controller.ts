@@ -31,7 +31,7 @@ export class VentaController {
   async create(@Body() ventaDTO: CreateVentaDTO) {
     return this.ventaService.create(ventaDTO);
   }
-  
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() ventaDTO: UpdateVentaDTO) {
     return this.ventaService.update(id, ventaDTO);

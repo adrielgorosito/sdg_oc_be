@@ -16,8 +16,8 @@ import { ValidateDocumento } from 'src/common/decorators/validate-documento.deco
 import { ValidateTipoDocumento } from 'src/common/decorators/validate-tipo-documento.decorator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 import { CreateCuentaCorrienteDTO } from 'src/cuenta-corriente/dto/create-cuenta-corriente.dto';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
 
 export class CreateClienteDTO extends BaseDTO {
   @ValidateDocumento()

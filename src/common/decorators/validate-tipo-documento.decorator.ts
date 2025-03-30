@@ -1,6 +1,6 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { TipoDocumento } from 'src/cliente/enums/tipo-documento.enum';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 
 export function ValidateTipoDocumento(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
