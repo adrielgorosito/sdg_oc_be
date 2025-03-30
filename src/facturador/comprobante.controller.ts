@@ -13,6 +13,7 @@ import { CrearComprobanteDTO } from './dto/create-comprobante.dto';
 import { PaginateComprobanteDTO } from './dto/paginate-comprobante.dto';
 import { FacturadorService } from './services/facturador.service';
 import { GeneradorDocumentosService } from './services/generador-documentos.service';
+
 @Controller('comprobante')
 export class ComprobanteController {
   constructor(
