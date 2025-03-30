@@ -1,7 +1,7 @@
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { IsTipoFacturaValida } from 'src/common/decorators/is-tipo-factura-valida.decorator';
 import { PaginationDTO } from 'src/common/dtos/pagination.dto';
-import { TipoComprobante } from 'src/facturador/enums/tipo-comprobante.enum';
+import { TipoComprobante } from 'src/comprobante/enums/tipo-comprobante.enum';
 
 export class PaginateVentaDTO extends PaginationDTO {
   @IsString()

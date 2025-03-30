@@ -1,10 +1,10 @@
 import { Decimal } from 'decimal.js';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
-import { TipoComprobante } from 'src/facturador/enums/tipo-comprobante.enum';
-import { TipoDocumento } from 'src/facturador/enums/tipo-documento.enum';
-import { AfipValidationError } from 'src/facturador/errors/afip.errors';
-import { IParamsFECAESolicitar } from 'src/facturador/interfaces/ISoap';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
+import { TipoComprobante } from 'src/comprobante/enums/tipo-comprobante.enum';
+import { TipoDocumento } from 'src/comprobante/enums/tipo-documento.enum';
+import { AfipValidationError } from 'src/comprobante/errors/afip.errors';
+import { IParamsFECAESolicitar } from 'src/comprobante/interfaces/ISoap';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { Comprobante } from '../entities/comprobante.entity';

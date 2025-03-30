@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Parametro } from 'src/parametros/entities/parametro.entity';
+import { Venta } from 'src/venta/entities/venta.entity';
 import { ComprobanteController } from './comprobante.controller';
 import { Comprobante } from './entities/comprobante.entity';
 import { Token } from './entities/token.entity';
 import { AfipService } from './services/afip.service';
-import { FacturadorService } from './services/facturador.service';
+import { ComprobanteService } from './services/comprobante.service';
 import { GeneradorDocumentosService } from './services/generador-documentos.service';
 @Module({
   controllers: [ComprobanteController],
-  providers: [AfipService, FacturadorService, GeneradorDocumentosService],
-  imports: [TypeOrmModule.forFeature([Comprobante, Token, Parametro])],
-  exports: [AfipService, FacturadorService],
+  providers: [AfipService, ComprobanteService, GeneradorDocumentosService],
+  imports: [TypeOrmModule.forFeature([Comprobante, Token, Parametro, Venta])],
+  exports: [AfipService, ComprobanteService],
 })
-export class FacturadorModule {}
+export class ComprobanteModule {}

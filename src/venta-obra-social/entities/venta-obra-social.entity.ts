@@ -1,5 +1,5 @@
 import { BaseTransactionalEntity } from 'src/common/entities/baseTransactional.entity';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';

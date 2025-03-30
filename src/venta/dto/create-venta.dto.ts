@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import { BaseTransactionalDTO } from 'src/common/dtos/baseTransactional.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 import { CreateLineaVentaDTO } from 'src/linea-venta/dto/create-linea-venta.dto';
 import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
 import { CreateVentaObraSocialDTO } from 'src/venta-obra-social/dto/create-venta-obra-social.dto';

@@ -7,16 +7,16 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Comprobante } from 'src/comprobante/entities/comprobante.entity';
+import { IProcesadoExitoso } from 'src/comprobante/interfaces/ISoap';
+import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
+import { crearDatosFactura } from 'src/comprobante/utils/comprobante.utils';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
-import { Comprobante } from 'src/facturador/entities/comprobante.entity';
-import { IProcesadoExitoso } from 'src/facturador/interfaces/ISoap';
-import { FacturadorService } from 'src/facturador/services/facturador.service';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { DataSource, In, Repository } from 'typeorm';
-import { crearDatosFactura } from '../facturador/utils/comprobante.utils';
 import { CreateVentaDTO } from './dto/create-venta.dto';
 import { PaginateVentaDTO } from './dto/paginate-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
@@ -30,7 +30,7 @@ export class VentaService {
     private readonly ventaRepository: Repository<Venta>,
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
-    private readonly facturadorService: FacturadorService,
+    private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
     private readonly parametrosService: ParametrosService,
   ) {}
@@ -164,7 +164,7 @@ export class VentaService {
       );
 
       const facturaDesdeAfip: IProcesadoExitoso =
-        (await this.facturadorService.crearFactura(
+        (await this.comprobanteService.crearFactura(
           datosFactura,
         )) as IProcesadoExitoso;
 
@@ -182,10 +182,11 @@ export class VentaService {
         importeTotal: importeAFacturar,
       });
 
-      const facturaPersistida = await this.facturadorService.guardarComprobante(
-        nuevaFactura,
-        queryRunner.manager,
-      );
+      const facturaPersistida =
+        await this.comprobanteService.guardarComprobante(
+          nuevaFactura,
+          queryRunner.manager,
+        );
 
       await queryRunner.manager.queryRunner.commitTransaction();
       return { venta, factura: facturaPersistida };
@@ -312,7 +313,13 @@ export class VentaService {
         throw new NotFoundException(`Venta con id ${id} no encontrada`);
       }
 
-      return venta;
+      const comprobantesRelacionados =
+        await this.comprobanteService.findComprobantesRelacionadosByVenta(
+          null,
+          venta,
+        );
+
+      return { venta, comprobantesRelacionados: comprobantesRelacionados };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(

@@ -11,29 +11,48 @@ import {
 import { Response } from 'express';
 import { CrearComprobanteDTO } from './dto/create-comprobante.dto';
 import { PaginateComprobanteDTO } from './dto/paginate-comprobante.dto';
-import { FacturadorService } from './services/facturador.service';
+import { ComprobanteService } from './services/comprobante.service';
 import { GeneradorDocumentosService } from './services/generador-documentos.service';
 
 @Controller('comprobante')
 export class ComprobanteController {
   constructor(
-    private readonly facturadorService: FacturadorService,
+    private readonly comprobanteService: ComprobanteService,
     private readonly generadorDocumentosService: GeneradorDocumentosService,
   ) {}
 
   @Get()
-  async findAll(@Query() paginateComprobanteDTO: PaginateComprobanteDTO) {
-    return this.facturadorService.findAllComprobantes(paginateComprobanteDTO);
+  async findAllComprobantes(
+    @Query() paginateComprobanteDTO: PaginateComprobanteDTO,
+  ) {
+    return this.comprobanteService.findAllComprobantes(paginateComprobanteDTO);
+  }
+
+  @Get('facturas')
+  async findAllFacturas(
+    @Query() paginateComprobanteDTO: PaginateComprobanteDTO,
+  ) {
+    return this.comprobanteService.findAllFacturas(paginateComprobanteDTO);
   }
 
   @Get('cliente/:id')
   async findAllByClienteId(@Param('id') clienteId: number) {
-    return this.facturadorService.findAllByClienteId(clienteId);
+    return this.comprobanteService.findAllByClienteId(clienteId);
+  }
+
+  @Get('venta/:id')
+  async findAllComprobantesByVentaId(@Param('id') ventaId: string) {
+    return this.comprobanteService.findComprobantesRelacionadosByVenta(ventaId);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.comprobanteService.findOne(id);
   }
 
   @Post()
   async create(@Body() createComprobanteDto: CrearComprobanteDTO) {
-    return this.facturadorService.crearComprobante(createComprobanteDto);
+    return this.comprobanteService.crearComprobante(createComprobanteDto);
   }
 
   @Post('imprimir')

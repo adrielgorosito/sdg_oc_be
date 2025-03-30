@@ -6,7 +6,7 @@ import {
   IsObject,
   ValidateNested,
 } from 'class-validator';
-import { CondicionIva } from 'src/facturador/enums/condicion-iva.enum';
+import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 import { RelationDTO } from './../../common/dtos/relation.dto';
 
 export class CreateVentaObraSocialDTO {
