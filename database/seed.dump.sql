@@ -2523,7 +2523,6 @@ VALUES
 (GETDATE(), NULL, '2023-10-20', 'http://example.com/informe9.pdf', 'Uso de audífono recomendado', 9),
 (GETDATE(), NULL, '2023-10-21', 'http://example.com/informe10.pdf', 'Sin anomalías detectadas', 10);
 
-
 -- Insertar en la tabla [dbo].[obra_social]
 INSERT INTO [dbo].[obra_social] ([createdAt], [updatedAt], [nombre])
 VALUES 
@@ -2536,7 +2535,8 @@ VALUES
 INSERT INTO [dbo].[cliente_obra_social] ([createdAt], [updatedAt], [numeroSocio], [clienteId], [obraSocialId])
 VALUES 
 (GETDATE(), NULL, '12345', 1, 1),
-(GETDATE(), NULL, '67890', 2, 2),
+(GETDATE(), NULL, '12346', 1, 2),
+(GETDATE(), NULL, '67890', 2, 1),
 (GETDATE(), NULL, '54321', 3, 3),
 (GETDATE(), NULL, '98765', 4, 4);
 
@@ -2595,61 +2595,97 @@ VALUES
 -- Insertar en la tabla [dbo].[producto]
 INSERT INTO [dbo].[producto] ([createdAt], [updatedAt], [codProv], [descripcion], [categoria], [precioLista], [precio], [marcaId], [proveedorId])
 VALUES 
-(GETDATE(), NULL, 'A1', 'Lentes de sol', 'LENTES_DE_SOL', 150.00, 150.00, 1, 1),
-(GETDATE(), NULL, 'A2', 'Lentes de contacto', 'LENTES_DE_CONTACTO', 200.00, 150.00, 2, 2),
-(GETDATE(), NULL, 'A3', 'Lentes de vista', 'LENTES_AEREOS', 250.00, 200.00, 3, 3),
-(GETDATE(), NULL, 'A4', 'Lentes de sol polarizados', 'LENTES_DE_SOL', 300.00, 350.00, 4, 4);
+(GETDATE(), NULL, 'RB001', 'Lentes de sol Ray-Ban Aviator', 'LENTES_DE_SOL', 10000.00, 15000.00, 1, 1),
+(GETDATE(), NULL, 'AC001', 'Lentes de contacto Acuvue Oasys (pack x6)', 'LENTES_DE_CONTACTO', 3000.00, 5000.00, 2, 2),
+(GETDATE(), NULL, 'AR001', 'Armazón metálico Vogue', 'LENTES_AEREOS', 15000.00, 20000.00, 3, 3),
+(GETDATE(), NULL, 'PS001', 'Lentes de sol polarizados Oakley', 'LENTES_DE_SOL', 10000.00, 15000.00, 4, 4),
+(GETDATE(), NULL, 'PR001', 'Lentes progresivos Varilux', 'LENTES_AEREOS', 14000.00, 19000.00, 1, 2),
+(GETDATE(), NULL, 'AC002', 'Estuche protector rígido', 'CRISTALES', 600.00, 1500.00, 4, 3),
+(GETDATE(), NULL, 'SL001', 'Solución salina 500ml', 'LENTES_DE_CONTACTO', 500.00, 1000.00, 3, 4),
+(GETDATE(), NULL, 'CR001', 'Cristales antireflejo', 'LENTES_AEREOS', 1500.00, 3000.00, 1, 2),
+(GETDATE(), NULL, 'PA001', 'Paño de limpieza microfibra', 'CRISTALES', 200.00, 500.00, 1, 3);
 
 -- Insertar en la tabla [dbo].[venta]
-DECLARE @venta1 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta2 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta3 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta4 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta5 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta6 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta7 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta8 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta9 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta10 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta11 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta12 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta13 UNIQUEIDENTIFIER = NEWID();
-DECLARE @venta14 UNIQUEIDENTIFIER = NEWID();
-
-INSERT INTO [dbo].[venta] ([id], [createdAt], [updatedAt], [fecha], [descuentoPorcentaje], [importe], [clienteId])
+INSERT INTO [dbo].[venta] ([id], [createdAt], [updatedAt], [fecha], [descuentoPorcentaje], [importe], [observaciones], [clienteId])
 VALUES 
-(@venta1, GETDATE(), NULL, '2023-10-01',  10, 270, 1),
-(@venta2, GETDATE(), NULL, '2023-10-02', 5, 190, 1),
-(@venta3, GETDATE(), NULL, '2023-10-03',  15, 215, 1),
-(@venta4, GETDATE(), NULL, '2023-10-04', 20, 240, 1),
-(@venta5, GETDATE(), NULL, '2023-10-05', 10, 350, 2),
-(@venta6, GETDATE(), NULL, '2023-10-06',  5, 410, 2),
-(@venta7, GETDATE(), NULL, '2023-10-07', 15, 290, 3),
-(@venta8, GETDATE(), NULL, '2023-10-08',  8, 380, 5),
-(@venta9, GETDATE(), NULL, '2023-10-09', 12, 500, 6),
-(@venta10, GETDATE(), NULL, '2023-10-10', 20, 450, 7),
-(@venta11, GETDATE(), NULL, '2023-10-11',  7, 340, 8),
-(@venta12, GETDATE(), NULL, '2023-10-12', 10, 275, 9),
-(@venta13, GETDATE(), NULL, '2023-10-13', 18, 620, 10),
-(@venta14, GETDATE(), NULL, '2023-10-14',  5, 330, 10);
+('00000000-0000-0000-0000-000000000001', GETDATE(), NULL, '2025-03-01', 10, 21500.00, 'Observacion de venta 1', 1),
+('00000000-0000-0000-0000-000000000002', GETDATE(), NULL, '2025-03-02', 0, 11000.00, NULL, 1),
+('00000000-0000-0000-0000-000000000003', GETDATE(), NULL, '2025-03-03', 15, 23000.00, NULL, 2),
+('00000000-0000-0000-0000-000000000004', GETDATE(), NULL, '2025-03-04', 20, 16500.00, NULL, 3),
+('00000000-0000-0000-0000-000000000005', GETDATE(), NULL, '2025-03-05', 10, 19500.00, NULL, 4),
+('00000000-0000-0000-0000-000000000006', GETDATE(), NULL, '2025-03-06', 0, 22500.00, 'Observacion de venta 6', 5),
+('00000000-0000-0000-0000-000000000007', GETDATE(), NULL, '2025-03-07', 15, 17000.00, NULL, 6);
 
 -- Insertar en la tabla [dbo].[linea_venta]
 INSERT INTO [dbo].[linea_venta] ([id], [createdAt], [updatedAt], [cantidad], [precioIndividual], [ventaId], [productoId])
 VALUES 
-(NEWID(), GETDATE(), NULL, 2, 150.00, @venta1, 1),
-(NEWID(), GETDATE(), NULL, 3, 300.00, @venta1, 2),
-(NEWID(), GETDATE(), NULL, 1, 400.00, @venta1, 3),
-(NEWID(), GETDATE(), NULL, 1, 200.00, @venta2, 2),
-(NEWID(), GETDATE(), NULL, 1, 150.00, @venta3, 2),
-(NEWID(), GETDATE(), NULL, 2, 350.00, @venta4, 1);
+(NEWID(), GETDATE(), NULL, 1, 15000.00, '00000000-0000-0000-0000-000000000001', 1),
+(NEWID(), GETDATE(), NULL, 1, 5000.00, '00000000-0000-0000-0000-000000000001', 2),
+(NEWID(), GETDATE(), NULL, 1, 1500.00,  '00000000-0000-0000-0000-000000000001', 6),
+(NEWID(), GETDATE(), NULL, 2, 5000.00,  '00000000-0000-0000-0000-000000000002', 2),
+(NEWID(), GETDATE(), NULL, 1, 1000.00,  '00000000-0000-0000-0000-000000000002', 7),
+(NEWID(), GETDATE(), NULL, 1, 20000.00, '00000000-0000-0000-0000-000000000003', 3),
+(NEWID(), GETDATE(), NULL, 1, 3000.00,  '00000000-0000-0000-0000-000000000003', 8),
+(NEWID(), GETDATE(), NULL, 1, 15000.00, '00000000-0000-0000-0000-000000000004', 4),
+(NEWID(), GETDATE(), NULL, 1, 1500.00,  '00000000-0000-0000-0000-000000000004', 6),
+(NEWID(), GETDATE(), NULL, 1, 19000.00, '00000000-0000-0000-0000-000000000005', 5),
+(NEWID(), GETDATE(), NULL, 1, 500.00,   '00000000-0000-0000-0000-000000000005', 9),
+(NEWID(), GETDATE(), NULL, 2, 10000.00, '00000000-0000-0000-0000-000000000006', 2),
+(NEWID(), GETDATE(), NULL, 1, 1000.00,  '00000000-0000-0000-0000-000000000006', 7),
+(NEWID(), GETDATE(), NULL, 1, 1500.00,  '00000000-0000-0000-0000-000000000006', 6),
+(NEWID(), GETDATE(), NULL, 1, 15000.00, '00000000-0000-0000-0000-000000000007', 1),
+(NEWID(), GETDATE(), NULL, 1, 2000.00,  '00000000-0000-0000-0000-000000000007', 8);
 
 -- Insertar en la tabla [dbo].[medio_de_pago]
 INSERT INTO [dbo].[medio_de_pago] ([numeroPago], [ventaId], [tipoMedioDePago], [entidadBancaria], [redDePago], [importe])
 VALUES 
-(1, @venta1, 'EFECTIVO', NULL, NULL, 300.00),
-(2, @venta2, 'TARJETA_CREDITO', 'Banco X', 'VISA', 200.00),
-(3, @venta3, 'TRANSFERENCIA_BANCARIA', 'Banco Y', 'NARANJA', 150.00),
-(4, @venta4, 'TARJETA_DEBITO', 'Banco Z', 'MASTERCARD', 500.00);
+(1, '00000000-0000-0000-0000-000000000001', 'EFECTIVO', NULL, NULL, 20000.00),
+(2, '00000000-0000-0000-0000-000000000001', 'TRANSFERENCIA_BANCARIA', 'Banco Galicia', 'VISA', 1500.00),
+(3, '00000000-0000-0000-0000-000000000002', 'TARJETA_CREDITO', 'Banco Galicia', 'VISA', 11000.00),
+(4, '00000000-0000-0000-0000-000000000003', 'TRANSFERENCIA_BANCARIA', 'Banco Nación', NULL, 23000.00),
+(5, '00000000-0000-0000-0000-000000000004', 'TARJETA_DEBITO', 'Banco Santander', 'MASTERCARD', 16500.00),
+(6, '00000000-0000-0000-0000-000000000005', 'EFECTIVO', NULL, NULL, 19500.00),
+(7, '00000000-0000-0000-0000-000000000006', 'TARJETA_CREDITO', 'Banco Macro', 'MASTERCARD', 22500.00),
+(8, '00000000-0000-0000-0000-000000000007', 'TRANSFERENCIA_BANCARIA', 'Banco BBVA', NULL, 17000.00);
+
+-- Insertar en la tabla [dbo].[venta_obra_social]
+INSERT INTO [dbo].[venta_obra_social] ([createdAt], [updatedAt], [importe], [condicionIva], [ventaId], [obraSocialId])
+VALUES 
+(GETDATE(), NULL, 1000, 1, '00000000-0000-0000-0000-000000000001', 1),
+(GETDATE(), NULL, 500, 1, '00000000-0000-0000-0000-000000000001', 2),
+(GETDATE(), NULL, 2000, 1, '00000000-0000-0000-0000-000000000003', 1),
+(GETDATE(), NULL, 3000, 1, '00000000-0000-0000-0000-000000000004', 3),
+(GETDATE(), NULL, 4000, 1, '00000000-0000-0000-0000-000000000005', 4);
+
+-- Insertar en la tabla [dbo].[comprobante]
+INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId], [condicionIvaCliente], [motivo])
+VALUES 
+('00000000-0000-0000-0000-000000000001', GETDATE(), NULL, '0001-00000001', '12345678901234', '2025-06-01', '2025-03-01', 1, 18000.00, '00000000-0000-0000-0000-000000000001', NULL, 1, 'Observacion de venta 1'),
+('00000000-0000-0000-0000-000000000003', GETDATE(), NULL, '0001-00000003', '34567890123456', '2025-06-03', '2025-03-03', 1, 17850.00, '00000000-0000-0000-0000-000000000003', NULL, 6, NULL),
+('00000000-0000-0000-0000-000000000004', GETDATE(), NULL, '0001-00000004', '45678901234567', '2025-06-04', '2025-03-04', 6, 10800.00, '00000000-0000-0000-0000-000000000004', NULL, 5, NULL),
+('00000000-0000-0000-0000-000000000005', GETDATE(), NULL, '0001-00000005', '56789012345678', '2025-06-05', '2025-03-05', 1, 13950.00, '00000000-0000-0000-0000-000000000005', NULL, 1, NULL),
+('00000000-0000-0000-0000-000000000006', GETDATE(), NULL, '0001-00000006', '67890123456789', '2025-06-06', '2025-03-06', 6, 22500.00, '00000000-0000-0000-0000-000000000006', NULL, 5, 'Observacion de venta 6'),
+('00000000-0000-0000-0000-000000000007', GETDATE(), NULL, '0001-00000007', '78901234567890', '2025-06-07', '2025-03-07', 1, 14450.00, '00000000-0000-0000-0000-000000000007', NULL, 6, NULL),
+
+-- Notas de Crédito y Débito relacionadas a facturas
+('00000000-0000-0000-0000-000000000008', GETDATE(), NULL, '0001-00000008', '89012345678901', '2025-06-08', '2025-03-08', 3, 1500.00, NULL, '00000000-0000-0000-0000-000000000001', 1, 'Devolución por defecto'),
+('00000000-0000-0000-0000-000000000009', GETDATE(), NULL, '0001-00000009', '90123456789012', '2025-06-09', '2025-03-09', 2, 2000.00, NULL, '00000000-0000-0000-0000-000000000003', 5, 'Ajuste por error'),
+('00000000-0000-0000-0000-000000000010', GETDATE(), NULL, '0001-00000010', '01234567890123', '2025-06-10', '2025-03-10', 8, 1000.00, NULL, '00000000-0000-0000-0000-000000000004', 5, 'Descuento mal aplicado'),
+('00000000-0000-0000-0000-000000000011', GETDATE(), NULL, '0001-00000011', '12345678901234', '2025-06-11', '2025-03-11', 7, 500.00, NULL, '00000000-0000-0000-0000-000000000006', 5, 'Cargo adicional');
+
+-- Insertar Notas de Débito / Crédito relacionadas a Facturas
+/* INSERT INTO [dbo].[comprobante] ([createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId] , [condicionIvaCliente], [motivo])
+VALUES 
+(GETDATE(), NULL, '0001-00000011', '11223344556677', '2024-03-11', '2024-03-11', 2, 1500.00, NULL, '00000000-0000-0000-0000-000000000001', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000012', '22334455667788', '2024-03-12', '2024-03-12', 3, 500.75, NULL, '00000000-0000-0000-0000-000000000001', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000013', '33445566778899', '2024-03-13', '2024-03-13', 12, 300.25, NULL, '00000000-0000-0000-0000-000000000003', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000014', '44556677889900', '2024-03-14', '2024-03-14', 3, 750.40, NULL, '00000000-0000-0000-0000-000000000004', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000015', '55667788990011', '2024-03-15', '2024-03-15', 52, 1800.90, NULL, '00000000-0000-0000-0000-000000000005', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000016', '66778899001122', '2024-03-16', '2024-03-16', 13, 900.60, NULL, '00000000-0000-0000-0000-000000000006', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000017', '77889900112233', '2024-03-17', '2024-03-17', 7, 2500.30, NULL, '00000000-0000-0000-0000-000000000007', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000018', '88990011223344', '2024-03-18', '2024-03-18', 8, 1200.80, NULL, '00000000-0000-0000-0000-000000000008', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000019', '99001122334455', '2024-03-19', '2024-03-19', 53, 1550.45, NULL, '00000000-0000-0000-0000-000000000009', 8, 'Motivo de la nota de débito/crédito'),
+(GETDATE(), NULL, '0001-00000020', '00112233445566', '2024-03-20', '2024-03-20', 3, 3200.00, NULL, '00000000-0000-0000-0000-0000000000010', 8, 'Motivo de la nota de débito/crédito'); */
 
 -- Insertar en la tabla [dbo].[user]
 INSERT INTO [dbo].[user] ([createdAt], [updatedAt], [username], [nombre], [password], [role])
@@ -2660,7 +2696,7 @@ VALUES
 (GETDATE(), NULL, 'janedoe', 'Jane Doe', 'janedoe123', 'user');
 
 -- Insertar en la tabla [dbo].[token]
-INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMTI2ODE4NjM2NCIgZ2VuX3RpbWU9IjE3NDI5MjY0ODUiIGV4cF90aW1lPSIxNzQyOTY5NzQ1Ii8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=','Z8cmqwOEcja9W/uCSMlKBfo/+qMIlZcJtXI47/vNFUk1ZTDiIYe4xcbynJjUwIZe+QO406ls/NhWlez2yrR91QLsfHDbZ2vasQZfNBOjo++IWL4s1jvTdG8BTLVwGrl70NNuBn1QEFzuNIjPbW6rQ4XPh0xoucydBEMbQ+p5AhU=','2025-03-26 03:15:45.8220000');
+INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMzY3NDUyNjQyNCIgZ2VuX3RpbWU9IjE3NDMzNzc1NjIiIGV4cF90aW1lPSIxNzQzNDIwODIyIi8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=','q8psvB1FyJmJnl/8pZSvMlqPbjoWtCG7FGnk49+BYmFg7BWA8kLcT+NHFdMwI7B/JN8/wvK2+CMhewMTBvR9WtrHfQDtXg2oOtEGk4/Y0IzYo9faDz/YwY7V0LeKc748XT20AbDXmsQSO/YXYHBU/y9pWENJjv7XBfA3VAHDC8o=','2025-03-31 08:33:42.9750000');
 
 -- Insertar en la tabla [dbo].[parametro]
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_PTO_VTA', '12', GETDATE(), NULL);
@@ -2669,42 +2705,3 @@ INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values 
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('RAZON_SOCIAL_EMPRESA', 'Optica Criado S.A.', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('DOMICILIO_FISCAL_EMPRESA', 'Av. Corrientes 1234', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('CATEGORIA_FISCAL_EMPRESA', 'Responsable Inscripto', GETDATE(), NULL);
-
--- Insertar en la tabla [dbo].[comprobante]
-DECLARE @factura1 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura2 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura3 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura4 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura5 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura6 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura7 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura8 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura9 UNIQUEIDENTIFIER = NEWID();
-DECLARE @factura10 UNIQUEIDENTIFIER = NEWID();
-
-INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId], [condicionIvaCliente], [motivo])
-VALUES 
-(@factura1, GETDATE(), NULL, '0001-00000001', '12345678901234', '2024-03-01', '2024-03-01', 1, 15000.00, @venta1, NULL, 6, NULL),
-(@factura2, GETDATE(), NULL, '0001-00000002', '23456789012345', '2024-03-02', '2024-03-02', 6, 7800.50, @venta2, NULL, 1, NULL),
-(@factura3, GETDATE(), NULL, '0001-00000003', '34567890123456', '2024-03-03', '2024-03-03', 11, 3200.75, @venta3, NULL, 6, NULL),
-(@factura4, GETDATE(), NULL, '0001-00000004', '45678901234567', '2024-03-04', '2024-03-04', 1, 12450.25, @venta4, NULL, 6, NULL),
-(@factura5, GETDATE(), NULL, '0001-00000005', '56789012345678', '2024-03-05', '2024-03-05', 51, 8900.90, @venta5, NULL, 6, NULL),
-(@factura6, GETDATE(), NULL, '0001-00000006', '67890123456789', '2024-03-06', '2024-03-06', 1, 4300.60, @venta6, NULL, 1, NULL),
-(@factura7, GETDATE(), NULL, '0001-00000007', '78901234567890', '2024-03-07', '2024-03-07', 6, 15700.30, @venta7, NULL, 6, NULL),
-(@factura8, GETDATE(), NULL, '0001-00000008', '89012345678901', '2024-03-08', '2024-03-08', 11, 6650.80, @venta8, NULL, 6, NULL),
-(@factura9, GETDATE(), NULL, '0001-00000009', '90123456789012', '2024-03-09', '2024-03-09', 51, 5100.45, @venta9, NULL, 1, NULL),
-(@factura10, GETDATE(), NULL, '0001-00000010', '01234567890123', '2024-03-10', '2024-03-10', 1, 23000.00, @venta10, NULL, 1, NULL);
-
--- Insertar Notas de Débito / Crédito relacionadas a Facturas
-INSERT INTO [dbo].[comprobante] ([createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId] , [condicionIvaCliente], [motivo])
-VALUES 
-(GETDATE(), NULL, '0001-00000011', '11223344556677', '2024-03-11', '2024-03-11', 2, 1500.00, NULL, @factura1, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000012', '22334455667788', '2024-03-12', '2024-03-12', 3, 500.75, NULL, @factura1, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000013', '33445566778899', '2024-03-13', '2024-03-13', 12, 300.25, NULL, @factura3, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000014', '44556677889900', '2024-03-14', '2024-03-14', 3, 750.40, NULL, @factura4, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000015', '55667788990011', '2024-03-15', '2024-03-15', 52, 1800.90, NULL, @factura5, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000016', '66778899001122', '2024-03-16', '2024-03-16', 13, 900.60, NULL, @factura6, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000017', '77889900112233', '2024-03-17', '2024-03-17', 7, 2500.30, NULL, @factura7, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000018', '88990011223344', '2024-03-18', '2024-03-18', 8, 1200.80, NULL, @factura8, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000019', '99001122334455', '2024-03-19', '2024-03-19', 53, 1550.45, NULL, @factura9, 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000020', '00112233445566', '2024-03-20', '2024-03-20', 3, 3200.00, NULL, @factura10, 8, 'Motivo de la nota de débito/crédito');

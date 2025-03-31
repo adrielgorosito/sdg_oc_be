@@ -121,6 +121,9 @@ export class GeneradorDocumentosService {
       data.venta.lineasDeVenta.forEach((item) => {
         const precioConDescuento =
           item.precioIndividual *
+          ((data.venta?.descuentoObraSocial ?? 0 > 0)
+            ? 1 - data.venta.descuentoObraSocial
+            : 1) *
           ((data.venta?.descuentoPorcentaje ?? 0 > 0)
             ? 1 - data.venta.descuentoPorcentaje / 100
             : 1);

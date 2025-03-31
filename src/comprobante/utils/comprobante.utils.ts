@@ -233,12 +233,14 @@ export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
     comprobante.tipoComprobante === TipoComprobante.FACTURA_A ||
     comprobante.tipoComprobante === TipoComprobante.FACTURA_B
   ) {
-    const descuentoObraSocial = comprobante.venta.ventaObraSocial.reduce(
+    const descuentoImporteObraSocial = comprobante.venta.ventaObraSocial.reduce(
       (acc, curr) => {
         return acc + curr.importe;
       },
       0,
     );
+    const descuentoPorcentajeObraSocial =
+      descuentoImporteObraSocial / comprobante.venta.importe;
 
     datosDocumentoParaImprimir = {
       CAE: comprobante.CAE.toString(),
@@ -254,7 +256,7 @@ export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
       },
       venta: {
         descuentoPorcentaje: comprobante.venta.descuentoPorcentaje,
-        descuentoObraSocial: descuentoObraSocial,
+        descuentoObraSocial: descuentoPorcentajeObraSocial,
         lineasDeVenta: comprobante.venta.lineasDeVenta.map((linea) => ({
           cantidad: linea.cantidad,
           precioIndividual: linea.precioIndividual,
