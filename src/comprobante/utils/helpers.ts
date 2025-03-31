@@ -38,7 +38,7 @@ export function isExpired(expireStr: string): boolean {
 }
 export async function generateLoginXml(): Promise<string> {
   const networkTime = await getNetworkHour();
-  const expire = add(networkTime, { hours: 12 });
+  const expire = add(networkTime, { hours: 24 });
   const xml = `
           <loginTicketRequest>
           <header>

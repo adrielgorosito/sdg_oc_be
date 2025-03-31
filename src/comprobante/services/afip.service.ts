@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ParametrosService } from 'src/parametros/parametros.service';
 import { Repository } from 'typeorm';
 import { Token } from '../entities/token.entity';
 import { AfipAuthError } from '../errors/afip.errors';
@@ -27,21 +28,22 @@ import {
 export class AfipService {
   private readonly soapConfig = {
     homo: process.env.NODE_ENV === 'production' ? false : true,
-    certPath: this.config.get('AFIP_CERT_PATH'),
-    privateKeyPath: this.config.get('AFIP_PRIVATE_KEY_PATH'),
-    tokensExpireInHours: this.config.get('AFIP_TOKENS_EXPIRE_IN_HOURS'),
+    certPath: this.configService.get('AFIP_CERT_PATH'),
+    privateKeyPath: this.configService.get('AFIP_PRIVATE_KEY_PATH'),
+    tokensExpireInHours: this.configService.get('AFIP_TOKENS_EXPIRE_IN_HOURS'),
   };
   private token: string | null;
   private sign: string | null;
   private tokenExpiration: Date | null;
   constructor(
-    private config: ConfigService,
+    private parameterService: ParametrosService,
+    private readonly configService: ConfigService,
     @InjectRepository(Token)
     private readonly tokenRepository: Repository<Token>,
   ) {}
 
   public async getToken(): Promise<IParamsAuth> {
-    const cuit = this.config.get('AFIP_CUIT');
+    const cuit = (await this.parameterService.getParam('AFIP_CUIT')).value;
     let tokenFromDB: Token | null;
     if (
       this.token &&
@@ -75,7 +77,6 @@ export class AfipService {
       }
     }
     const tokenCredentials = await this.getTokensFromNetwork();
-    console.log(tokenCredentials);
 
     this.token = tokenCredentials.credentials.token;
     this.sign = tokenCredentials.credentials.sign;
