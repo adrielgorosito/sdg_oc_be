@@ -11,10 +11,10 @@ export interface IDatosDocumentos {
     fecha: string;
     descuentoObraSocial: number;
     descuentoPorcentaje: number;
-    lineasDeVenta: {
+    lineasDeVenta?: {
       cantidad: number;
       precioIndividual: number;
-      producto: {
+      producto?: {
         descripcion: string;
         categoria: string;
         marca: string;
@@ -26,4 +26,5 @@ export interface IDatosDocumentos {
   numeroComprobante: string;
   fechaEmision: string;
   importeTotal: number;
+  motivo?: string;
 }

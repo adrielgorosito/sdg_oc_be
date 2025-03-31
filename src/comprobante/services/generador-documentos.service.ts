@@ -1,18 +1,18 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { RelationTransactionalDTO } from 'src/common/dtos/relation-transactional.dto';
-import { Comprobante } from '../entities/comprobante.entity';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { Repository } from 'typeorm';
-import { IDatosDocumentos } from '../interfaces/IDatosDocumentos';
-import { obtenerDatosDocumentoParaImprimir } from '../utils/comprobante.utils';
-import Decimal from 'decimal.js';
-import * as PDFDocument from 'pdfkit';
-import * as QRCode from 'qrcode';
 import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import Decimal from 'decimal.js';
+import * as PDFDocument from 'pdfkit';
+import * as QRCode from 'qrcode';
+import { RelationTransactionalDTO } from 'src/common/dtos/relation-transactional.dto';
+import { ParametrosService } from 'src/parametros/parametros.service';
+import { Repository } from 'typeorm';
+import { Comprobante } from '../entities/comprobante.entity';
+import { IDatosDocumentos } from '../interfaces/IDatosDocumentos';
+import { obtenerDatosDocumentoParaImprimir } from '../utils/comprobante.utils';
 
 @Injectable()
 export class GeneradorDocumentosService {
@@ -116,31 +116,45 @@ export class GeneradorDocumentosService {
       .stroke();
 
     let yPosition = tableTop + 30;
-    data.venta.lineasDeVenta.forEach((item) => {
-      const precioConDescuento =
-        item.precioIndividual *
-        ((data.venta?.descuentoPorcentaje ?? 0 > 0)
-          ? 1 - data.venta.descuentoPorcentaje / 100
-          : 1);
+
+    if (data.venta?.lineasDeVenta) {
+      data.venta.lineasDeVenta.forEach((item) => {
+        const precioConDescuento =
+          item.precioIndividual *
+          ((data.venta?.descuentoPorcentaje ?? 0 > 0)
+            ? 1 - data.venta.descuentoPorcentaje / 100
+            : 1);
+        doc
+          .font('Helvetica')
+          .fontSize(10)
+          .text(
+            `${item.producto.descripcion} - ${item.producto.marca}`,
+            50,
+            yPosition,
+          )
+          .text(item.cantidad.toString(), 350, yPosition)
+          .text(`$${precioConDescuento.toFixed(2)}`, 420, yPosition)
+          .text(
+            `$${(item.cantidad * precioConDescuento).toFixed(2)}`,
+            500,
+            yPosition,
+            { align: 'right' },
+          );
+
+        yPosition += 25;
+      });
+    } else {
       doc
         .font('Helvetica')
         .fontSize(10)
-        .text(
-          `${item.producto.descripcion} - ${item.producto.marca}`,
-          50,
-          yPosition,
-        )
-        .text(item.cantidad.toString(), 350, yPosition)
-        .text(`$${precioConDescuento.toFixed(2)}`, 420, yPosition)
-        .text(
-          `$${(item.cantidad * precioConDescuento).toFixed(2)}`,
-          500,
-          yPosition,
-          { align: 'right' },
-        );
+        .text(`${data.tipoComprobante} - ${data.motivo}`, 50, yPosition)
+        .text('1', 350, yPosition)
+        .text(`$${data.importeTotal.toFixed(2)}`, 500, yPosition, {
+          align: 'right',
+        });
 
       yPosition += 25;
-    });
+    }
 
     const importe = new Decimal(data.importeTotal);
     const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);

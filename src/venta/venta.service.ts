@@ -170,6 +170,11 @@ export class VentaService {
 
       const nuevaFactura = await queryRunner.manager.create(Comprobante, {
         CAE: facturaDesdeAfip.CAE,
+        CAEFechaVencimiento: parse(
+          facturaDesdeAfip.CAEFchVto.toString(),
+          'yyyyMMdd',
+          new Date(),
+        ),
         fechaEmision: parse(
           facturaDesdeAfip.fechaFactura.toString(),
           'yyyyMMdd',
@@ -179,6 +184,7 @@ export class VentaService {
         tipoComprobante: facturaDesdeAfip.cbteTipo,
         condicionIvaCliente: createVentaDto.condicionIva,
         venta: venta,
+        motivo: venta.observaciones,
         importeTotal: importeAFacturar,
       });
 

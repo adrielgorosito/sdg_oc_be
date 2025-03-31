@@ -190,8 +190,11 @@ const obtenerCbteTipoYTipoDoc = (
       return {
         condicionIVA: CondicionIva.CONSUMIDOR_FINAL,
         cbteTipo: TipoComprobante.FACTURA_B,
-        docTipo: cliente.tipoDocumento,
-        nroDocumento: cliente.nroDocumento,
+        docTipo: TipoDocumento.DNI,
+        nroDocumento:
+          cliente.tipoDocumento === TipoDocumento.DNI
+            ? cliente.nroDocumento
+            : parseInt(cliente.nroDocumento.toString().slice(2, -1)),
       };
     default:
       throw new AfipValidationError('Categoria fiscal no válida');
@@ -208,6 +211,7 @@ export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
   ) {
     datosDocumentoParaImprimir = {
       CAE: comprobante.CAE.toString(),
+      motivo: comprobante.motivo,
       fechaEmision: comprobante.fechaEmision.toISOString(),
       CAEVencimiento: comprobante.CAEFechaVencimiento.toISOString(),
       cliente: {

@@ -103,7 +103,7 @@ export class ComprobanteService {
         this.configService,
       );
 
-      const utlimoComprobante = await this.getUltimoComprobante(
+      const ultimoComprobante = await this.getUltimoComprobante(
         extraerPuntoVentaYTipoComprobante(datosComprobante),
       );
 
@@ -112,7 +112,7 @@ export class ComprobanteService {
         {
           factura: incrementarComprobante(
             datosComprobante,
-            utlimoComprobante.CbteNro,
+            ultimoComprobante.CbteNro,
           ),
         },
       )) as IFECAESolicitarResult;
@@ -400,33 +400,28 @@ export class ComprobanteService {
         throw new NotFoundException('La venta no existe');
       }
 
-      if (!venta.factura) {
-        throw new BadRequestException('La venta no tiene factura relacionada');
-      }
-
-      const comprobantes = await this.facturaRepository.find({
-        where: { facturaRelacionada: { id: venta.factura.id } },
-        relations: {
-          venta: {
-            lineasDeVenta: true,
-            cliente: true,
-          },
-          facturaRelacionada: {
+      if (venta.factura) {
+        const comprobantes = await this.facturaRepository.find({
+          where: { facturaRelacionada: { id: venta.factura.id } },
+          relations: {
             venta: {
               lineasDeVenta: true,
               cliente: true,
             },
+            facturaRelacionada: {
+              venta: {
+                lineasDeVenta: true,
+                cliente: true,
+              },
+            },
           },
-        },
-      });
+        });
 
-      return comprobantes;
+        return comprobantes;
+      }
+      return [];
     } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      )
-        throw error;
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al obtener los comprobantes relacionados: ' + error,
       );

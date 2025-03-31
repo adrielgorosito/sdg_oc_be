@@ -1,21 +1,21 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Cliente } from './entities/cliente.entity';
-import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
-import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
-import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
-import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
-import { CreateClienteDTO } from './dto/create-cliente.dto';
-import { UpdateClienteDTO } from './dto/update-cliente.dto';
-import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
-import { TipoDocumento } from './enums/tipo-documento.enum';
-import { In, Repository } from 'typeorm';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
+import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
+import { RecetaLentesContacto } from 'src/receta-lentes-contacto/entities/receta-lentes-contacto.entity';
+import { In, Repository } from 'typeorm';
+import { CreateClienteDTO } from './dto/create-cliente.dto';
+import { PaginateClienteDTO } from './dto/paginate-cliente.dto';
+import { UpdateClienteDTO } from './dto/update-cliente.dto';
+import { Cliente } from './entities/cliente.entity';
+import { TipoDocumento } from './enums/tipo-documento.enum';
 
 @Injectable()
 export class ClienteService {
@@ -47,6 +47,11 @@ export class ClienteService {
         .createQueryBuilder('cliente')
         .leftJoinAndSelect('cliente.localidad', 'localidad')
         .leftJoinAndSelect('localidad.provincia', 'provincia')
+        .leftJoinAndSelect(
+          'cliente.clienteObrasSociales',
+          'clienteObrasSociales',
+        )
+        .leftJoinAndSelect('clienteObrasSociales.obraSocial', 'obraSocial')
         .orderBy('cliente.apellido', 'ASC')
         .addOrderBy('cliente.nombre', 'ASC')
         .take(limit)
