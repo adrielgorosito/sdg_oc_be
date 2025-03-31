@@ -222,7 +222,6 @@ export class GeneradorDocumentosService {
           },
         },
       });
-
       if (!comprobanteGuardado) {
         throw new NotFoundException('Comprobante no encontrado');
       }

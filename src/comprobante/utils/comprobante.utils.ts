@@ -206,7 +206,11 @@ export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
     comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_A ||
     comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_B ||
     comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_A ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_B
+    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_B ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_M ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_M ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_C ||
+    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_C
   ) {
     datosDocumentoParaImprimir = {
       CAE: comprobante.CAE.toString(),
@@ -230,7 +234,9 @@ export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
     };
   } else if (
     comprobante.tipoComprobante === TipoComprobante.FACTURA_A ||
-    comprobante.tipoComprobante === TipoComprobante.FACTURA_B
+    comprobante.tipoComprobante === TipoComprobante.FACTURA_B ||
+    comprobante.tipoComprobante === TipoComprobante.FACTURA_C ||
+    comprobante.tipoComprobante === TipoComprobante.FACTURA_M
   ) {
     const descuentoObraSocial = comprobante.venta.ventaObraSocial.reduce(
       (acc, curr) => {
