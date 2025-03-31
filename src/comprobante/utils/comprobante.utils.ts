@@ -25,11 +25,10 @@ export const crearDatosNotaDeCreditoDebito = async (
     throw new AfipValidationError('cuitEmisor no configurado');
   }
 
-  const cbteTipo = createComprobanteDTO.tipoComprobante;
-
-  const nroDocumento = facturaRelacionada.venta.cliente.nroDocumento;
-  const docTipo = facturaRelacionada.venta.cliente.tipoDocumento;
-  const condicionIVA = facturaRelacionada.tipoComprobante;
+  const { docTipo, condicionIVA, nroDocumento } = obtenerCbteTipoYTipoDoc(
+    facturaRelacionada.venta.cliente,
+    createComprobanteDTO.condicionIvaCliente,
+  );
 
   const comprobantes = [
     {
@@ -52,7 +51,7 @@ export const crearDatosNotaDeCreditoDebito = async (
       FeCabReq: {
         CantReg: 1,
         PtoVta: parseInt(ptoVta.value),
-        CbteTipo: cbteTipo,
+        CbteTipo: createComprobanteDTO.tipoComprobante,
       },
       FeDetReq: {
         FECAEDetRequest: {

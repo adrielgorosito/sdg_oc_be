@@ -12,6 +12,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { PaginateComprobanteDTO } from '../dto/paginate-comprobante.dto';
 import { Comprobante } from '../entities/comprobante.entity';
+import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
 import {
   IFECAESolicitarResult,
@@ -22,7 +23,10 @@ import {
   ResultadoProcesado,
   WsServicesNamesEnum,
 } from '../interfaces/ISoap';
-import { crearDatosNotaDeCreditoDebito } from '../utils/comprobante.utils';
+import {
+  crearDatosFactura,
+  crearDatosNotaDeCreditoDebito,
+} from '../utils/comprobante.utils';
 import {
   extraerPuntoVentaYTipoComprobante,
   incrementarComprobante,
@@ -86,22 +90,86 @@ export class ComprobanteService {
 
   public async crearComprobante(comprobanteDTO: CrearComprobanteDTO) {
     try {
-      const facturaRelacionada = await this.facturaRepository.findOne({
-        where: { id: comprobanteDTO.facturaRelacionada.id },
-        relations: {
-          venta: { cliente: true },
-        },
-      });
-      if (!facturaRelacionada) {
-        throw new NotFoundException('Factura relacionada no encontrada');
-      }
+      let datosComprobante: IParamsFECAESolicitar;
+      let facturaRelacionada: Comprobante;
+      let venta: Venta;
 
-      // Validación de tipo de comprobante
-      const datosComprobante = await crearDatosNotaDeCreditoDebito(
-        comprobanteDTO,
-        facturaRelacionada,
-        this.configService,
-      );
+      if (
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_CREDITO_A ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_CREDITO_B ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_DEBITO_A ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_DEBITO_B ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_CREDITO_C ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_DEBITO_C ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_DEBITO_M ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_CREDITO_M
+      ) {
+        facturaRelacionada = await this.facturaRepository.findOne({
+          where: { id: comprobanteDTO.facturaRelacionada.id },
+          relations: {
+            venta: { cliente: true },
+          },
+        });
+
+        if (!facturaRelacionada) {
+          throw new NotFoundException('Factura relacionada no encontrada');
+        }
+
+        // Validación de tipo de comprobante
+        datosComprobante = await crearDatosNotaDeCreditoDebito(
+          comprobanteDTO,
+          facturaRelacionada,
+          this.configService,
+        );
+      } else if (
+        comprobanteDTO.tipoComprobante === TipoComprobante.FACTURA_A ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.FACTURA_B ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.FACTURA_C ||
+        comprobanteDTO.tipoComprobante === TipoComprobante.FACTURA_M
+      ) {
+        venta = await this.ventaRepository.findOne({
+          where: { id: comprobanteDTO.venta.id },
+          relations: {
+            cliente: true,
+            lineasDeVenta: true,
+            ventaObraSocial: true,
+          },
+        });
+
+        if (!venta) {
+          throw new NotFoundException('Venta no encontrada');
+        }
+
+        const descuentoImporteOS = venta.ventaObraSocial?.reduce(
+          (acc, os) => acc + os.importe,
+          0,
+        );
+
+        const descuento =
+          (venta.importe - descuentoImporteOS) *
+          (venta.descuentoPorcentaje / 100);
+
+        const importeAFacturar = venta.importe - descuentoImporteOS - descuento;
+
+        const importeMaximoAFacturar = parseInt(
+          (await this.configService.getParam('AFIP_IMPORTE_MAXIMO_FACTURAR'))
+            .value,
+        );
+
+        if (importeAFacturar > importeMaximoAFacturar) {
+          throw new BadRequestException(
+            'El importe a facturar no puede ser mayor a ' +
+              importeMaximoAFacturar,
+          );
+        }
+
+        datosComprobante = await crearDatosFactura(
+          venta.cliente,
+          importeAFacturar,
+          comprobanteDTO.condicionIvaCliente,
+          this.configService,
+        );
+      }
 
       const ultimoComprobante = await this.getUltimoComprobante(
         extraerPuntoVentaYTipoComprobante(datosComprobante),
@@ -126,11 +194,19 @@ export class ComprobanteService {
           AfipErrorType.SERVICE,
         );
       } else {
+        console.log(resultado);
+
         const comprobante = this.facturaRepository.create({
           ...comprobanteDTO,
+          venta: venta,
           facturasRelacionadas: [facturaRelacionada],
           numeroComprobante: (resultado as IProcesadoExitoso).numeroComprobante,
           CAE: (resultado as IProcesadoExitoso).CAE,
+          CAEFechaVencimiento: parse(
+            (resultado as IProcesadoExitoso).CAEFchVto.toString(),
+            'yyyyMMdd',
+            new Date(),
+          ),
           fechaEmision: parse(
             (resultado as IProcesadoExitoso).fechaFactura.toString(),
             'yyyyMMdd',

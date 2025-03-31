@@ -58,7 +58,7 @@ import { VentaModule } from './venta/venta.module';
         autoLoadEntities: true,
         logging: true,
         synchronize: true,
-        dropSchema: true,
+        dropSchema: false,
       }),
       inject: [ConfigService],
     }),
