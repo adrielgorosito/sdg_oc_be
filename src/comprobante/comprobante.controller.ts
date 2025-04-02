@@ -56,10 +56,10 @@ export class ComprobanteController {
   }
 
   @Post('imprimir')
-  @Header('Content-Type', 'application/octet-stream')
+  @Header('Content-Type', 'application/json')
   async imprimirFactura(@Body() data: any, @Res() res: Response) {
-    const { pdfOriginal } =
+    const { pdfOriginal, pdfDuplicado } =
       await this.generadorDocumentosService.imprimirFactura(data);
-    res.send(pdfOriginal);
+    res.send({ pdfOriginal, pdfDuplicado });
   }
 }

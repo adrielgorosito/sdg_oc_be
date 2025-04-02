@@ -166,8 +166,10 @@ export class CuentaCorrienteService {
     cuentaCorriente.movimientos.push(movimiento);
 
     const cuentaCorrienteActualizada = entityManager
-      ? entityManager.save(CuentaCorriente, cuentaCorriente)
+      ? await entityManager.save(CuentaCorriente, cuentaCorriente)
       : await this.cuentaCorrienteRepository.save(cuentaCorriente);
+
+    delete cuentaCorrienteActualizada.movimientos;
 
     return cuentaCorrienteActualizada;
   }
