@@ -29,7 +29,6 @@ export class VentaService {
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
     @InjectRepository(Cliente)
-    private readonly clienteRepository: Repository<Cliente>,
     private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
     private readonly parametrosService: ParametrosService,
@@ -134,8 +133,10 @@ export class VentaService {
         const cuentaCorrienteActualizada =
           await this.cuentaCorrienteService.afectarCuentaCorriente(
             clienteExistente.id,
-            medioDePagoCC.importe,
-            TipoMovimiento.VENTA,
+            {
+              importe: medioDePagoCC.importe,
+              tipoMovimiento: TipoMovimiento.VENTA,
+            },
             queryRunner.manager,
           );
         clienteExistente.cuentaCorriente = cuentaCorrienteActualizada;
