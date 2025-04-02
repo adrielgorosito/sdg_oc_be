@@ -2673,20 +2673,6 @@ VALUES
 ('00000000-0000-0000-0000-000000000010', GETDATE(), NULL, '0001-00000010', '01234567890123', '2025-06-10', '2025-03-10', 8, 1000.00, NULL, '00000000-0000-0000-0000-000000000004', 5, 'Descuento mal aplicado'),
 ('00000000-0000-0000-0000-000000000011', GETDATE(), NULL, '0001-00000011', '12345678901234', '2025-06-11', '2025-03-11', 7, 500.00, NULL, '00000000-0000-0000-0000-000000000006', 5, 'Cargo adicional');
 
--- Insertar Notas de Débito / Crédito relacionadas a Facturas
-/* INSERT INTO [dbo].[comprobante] ([createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId] , [condicionIvaCliente], [motivo])
-VALUES 
-(GETDATE(), NULL, '0001-00000011', '11223344556677', '2024-03-11', '2024-03-11', 2, 1500.00, NULL, '00000000-0000-0000-0000-000000000001', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000012', '22334455667788', '2024-03-12', '2024-03-12', 3, 500.75, NULL, '00000000-0000-0000-0000-000000000001', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000013', '33445566778899', '2024-03-13', '2024-03-13', 12, 300.25, NULL, '00000000-0000-0000-0000-000000000003', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000014', '44556677889900', '2024-03-14', '2024-03-14', 3, 750.40, NULL, '00000000-0000-0000-0000-000000000004', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000015', '55667788990011', '2024-03-15', '2024-03-15', 52, 1800.90, NULL, '00000000-0000-0000-0000-000000000005', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000016', '66778899001122', '2024-03-16', '2024-03-16', 13, 900.60, NULL, '00000000-0000-0000-0000-000000000006', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000017', '77889900112233', '2024-03-17', '2024-03-17', 7, 2500.30, NULL, '00000000-0000-0000-0000-000000000007', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000018', '88990011223344', '2024-03-18', '2024-03-18', 8, 1200.80, NULL, '00000000-0000-0000-0000-000000000008', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000019', '99001122334455', '2024-03-19', '2024-03-19', 53, 1550.45, NULL, '00000000-0000-0000-0000-000000000009', 8, 'Motivo de la nota de débito/crédito'),
-(GETDATE(), NULL, '0001-00000020', '00112233445566', '2024-03-20', '2024-03-20', 3, 3200.00, NULL, '00000000-0000-0000-0000-0000000000010', 8, 'Motivo de la nota de débito/crédito'); */
-
 -- Insertar en la tabla [dbo].[user]
 INSERT INTO [dbo].[user] ([createdAt], [updatedAt], [username], [nombre], [password], [role])
 VALUES 
