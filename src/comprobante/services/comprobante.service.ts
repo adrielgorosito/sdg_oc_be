@@ -33,6 +33,7 @@ import {
   procesarRespuestaAFIP,
 } from '../utils/helpers';
 import { AfipService } from './afip.service';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class ComprobanteService {
@@ -43,6 +44,7 @@ export class ComprobanteService {
     private readonly configService: ParametrosService,
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
+    private readonly emailService: EmailService,
   ) {}
 
   public async crearFactura(datosFactura: IParamsFECAESolicitar) {
@@ -93,6 +95,7 @@ export class ComprobanteService {
       let datosComprobante: IParamsFECAESolicitar;
       let facturaRelacionada: Comprobante;
       let venta: Venta;
+      console.log(comprobanteDTO);
 
       if (
         comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_CREDITO_A ||
@@ -104,6 +107,10 @@ export class ComprobanteService {
         comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_DEBITO_M ||
         comprobanteDTO.tipoComprobante === TipoComprobante.NOTA_CREDITO_M
       ) {
+        if (!comprobanteDTO.facturaRelacionada) {
+          throw new BadRequestException('La factura relacionada es requerida');
+        }
+
         facturaRelacionada = await this.facturaRepository.findOne({
           where: { id: comprobanteDTO.facturaRelacionada.id },
           relations: {
@@ -127,17 +134,26 @@ export class ComprobanteService {
         comprobanteDTO.tipoComprobante === TipoComprobante.FACTURA_C ||
         comprobanteDTO.tipoComprobante === TipoComprobante.FACTURA_M
       ) {
+        if (!comprobanteDTO.venta) {
+          throw new BadRequestException('La venta es requerida');
+        }
+
         venta = await this.ventaRepository.findOne({
           where: { id: comprobanteDTO.venta.id },
           relations: {
             cliente: true,
             lineasDeVenta: true,
             ventaObraSocial: true,
+            factura: true,
           },
         });
 
         if (!venta) {
           throw new NotFoundException('Venta no encontrada');
+        }
+
+        if (venta.factura) {
+          throw new BadRequestException('La venta ya tiene una factura');
         }
 
         const descuentoImporteOS = venta.ventaObraSocial?.reduce(
@@ -194,8 +210,6 @@ export class ComprobanteService {
           AfipErrorType.SERVICE,
         );
       } else {
-        console.log(resultado);
-
         const comprobante = this.facturaRepository.create({
           ...comprobanteDTO,
           venta: venta,
@@ -213,6 +227,11 @@ export class ComprobanteService {
             new Date(),
           ),
         });
+
+        const cliente = venta?.cliente ?? facturaRelacionada?.venta?.cliente;
+
+        await this.emailService.sendEmail(comprobante.id, cliente);
+
         return this.guardarComprobante(comprobante);
       }
     } catch (error) {
@@ -235,9 +254,7 @@ export class ComprobanteService {
     if (comprobanteGuardado.venta) {
       delete comprobanteGuardado.venta;
     }
-    return {
-      comprobanteGuardado,
-    };
+    return comprobanteGuardado;
   }
 
   async findAllByClienteId(clienteId: number): Promise<Comprobante[]> {

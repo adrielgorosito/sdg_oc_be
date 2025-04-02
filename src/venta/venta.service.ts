@@ -10,6 +10,7 @@ import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { Comprobante } from 'src/comprobante/entities/comprobante.entity';
 import { IProcesadoExitoso } from 'src/comprobante/interfaces/ISoap';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
+import { EmailService } from 'src/comprobante/services/email.service';
 import { crearDatosFactura } from 'src/comprobante/utils/comprobante.utils';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
@@ -21,7 +22,6 @@ import { CreateVentaDTO } from './dto/create-venta.dto';
 import { PaginateVentaDTO } from './dto/paginate-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
 import { Venta } from './entities/venta.entity';
-
 @Injectable()
 export class VentaService {
   constructor(
@@ -32,6 +32,7 @@ export class VentaService {
     private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
     private readonly parametrosService: ParametrosService,
+    private readonly emailService: EmailService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -196,6 +197,9 @@ export class VentaService {
         );
 
       await queryRunner.manager.queryRunner.commitTransaction();
+
+      await this.emailService.sendEmail(facturaPersistida.id, clienteExistente);
+
       return { venta, factura: facturaPersistida };
     } catch (error) {
       await queryRunner.manager.queryRunner.rollbackTransaction();

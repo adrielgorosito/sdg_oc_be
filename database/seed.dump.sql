@@ -2426,7 +2426,7 @@ VALUES
 (GETDATE(), NULL, 99887766, 96, 'Lucas', 'Diaz', 'lucas.diaz@example.com', '66778899', 'Masculino', '1992-11-02', 'Cliente ocasional', 'Avenida Sol 890', 1, 6),
 (GETDATE(), NULL, 33445566,  96,   'Sofia', 'Reyes', 'sofia.reyes@example.com', '11223344', 'Femenino', '2000-02-14', 'Cliente nuevo', 'Calle del Parque 567', 3, 6),
 (GETDATE(), NULL, 22334455, 96, 'Roberto', 'Gonzalez', 'roberto.gonzalez@example.com', '55667788', 'Masculino', '1983-07-19', 'Cliente frecuente', 'Calle de la Luna 111', 2, 6),
-(GETDATE(), NULL, 20265544331, 80, 'David', 'Torres', 'david.torres@example.com', '26554433', 'Masculino', '1979-08-25', 'Cliente leal', 'Calle Rápida 600', 1, 1),
+(GETDATE(), NULL, 20265544331, 80, 'David', 'Torres', 'david.torres@example.com', '20265544331', 'Masculino', '1979-08-25', 'Cliente leal', 'Calle Rápida 600', 1, 1),
 (GETDATE(), NULL, 88776655, 96, 'Patricia', 'Alvarez', 'patricia.alvarez@example.com', '44556623', 'Femenino', '1998-12-05', 'Cliente nueva', 'Avenida de la Paz 800', 3, 6);
 
 SET IDENTITY_INSERT [dbo].[cliente] ON;
@@ -2682,7 +2682,14 @@ VALUES
 (GETDATE(), NULL, 'janedoe', 'Jane Doe', 'janedoe123', 'user');
 
 -- Insertar en la tabla [dbo].[token]
-INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMzY3NDUyNjQyNCIgZ2VuX3RpbWU9IjE3NDMzNzc1NjIiIGV4cF90aW1lPSIxNzQzNDIwODIyIi8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=','q8psvB1FyJmJnl/8pZSvMlqPbjoWtCG7FGnk49+BYmFg7BWA8kLcT+NHFdMwI7B/JN8/wvK2+CMhewMTBvR9WtrHfQDtXg2oOtEGk4/Y0IzYo9faDz/YwY7V0LeKc748XT20AbDXmsQSO/YXYHBU/y9pWENJjv7XBfA3VAHDC8o=','2025-03-31 08:33:42.9750000');
+INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnN
+pb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD
+0iMjg5NTQyNTA1NyIgZ2VuX3RpbWU9IjE3NDM2MTAzMTgiIGV4cF90aW1lPSIxNzQzNjUzNTc4Ii8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVu
+dGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPS
+IyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2
+V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo='
+,'M0wlE+tVbZpqChOSWMIi0/A65T4lHnNNszIo9z8OAfETDpvXUaaqhI6+T1l2yJfwNJjKB0UtGOkepj++J1C0ZQibks5u0MAH/3VszKXeo1Tl//9G3aOyw9jkBsk7icmq9hAo9qep
+xMlYGNn28tRrZ8WVLFxByFPQgza5Aq3AN9U=','2025-04-03 01:12:58.3510000');
 
 -- Insertar en la tabla [dbo].[parametro]
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_PTO_VTA', '12', GETDATE(), NULL);
@@ -2691,3 +2698,4 @@ INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values 
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('RAZON_SOCIAL_EMPRESA', 'Optica Criado S.A.', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('DOMICILIO_FISCAL_EMPRESA', 'Av. Corrientes 1234', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('CATEGORIA_FISCAL_EMPRESA', 'Responsable Inscripto', GETDATE(), NULL);
+INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('EMAIL_EMPRESA', 'optica.criado@gmail.com', GETDATE(), NULL);
