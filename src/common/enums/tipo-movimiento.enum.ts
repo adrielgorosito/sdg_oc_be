@@ -1,5 +1,5 @@
 export enum TipoMovimiento {
-  Entrega = 'Entrega',
-  Devolucion = 'Devolución',
-  Venta = 'Venta',
+  VENTA = 1,
+  PAGO = 2,
+  DEVOLUCION = 3,
 }

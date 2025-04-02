@@ -25,8 +25,7 @@ export class CuentaCorrienteController {
   ) {
     return await this.cuentaCorrienteService.afectarCuentaCorriente(
       clienteId,
-      movimientoDTO.importe,
-      movimientoDTO.tipoMovimiento,
+      movimientoDTO,
     );
   }
 
