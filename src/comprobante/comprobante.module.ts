@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ClienteModule } from 'src/cliente/cliente.module';
 import { Parametro } from 'src/parametros/entities/parametro.entity';
 import { Venta } from 'src/venta/entities/venta.entity';
 import { ComprobanteController } from './comprobante.controller';
@@ -17,7 +18,10 @@ import { GeneradorDocumentosService } from './services/generador-documentos.serv
     GeneradorDocumentosService,
     EmailService,
   ],
-  imports: [TypeOrmModule.forFeature([Comprobante, Token, Parametro, Venta])],
+  imports: [
+    TypeOrmModule.forFeature([Comprobante, Token, Parametro, Venta]),
+    ClienteModule,
+  ],
   exports: [AfipService, ComprobanteService, EmailService],
 })
 export class ComprobanteModule {}

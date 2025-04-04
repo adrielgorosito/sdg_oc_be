@@ -7,17 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { Comprobante } from 'src/comprobante/entities/comprobante.entity';
-import { IProcesadoExitoso } from 'src/comprobante/interfaces/ISoap';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
-import { EmailService } from 'src/comprobante/services/email.service';
-import { crearDatosFactura } from 'src/comprobante/utils/comprobante.utils';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
-import { ParametrosService } from 'src/parametros/parametros.service';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { CreateVentaDTO } from './dto/create-venta.dto';
 import { PaginateVentaDTO } from './dto/paginate-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
@@ -28,182 +23,24 @@ export class VentaService {
     private readonly dataSource: DataSource,
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
-    @InjectRepository(Cliente)
     private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
-    private readonly parametrosService: ParametrosService,
-    private readonly emailService: EmailService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
     const queryRunner = this.dataSource.createQueryRunner();
-    let venta: Venta;
-    let importeAFacturar: number;
-    let clienteExistente: Cliente;
 
     try {
       await queryRunner.connect();
-      await queryRunner.startTransaction();
-
-      clienteExistente = await queryRunner.manager.findOne(Cliente, {
-        where: { id: createVentaDto.cliente.id },
-        relations: {
-          cuentaCorriente: {
-            movimientos: true,
-          },
-        },
-      });
-
-      if (!clienteExistente) {
-        throw new NotFoundException('Cliente no encontrado');
-      }
-
-      const obraSocialesIds = createVentaDto.ventaObraSocial.map(
-        (ventaObraSocial) => ventaObraSocial.obraSocial.id,
+      const venta = await this.processVentaTransaction(
+        queryRunner,
+        createVentaDto,
       );
-
-      const obraSociales = await queryRunner.manager.find(ObraSocial, {
-        where: { id: In(obraSocialesIds) },
-      });
-
-      if (obraSociales.length !== obraSocialesIds.length) {
-        throw new NotFoundException('Alguna obra social no encontrada');
-      }
-
-      createVentaDto.ventaObraSocial.forEach((ventaObraSocial) => {
-        const obraSocial = obraSociales.find(
-          (obraSocial) => obraSocial.id === ventaObraSocial.obraSocial.id,
-        );
-        ventaObraSocial.obraSocial = obraSocial;
-      });
-
-      const nuevaVenta = queryRunner.manager.create(Venta, createVentaDto);
-
-      const importe = createVentaDto.lineasDeVenta.reduce(
-        (total, linea) => total + linea.precioIndividual * linea.cantidad,
-        0,
-      );
-
-      nuevaVenta.importe = importe;
-
-      const importeObraSocial =
-        createVentaDto.ventaObraSocial.reduce(
-          (total, ventaObraSocial) => total + ventaObraSocial.importe,
-          0,
-        ) || 0;
-
-      const descuento =
-        (importe - importeObraSocial) *
-        (createVentaDto.descuentoPorcentaje / 100);
-
-      importeAFacturar = importe - importeObraSocial - descuento;
-
-      const importeMaximoAFacturar = parseInt(
-        (await this.parametrosService.getParam('AFIP_IMPORTE_MAXIMO_FACTURAR'))
-          .value,
-      );
-
-      if (importeAFacturar > importeMaximoAFacturar) {
-        throw new BadRequestException(
-          'El importe a facturar no puede ser mayor a ' +
-            importeMaximoAFacturar,
-        );
-      }
-
-      const importeMediosDePago = createVentaDto.mediosDePago.reduce(
-        (total, medio) => total + medio.importe,
-        0,
-      );
-
-      if (importeMediosDePago !== importeAFacturar) {
-        throw new BadRequestException(
-          'El importe de los medios de pago no es igual al importe a facturar',
-        );
-      }
-
-      const medioDePagoCC = createVentaDto.mediosDePago.find(
-        (medio) =>
-          medio.tipoMedioDePago === TipoMedioDePagoEnum.CUENTA_CORRIENTE,
-      );
-
-      if (medioDePagoCC) {
-        if (!clienteExistente.cuentaCorriente) {
-          throw new NotFoundException('Cliente no posee cuenta corriente');
-        }
-
-        const cuentaCorrienteActualizada =
-          await this.cuentaCorrienteService.afectarCuentaCorriente(
-            clienteExistente.id,
-            {
-              importe: medioDePagoCC.importe,
-              tipoMovimiento: TipoMovimiento.VENTA,
-            },
-            queryRunner.manager,
-          );
-        clienteExistente.cuentaCorriente = cuentaCorrienteActualizada;
-      }
-
-      venta = await queryRunner.manager.save(Venta, nuevaVenta);
-
-      await queryRunner.manager.queryRunner.commitTransaction();
-    } catch (error) {
-      await queryRunner.manager.queryRunner.rollbackTransaction();
-
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw error;
-    }
-
-    try {
-      await queryRunner.startTransaction();
-
-      const datosFactura = await crearDatosFactura(
-        clienteExistente,
-        importeAFacturar,
-        createVentaDto.condicionIva,
-        this.parametrosService,
-      );
-
-      const facturaDesdeAfip: IProcesadoExitoso =
-        (await this.comprobanteService.crearFactura(
-          datosFactura,
-        )) as IProcesadoExitoso;
-
-      const nuevaFactura = await queryRunner.manager.create(Comprobante, {
-        CAE: facturaDesdeAfip.CAE,
-        CAEFechaVencimiento: parse(
-          facturaDesdeAfip.CAEFchVto.toString(),
-          'yyyyMMdd',
-          new Date(),
-        ),
-        fechaEmision: parse(
-          facturaDesdeAfip.fechaFactura.toString(),
-          'yyyyMMdd',
-          new Date(),
-        ),
-        numeroComprobante: facturaDesdeAfip.numeroComprobante,
-        tipoComprobante: facturaDesdeAfip.cbteTipo,
-        condicionIvaCliente: createVentaDto.condicionIva,
-        venta: venta,
-        motivo: venta.observaciones,
-        importeTotal: importeAFacturar,
-      });
-
-      const facturaPersistida =
-        await this.comprobanteService.guardarComprobante(
-          nuevaFactura,
-          queryRunner.manager,
-        );
-
-      await queryRunner.manager.queryRunner.commitTransaction();
-
-      await this.emailService.sendEmail(facturaPersistida.id, clienteExistente);
-
-      return { venta, factura: facturaPersistida };
-    } catch (error) {
-      await queryRunner.manager.queryRunner.rollbackTransaction();
-      return { venta, factura: { error: error.message } };
+      const factura = await this.processFacturaTransaction(venta);
+      return {
+        venta,
+        factura,
+      };
     } finally {
       await queryRunner.release();
     }
@@ -376,5 +213,137 @@ export class VentaService {
         'Error al eliminar la venta: ' + error,
       );
     }
+  }
+
+  private async processVentaTransaction(
+    queryRunner: QueryRunner,
+    createVentaDto: CreateVentaDTO,
+  ) {
+    await queryRunner.startTransaction();
+
+    try {
+      const cliente = await this.validateAndGetCliente(
+        queryRunner,
+        createVentaDto.cliente.id,
+      );
+      const obraSociales = await this.validateAndGetObrasSociales(
+        queryRunner,
+        createVentaDto,
+      );
+
+      const nuevaVenta = this.prepareVenta(createVentaDto, obraSociales);
+      nuevaVenta.importe = this.calcularImporte(nuevaVenta);
+      await this.handleCuentaCorriente(queryRunner, nuevaVenta, cliente);
+
+      const venta = await queryRunner.manager.save(Venta, nuevaVenta);
+      await queryRunner.commitTransaction();
+
+      venta.cliente = cliente;
+      return venta;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.handleTransactionError(error);
+    }
+  }
+
+  private async processFacturaTransaction(venta: Venta) {
+    try {
+      const factura = await this.comprobanteService.crearComprobante(
+        null,
+        venta,
+      );
+      return factura;
+    } catch (error) {
+      this.handleTransactionError(error);
+    }
+  }
+
+  private calcularImporte(venta: Venta) {
+    const importeLineasDeVenta = venta.lineasDeVenta.reduce(
+      (acc, curr) => acc + curr.precioIndividual * curr.cantidad,
+      0,
+    );
+
+    return importeLineasDeVenta;
+  }
+
+  private async validateAndGetCliente(
+    queryRunner: QueryRunner,
+    clienteId: number,
+  ): Promise<Cliente> {
+    const cliente = await queryRunner.manager.findOne(Cliente, {
+      where: { id: clienteId },
+      relations: { cuentaCorriente: true },
+    });
+
+    if (!cliente) {
+      throw new NotFoundException('Cliente no encontrado');
+    }
+    return cliente;
+  }
+
+  private async validateAndGetObrasSociales(
+    queryRunner: QueryRunner,
+    createVentaDto: CreateVentaDTO,
+  ) {
+    const obraSocialesIds = createVentaDto.ventaObraSocial.map(
+      (vos) => vos.obraSocial.id,
+    );
+    const obraSociales = await queryRunner.manager.find(ObraSocial, {
+      where: { id: In(obraSocialesIds) },
+    });
+
+    if (obraSociales.length !== obraSocialesIds.length) {
+      throw new NotFoundException('Alguna obra social no encontrada');
+    }
+
+    return obraSociales;
+  }
+
+  private prepareVenta(
+    createVentaDto: CreateVentaDTO,
+    obraSociales: ObraSocial[],
+  ): Venta {
+    createVentaDto.ventaObraSocial.forEach((vos) => {
+      vos.obraSocial = obraSociales.find((os) => os.id === vos.obraSocial.id);
+    });
+
+    return this.dataSource.manager.create(Venta, createVentaDto);
+  }
+
+  private async handleCuentaCorriente(
+    queryRunner: QueryRunner,
+    venta: Venta,
+    cliente: Cliente,
+  ) {
+    const medioDePagoCC = venta.mediosDePago.find(
+      (medio) => medio.tipoMedioDePago === TipoMedioDePagoEnum.CUENTA_CORRIENTE,
+    );
+
+    if (medioDePagoCC) {
+      if (!cliente.cuentaCorriente) {
+        throw new NotFoundException('Cliente no posee cuenta corriente');
+      }
+
+      cliente.cuentaCorriente =
+        await this.cuentaCorrienteService.afectarCuentaCorriente(
+          cliente.id,
+          {
+            importe: medioDePagoCC.importe,
+            tipoMovimiento: TipoMovimiento.VENTA,
+          },
+          queryRunner.manager,
+        );
+    }
+  }
+
+  private handleTransactionError(error: any) {
+    if (
+      error instanceof NotFoundException ||
+      error instanceof BadRequestException
+    ) {
+      throw error;
+    }
+    throw error;
   }
 }

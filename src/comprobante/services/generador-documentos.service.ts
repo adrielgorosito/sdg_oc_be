@@ -44,7 +44,8 @@ export class GeneradorDocumentosService {
     isDuplicate: boolean,
   ) {
     // Configuración inicial
-    const startY = 50;
+    doc.font('Helvetica');
+    const startY = 10;
 
     const razonSocial = (
       await this.parametroService.getParam('RAZON_SOCIAL_EMPRESA')
@@ -65,37 +66,42 @@ export class GeneradorDocumentosService {
     //DATOS CLIENTE
     doc
       .fontSize(10)
-      .text(`${data.cliente.apellido}, ${data.cliente.nombre}`, 50, startY + 15)
-      .text(data.cliente.domicilio, 50, startY + 30)
-      .text(data.cliente.documento, 50, startY + 45)
-      .text(data.cliente.condicionIVA, 50, startY + 60);
+      .text(`${data.cliente.apellido}, ${data.cliente.nombre}`, 50, startY + 50)
+      .text(data.cliente.domicilio, 50, startY + 65)
+      .text(data.cliente.documento, 50, startY + 80)
+      .text(data.cliente.condicionIVA, 50, startY + 95);
+
+    //DATOS EMPRESA
+
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(24)
+      .text(`${data.tipoComprobante.split(' ')[0]}`, 360, startY + 50);
+    doc
+      .fontSize(10)
+      .text(`${razonSocial}`, 360, startY + 80, {
+        align: 'left',
+      })
+      .text(cuit, 360, startY + 95, {
+        align: 'left',
+      })
+      .text(domicilioFiscal, 360, startY + 110, { align: 'left' })
+      .text(categoriaFiscal, 360, startY + 125, { align: 'left' });
 
     //DATOS COMPROBANTE
 
     if (isDuplicate) {
-      doc.fontSize(12).text('DUPLICADO', 50, startY - 20, { align: 'center' });
+      doc.fontSize(12).text('DUPLICADO', 50, startY + 10, { align: 'center' });
+    } else {
+      doc.fontSize(12).text('ORIGINAL', 50, startY + 10, { align: 'center' });
     }
-    doc
-      .fontSize(20)
-      .text(data.tipoComprobante, 50, startY, {
-        align: 'center',
-      })
-      .fontSize(12)
+    doc.fontSize(30).text(data.tipoComprobante.split(' ')[1], 50, startY + 35, {
+      align: 'center',
+    });
+    /* .fontSize(12)
       .text(`Nº: ${data.numeroComprobante}`, 50, startY + 20, {
         align: 'center',
-      });
-
-    //DATOS EMPRESA
-    doc
-      .fontSize(10)
-      .text(`${razonSocial}`, 400, startY + 15, {
-        align: 'right',
-      })
-      .text(cuit, 400, startY + 30, {
-        align: 'right',
-      })
-      .text(domicilioFiscal, 400, startY + 45, { align: 'right' })
-      .text(categoriaFiscal, 400, startY + 60, { align: 'right' });
+      }); */
   }
 
   private addInvoiceTable(
@@ -107,15 +113,16 @@ export class GeneradorDocumentosService {
 
     doc
       .font('Helvetica-Bold')
-      .text('Detalle', 50, tableTop)
-      .text('Cantidad', 350, tableTop)
-      .text('Precio', 420, tableTop)
-      .text('Total', 520, tableTop)
-      .moveTo(50, tableTop + 15)
-      .lineTo(570, tableTop + 15)
+      .fontSize(12)
+      .text('Detalle', 50, tableTop + 10)
+      .text('Cantidad', 350, tableTop + 10)
+      .text('P. Unitario', 420, tableTop + 10)
+      .text('Importe', 515, tableTop + 10)
+      .moveTo(50, tableTop + 25)
+      .lineTo(565, tableTop + 25)
       .stroke();
 
-    let yPosition = tableTop + 30;
+    let yPosition = tableTop + 45;
 
     if (data.venta?.lineasDeVenta) {
       data.venta.lineasDeVenta.forEach((item) => {
@@ -163,19 +170,99 @@ export class GeneradorDocumentosService {
     const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);
     const importeIVA = importe.minus(importeNeto).toDecimalPlaces(2);
 
-    doc
-      .font('Helvetica-Bold')
-      .fontSize(14)
-      .text('IVA (21%)', 350, yPosition + 35)
-      .text(`$${importeIVA.toFixed(2)}`, 450, yPosition + 35, {
-        align: 'right',
-      })
-      .text('TOTAL', 350, yPosition + 60)
-      .text(`$${importe.toFixed(2)}`, 450, yPosition + 60, { align: 'right' });
+    if (data.tipoComprobante === 'FACTURA B') {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(14)
+        .text('Subtotal: $', 350, yPosition + 35)
+        .text(`${importe.toFixed(2)}`, 450, yPosition + 35, {
+          align: 'right',
+        })
 
-    doc.image(qrBuffer, 150, yPosition + 10, {
+        .text('Importe Otros Tributos: $', 350, yPosition + 35)
+        .text(`0,00`, 450, yPosition + 35, {
+          align: 'right',
+        })
+        .text('Importe Total: $', 350, yPosition + 60)
+        .text(`${importe.toFixed(2)}`, 450, yPosition + 60, {
+          align: 'right',
+        });
+
+      doc
+        .text(
+          'Régimen de Transparencia Fiscal Al Consumidor (Ley 27.743)',
+          50,
+          yPosition + 80,
+          { align: 'left' },
+        )
+        .moveTo(50, yPosition + 90)
+        .lineTo(565, yPosition + 90)
+        .stroke();
+
+      doc
+        .font('Helvetica')
+        .fontSize(10)
+        .text('IVA Contenido: $', 300, yPosition + 110)
+        .text(`$${importeIVA.toFixed(2)}`, 450, yPosition + 110, {
+          align: 'right',
+        })
+        .text('Otros Impuestos Nacionales Indirectos: $', 300, yPosition + 130)
+        .text(`0,00`, 450, yPosition + 130, {
+          align: 'right',
+        });
+      yPosition += 150;
+    } else {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(14)
+        .text('IVA (21%)', 350, yPosition + 35)
+        .text(`$${importeIVA.toFixed(2)}`, 450, yPosition + 35, {
+          align: 'right',
+        })
+        .text('Importe Total: $', 350, yPosition + 60)
+        .text(`$${importe.toFixed(2)}`, 450, yPosition + 60, {
+          align: 'right',
+        });
+      yPosition += 70;
+    }
+
+    /*  if (data.venta?.mediosDePago) {
+      let yPositionMediosDePago = yPosition + 35;
+      doc.font('Helvetica-Bold').fontSize(14).text('Medios de Pago', 200);
+
+      data.venta.mediosDePago.forEach((medio) => {
+        doc
+          .font('Helvetica')
+          .fontSize(10)
+          .text(
+            mapeoTipoMedioDePago[medio.formaPago],
+            200,
+            yPositionMediosDePago,
+          )
+          .text(mapeoRedDePago[medio.redPago], 250, yPositionMediosDePago)
+          .text(medio.entidadBancaria, 300, yPositionMediosDePago);
+
+        yPositionMediosDePago += 25;
+      });
+    } */
+
+    doc.image(qrBuffer, 150, yPosition + 200, {
       width: 100,
     });
+  }
+
+  private enmarcarPDF(doc: PDFDocument) {
+    doc.moveTo(50, 10).lineTo(565, 10).stroke();
+    doc.moveTo(50, 40).lineTo(565, 40).stroke();
+    doc.moveTo(50, 450).lineTo(565, 450).stroke();
+    doc.moveTo(50, 550).lineTo(565, 550).stroke();
+    doc.moveTo(50, 450).lineTo(50, 550).stroke();
+    doc.moveTo(565, 450).lineTo(565, 550).stroke();
+    doc.moveTo(50, 150).lineTo(565, 150).stroke();
+
+    doc.moveTo(280, 40).lineTo(280, 80).stroke();
+    doc.moveTo(280, 80).lineTo(330, 80).stroke();
+    doc.moveTo(330, 80).lineTo(330, 40).stroke();
   }
 
   async generarFacturaPDF(
@@ -196,6 +283,7 @@ export class GeneradorDocumentosService {
         total: datosFactura.importeTotal,
       });
 
+      this.enmarcarPDF(doc);
       await this.addHeader(doc, datosFactura, isDuplicate);
       this.addInvoiceTable(doc, datosFactura, qrBuffer);
 
@@ -222,6 +310,7 @@ export class GeneradorDocumentosService {
             cliente: true,
             ventaObraSocial: true,
             lineasDeVenta: { producto: { marca: true } },
+            mediosDePago: true,
           },
         },
       });
@@ -241,7 +330,7 @@ export class GeneradorDocumentosService {
         true,
       );
 
-      return { pdfOriginal, pdfDuplicado };
+      return { pdfOriginal, pdfDuplicado, comprobante: comprobanteGuardado };
     } catch (error) {
       if (error instanceof NotFoundException)
         throw new NotFoundException(error.message);

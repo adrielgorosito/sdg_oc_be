@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { CreateMovimientoDTO } from 'src/movimiento/dto/create-movimiento.dto';
 import { CuentaCorrienteService } from './cuenta-corriente.service';
+import { PaginateCCDTO } from './dto/paginate-cc.dto';
 
 @Controller('cuenta-corriente')
 export class CuentaCorrienteController {
@@ -9,8 +10,8 @@ export class CuentaCorrienteController {
   ) {}
 
   @Get()
-  async findAll() {
-    return await this.cuentaCorrienteService.findAll();
+  async findAll(@Query() paginateCCDTO: PaginateCCDTO) {
+    return await this.cuentaCorrienteService.findAll(paginateCCDTO);
   }
 
   @Get(':id')

@@ -59,7 +59,7 @@ export class ClienteService {
 
       if (filtro) {
         queryBuilder.andWhere(
-          'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento',
+          '(CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento)',
           {
             nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
             nroDocumento: `%${filtro}%`,

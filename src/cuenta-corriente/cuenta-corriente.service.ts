@@ -13,8 +13,8 @@ import { Movimiento } from 'src/movimiento/entities/movimiento.entity';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreateCuentaCorrienteDTO } from './dto/create-cuenta-corriente.dto';
+import { PaginateCCDTO } from './dto/paginate-cc.dto';
 import { UpdateCuentaCorrienteDTO } from './dto/update-cuenta-corriente.dto';
-
 @Injectable()
 export class CuentaCorrienteService {
   constructor(
@@ -26,9 +26,46 @@ export class CuentaCorrienteService {
     private readonly cajaService: CajaService,
   ) {}
 
-  async findAll(): Promise<CuentaCorriente[]> {
+  async findAll(paginateCCDTO: PaginateCCDTO): Promise<any> {
     try {
-      return await this.cuentaCorrienteRepository.find();
+      const { limit, offset, filtro, estado } = paginateCCDTO;
+
+      const queryBuilder = this.cuentaCorrienteRepository
+        .createQueryBuilder('cuentaCorriente')
+        .innerJoinAndSelect('cuentaCorriente.cliente', 'cliente')
+        .take(limit)
+        .skip(offset);
+
+      if (filtro) {
+        queryBuilder.andWhere(
+          '(CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento)',
+          {
+            nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
+            nroDocumento: `%${filtro}%`,
+          },
+        );
+      }
+
+      if (estado && estado === 0) {
+        queryBuilder.andWhere('cuentaCorriente.saldo >= 0');
+      }
+
+      if (estado && estado === 1) {
+        console.log('entra');
+
+        queryBuilder.andWhere('cuentaCorriente.saldo < 0');
+      }
+
+      const [items, total] = await queryBuilder.getManyAndCount();
+
+      return {
+        items,
+        total,
+        limit,
+        offset,
+        nextPage: total > offset + limit ? offset + limit : null,
+        previousPage: offset > 0 ? offset - limit : null,
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         'Error al obtener las cuentas corrientes: ' + error,

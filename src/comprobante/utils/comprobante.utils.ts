@@ -6,277 +6,302 @@ import { TipoDocumento } from 'src/comprobante/enums/tipo-documento.enum';
 import { AfipValidationError } from 'src/comprobante/errors/afip.errors';
 import { IParamsFECAESolicitar } from 'src/comprobante/interfaces/ISoap';
 import { ParametrosService } from 'src/parametros/parametros.service';
+import { Venta } from 'src/venta/entities/venta.entity';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { Comprobante } from '../entities/comprobante.entity';
 import { IDatosDocumentos } from '../interfaces/IDatosDocumentos';
 import { mapeoCondicionIVA, mapeoTipoComprobante } from './mapeosEnums';
 
-export const crearDatosNotaDeCreditoDebito = async (
-  createComprobanteDTO: CrearComprobanteDTO,
-  facturaRelacionada: Comprobante,
-  configService: ParametrosService,
-): Promise<IParamsFECAESolicitar> => {
-  const ptoVta = await configService.getParam('AFIP_PTO_VTA');
-  if (!ptoVta) {
-    throw new AfipValidationError('Punto de venta no configurado');
-  }
-  const cuitEmisor = await configService.getParam('AFIP_CUIT');
-  if (!cuitEmisor) {
-    throw new AfipValidationError('cuitEmisor no configurado');
+export class AfipDocumentService {
+  private static async getConfigParam(
+    configService: ParametrosService,
+    param: string,
+  ): Promise<string> {
+    const value = await configService.getParam(param);
+    if (!value) {
+      throw new AfipValidationError(`${param} no configurado`);
+    }
+    return value.value;
   }
 
-  const { docTipo, condicionIVA, nroDocumento } = obtenerCbteTipoYTipoDoc(
-    facturaRelacionada.venta.cliente,
-    createComprobanteDTO.condicionIvaCliente,
-  );
-
-  const comprobantes = [
-    {
-      Tipo: facturaRelacionada.tipoComprobante,
-      PtoVta: parseInt(ptoVta.value),
-      Nro: parseInt(facturaRelacionada.numeroComprobante.split('-')[1]),
-      Cuit: cuitEmisor.value,
-      CbteFch: facturaRelacionada.fechaEmision
-        .toISOString()
-        .split('T')[0]
-        .replace(/-/g, ''),
-    },
-  ];
-  const importe = new Decimal(createComprobanteDTO.importeTotal);
-  const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);
-  const importeIVA = importe.minus(importeNeto).toDecimalPlaces(2);
-
-  return {
-    FeCAEReq: {
-      FeCabReq: {
-        CantReg: 1,
-        PtoVta: parseInt(ptoVta.value),
-        CbteTipo: createComprobanteDTO.tipoComprobante,
-      },
-      FeDetReq: {
-        FECAEDetRequest: {
-          Concepto: 1,
-          DocTipo: docTipo,
-          DocNro: nroDocumento,
-          CbteDesde: null,
-          CbteHasta: null,
-          FchVtoPago: null,
-          CbteFch: new Date().toISOString().split('T')[0].replace(/-/g, ''),
-          ImpTotal: createComprobanteDTO.importeTotal,
-          ImpTotConc: 0,
-          CondicionIVAReceptorId: condicionIVA,
-          ImpNeto: importeNeto.toNumber(),
-          ImpOpEx: 0, // Importe exento
-          ImpIVA: importeIVA.toNumber(),
-          ImpTrib: 0, // Importe de tributos
-          MonId: 'PES', // Peso Argentino
-          MonCotiz: 1, // Cotización
-          Iva: {
-            AlicIva: [
-              {
-                Id: 5,
-                BaseImp: importeNeto.toNumber(),
-                Importe: importeIVA.toNumber(),
-              },
-            ],
-          },
-          CbtesAsoc: {
-            CbteAsoc: [...comprobantes],
-          },
-        },
-      },
-    },
-  };
-};
-
-export const crearDatosFactura = async (
-  cliente: Cliente,
-  importeAFacturar: number,
-  condicionIvaReceptor: CondicionIva,
-  configService: ParametrosService,
-): Promise<IParamsFECAESolicitar> => {
-  const { cbteTipo, docTipo, condicionIVA, nroDocumento } =
-    obtenerCbteTipoYTipoDoc(cliente, condicionIvaReceptor);
-
-  const importe = new Decimal(importeAFacturar);
-  const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);
-  const importeIVA = importe.minus(importeNeto).toDecimalPlaces(2);
-
-  const ptoVta = await configService.getParam('AFIP_PTO_VTA');
-  if (!ptoVta) {
-    throw new AfipValidationError('Punto de venta no configurado');
+  private static formatDate(date: Date): string {
+    return date.toISOString().split('T')[0].replace(/-/g, '');
   }
-  return {
-    FeCAEReq: {
-      FeCabReq: {
-        CantReg: 1, // Cantidad de comprobantes a registrar
-        PtoVta: parseInt(ptoVta.value),
-        CbteTipo: cbteTipo,
-      },
-      FeDetReq: {
-        FECAEDetRequest: {
-          Concepto: 1,
-          DocTipo: docTipo,
-          DocNro: nroDocumento,
-          CbteDesde: null,
-          CbteHasta: null,
-          FchVtoPago: null,
-          CbteFch: new Date().toISOString().split('T')[0].replace(/-/g, ''),
-          ImpTotal: importe.toNumber(),
-          ImpTotConc: 0,
-          CondicionIVAReceptorId: condicionIVA,
-          ImpNeto: importeNeto.toNumber(),
-          ImpOpEx: 0, // Importe exento
-          ImpIVA: importeIVA.toNumber(),
-          ImpTrib: 0, // Importe de tributos
-          MonId: 'PES', // Peso Argentino
-          MonCotiz: 1, // Cotización
-          Iva: {
-            AlicIva: [
-              {
-                Id: 5,
-                BaseImp: importeNeto.toNumber(),
-                Importe: importeIVA.toNumber(),
-              },
-            ],
-          },
-        },
-      },
-    },
-  };
-};
 
-const obtenerCbteTipoYTipoDoc = (
-  cliente: Cliente,
-  condicionIvaReceptor: CondicionIva,
-): {
-  cbteTipo: number;
-  docTipo: number;
-  condicionIVA: number;
-  nroDocumento: number;
-} => {
-  if (cliente.id === 0) {
+  private static calculateImportes(importeTotal: number) {
+    const importe = new Decimal(importeTotal);
+    const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);
     return {
-      condicionIVA: CondicionIva.CONSUMIDOR_FINAL,
-      cbteTipo: TipoComprobante.FACTURA_B,
-      docTipo: TipoDocumento.CONSUMIDOR_FINAL,
-      nroDocumento: 0,
+      ImpTotal: importe.toNumber(),
+      ImpNeto: importeNeto.toNumber(),
+      ImpIVA: importe.minus(importeNeto).toNumber(),
     };
   }
-  switch (condicionIvaReceptor) {
-    case CondicionIva.MONOTRIBUTISTA:
-      return {
-        condicionIVA: CondicionIva.MONOTRIBUTISTA,
-        cbteTipo: TipoComprobante.FACTURA_A,
-        docTipo: cliente.tipoDocumento,
-        nroDocumento: cliente.nroDocumento,
-      };
-    case CondicionIva.RESPONSABLE_INSCRIPTO:
-      return {
-        condicionIVA: CondicionIva.RESPONSABLE_INSCRIPTO,
-        cbteTipo: TipoComprobante.FACTURA_A,
-        docTipo: cliente.tipoDocumento,
-        nroDocumento: cliente.nroDocumento,
-      };
-    case CondicionIva.EXENTO:
-      return {
-        condicionIVA: CondicionIva.EXENTO,
-        cbteTipo: TipoComprobante.FACTURA_B,
-        docTipo: cliente.tipoDocumento,
-        nroDocumento: cliente.nroDocumento,
-      };
-    case CondicionIva.CONSUMIDOR_FINAL:
+
+  static async createNotaDeCreditoDebitoParams(
+    dto: CrearComprobanteDTO,
+    facturaRelacionada: Comprobante,
+    configService: ParametrosService,
+  ): Promise<IParamsFECAESolicitar> {
+    const [ptoVta, cuitEmisor] = await Promise.all([
+      AfipDocumentService.getConfigParam(configService, 'AFIP_PTO_VTA'),
+      AfipDocumentService.getConfigParam(configService, 'AFIP_CUIT'),
+    ]);
+
+    const { docTipo, condicionIVA, nroDocumento } =
+      DocumentTypeHelper.getDocumentTypeInfo(
+        facturaRelacionada.venta.cliente,
+        facturaRelacionada.venta.condicionIva,
+      );
+
+    const importes = AfipDocumentService.calculateImportes(dto.importeTotal);
+    const numeroComprobante = parseInt(
+      facturaRelacionada.numeroComprobante.split('-')[1],
+    );
+
+    return {
+      FeCAEReq: {
+        FeCabReq: {
+          CantReg: 1,
+          PtoVta: parseInt(ptoVta),
+          CbteTipo: dto.tipoComprobante,
+        },
+        FeDetReq: {
+          FECAEDetRequest: {
+            Concepto: 1,
+            DocTipo: docTipo,
+            DocNro: nroDocumento,
+            CbteDesde: null,
+            CbteHasta: null,
+            FchVtoPago: null,
+            CbteFch: AfipDocumentService.formatDate(new Date()),
+            ...importes,
+            ImpTotConc: 0,
+            CondicionIVAReceptorId: condicionIVA,
+            ImpOpEx: 0,
+            ImpTrib: 0,
+            MonId: 'PES',
+            MonCotiz: 1,
+            Iva: {
+              AlicIva: [
+                {
+                  Id: 5,
+                  BaseImp: importes.ImpNeto,
+                  Importe: importes.ImpIVA,
+                },
+              ],
+            },
+            CbtesAsoc: {
+              CbteAsoc: [
+                {
+                  Tipo: facturaRelacionada.tipoComprobante,
+                  PtoVta: parseInt(ptoVta),
+                  Nro: numeroComprobante,
+                  Cuit: cuitEmisor,
+                  CbteFch: AfipDocumentService.formatDate(
+                    facturaRelacionada.fechaEmision,
+                  ),
+                },
+              ],
+            },
+          },
+        },
+      },
+    };
+  }
+
+  static async createFacturaParams(
+    dto: CrearComprobanteDTO,
+    venta: Venta,
+    configService: ParametrosService,
+  ): Promise<IParamsFECAESolicitar> {
+    const ptoVta = await AfipDocumentService.getConfigParam(
+      configService,
+      'AFIP_PTO_VTA',
+    );
+
+    const { cbteTipo, docTipo, condicionIva, nroDocumento } =
+      DocumentTypeHelper.getDocumentTypeInfo(venta.cliente, venta.condicionIva);
+
+    const importes = AfipDocumentService.calculateImportes(dto.importeTotal);
+
+    return {
+      FeCAEReq: {
+        FeCabReq: {
+          CantReg: 1,
+          PtoVta: parseInt(ptoVta),
+          CbteTipo: cbteTipo,
+        },
+        FeDetReq: {
+          FECAEDetRequest: {
+            Concepto: 1,
+            DocTipo: docTipo,
+            DocNro: nroDocumento,
+            CbteDesde: null,
+            CbteHasta: null,
+            FchVtoPago: null,
+            CbteFch: AfipDocumentService.formatDate(new Date()),
+            ...importes,
+            ImpTotConc: 0,
+            CondicionIVAReceptorId: condicionIva,
+            ImpOpEx: 0,
+            ImpTrib: 0,
+            MonId: 'PES',
+            MonCotiz: 1,
+            Iva: {
+              AlicIva: [
+                {
+                  Id: 5,
+                  BaseImp: importes.ImpNeto,
+                  Importe: importes.ImpIVA,
+                },
+              ],
+            },
+          },
+        },
+      },
+    };
+  }
+}
+
+class DocumentTypeHelper {
+  static getDocumentTypeInfo(cliente: Cliente, condicionIva: CondicionIva) {
+    if (cliente.id === 0) {
       return {
         condicionIVA: CondicionIva.CONSUMIDOR_FINAL,
         cbteTipo: TipoComprobante.FACTURA_B,
-        docTipo: TipoDocumento.DNI,
-        nroDocumento:
-          cliente.tipoDocumento === TipoDocumento.DNI
-            ? cliente.nroDocumento
-            : parseInt(cliente.nroDocumento.toString().slice(2, -1)),
+        docTipo: TipoDocumento.CONSUMIDOR_FINAL,
+        nroDocumento: 0,
       };
-    default:
-      throw new AfipValidationError('Categoria fiscal no válida');
-  }
-};
+    }
+    const baseInfo = {
+      docTipo: cliente.tipoDocumento,
+      nroDocumento: cliente.nroDocumento,
+    };
 
-export const obtenerDatosDocumentoParaImprimir = (comprobante: Comprobante) => {
-  let datosDocumentoParaImprimir: IDatosDocumentos;
-  if (
-    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_A ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_B ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_A ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_B ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_M ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_M ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_CREDITO_C ||
-    comprobante.tipoComprobante === TipoComprobante.NOTA_DEBITO_C
-  ) {
-    datosDocumentoParaImprimir = {
+    switch (condicionIva) {
+      case CondicionIva.MONOTRIBUTISTA:
+      case CondicionIva.RESPONSABLE_INSCRIPTO:
+        return {
+          ...baseInfo,
+          condicionIva,
+          cbteTipo: TipoComprobante.FACTURA_A,
+        };
+      case CondicionIva.EXENTO:
+        return {
+          ...baseInfo,
+          condicionIva,
+          cbteTipo: TipoComprobante.FACTURA_B,
+        };
+      case CondicionIva.CONSUMIDOR_FINAL:
+        return {
+          condicionIva,
+          cbteTipo: TipoComprobante.FACTURA_B,
+          docTipo: TipoDocumento.DNI,
+          nroDocumento:
+            cliente.tipoDocumento === TipoDocumento.DNI
+              ? cliente.nroDocumento
+              : parseInt(cliente.nroDocumento.toString().slice(2, -1)),
+        };
+      default:
+        throw new AfipValidationError('Categoria fiscal no válida');
+    }
+  }
+}
+
+class DocumentPrinter {
+  private static isNota(comprobante: Comprobante): boolean {
+    return [
+      TipoComprobante.NOTA_CREDITO_A,
+      TipoComprobante.NOTA_CREDITO_B,
+      TipoComprobante.NOTA_DEBITO_A,
+      TipoComprobante.NOTA_DEBITO_B,
+      TipoComprobante.NOTA_CREDITO_M,
+      TipoComprobante.NOTA_DEBITO_M,
+      TipoComprobante.NOTA_CREDITO_C,
+      TipoComprobante.NOTA_DEBITO_C,
+    ].includes(comprobante.tipoComprobante);
+  }
+
+  private static isFactura(comprobante: Comprobante): boolean {
+    return [
+      TipoComprobante.FACTURA_A,
+      TipoComprobante.FACTURA_B,
+      TipoComprobante.FACTURA_C,
+      TipoComprobante.FACTURA_M,
+    ].includes(comprobante.tipoComprobante);
+  }
+
+  private static getClienteData(cliente: Cliente): IDatosDocumentos['cliente'] {
+    return {
+      apellido: cliente.apellido,
+      condicionIVA: mapeoCondicionIVA[cliente.categoriaFiscal],
+      domicilio: cliente.domicilio,
+      nombre: cliente.nombre,
+      documento: cliente.nroDocumento.toString(),
+    };
+  }
+
+  static getPrintableDocumentData(comprobante: Comprobante): IDatosDocumentos {
+    const baseData = {
       CAE: comprobante.CAE.toString(),
-      motivo: comprobante.motivo,
       fechaEmision: comprobante.fechaEmision.toISOString(),
       CAEVencimiento: comprobante.CAEFechaVencimiento.toISOString(),
-      cliente: {
-        apellido: comprobante.facturaRelacionada.venta.cliente.apellido,
-        condicionIVA:
-          mapeoCondicionIVA[
-            comprobante.facturaRelacionada.venta.cliente.categoriaFiscal
-          ],
-        domicilio: comprobante.facturaRelacionada.venta.cliente.domicilio,
-        nombre: comprobante.facturaRelacionada.venta.cliente.nombre,
-        documento:
-          comprobante.facturaRelacionada.venta.cliente.nroDocumento.toString(),
-      },
       tipoComprobante: mapeoTipoComprobante[comprobante.tipoComprobante],
       numeroComprobante: comprobante.numeroComprobante,
       importeTotal: comprobante.importeTotal,
     };
-  } else if (
-    comprobante.tipoComprobante === TipoComprobante.FACTURA_A ||
-    comprobante.tipoComprobante === TipoComprobante.FACTURA_B ||
-    comprobante.tipoComprobante === TipoComprobante.FACTURA_C ||
-    comprobante.tipoComprobante === TipoComprobante.FACTURA_M
-  ) {
-    const descuentoImporteObraSocial = comprobante.venta.ventaObraSocial.reduce(
-      (acc, curr) => {
-        return acc + curr.importe;
-      },
-      0,
-    );
-    const descuentoPorcentajeObraSocial =
-      descuentoImporteObraSocial / comprobante.venta.importe;
+    const cliente =
+      comprobante.venta?.cliente ??
+      comprobante.facturaRelacionada?.venta?.cliente;
 
-    datosDocumentoParaImprimir = {
-      CAE: comprobante.CAE.toString(),
-      fechaEmision: comprobante.fechaEmision.toISOString(),
-      CAEVencimiento: comprobante.CAEFechaVencimiento.toISOString(),
-      cliente: {
-        apellido: comprobante.venta.cliente.apellido,
-        condicionIVA:
-          mapeoCondicionIVA[comprobante.venta.cliente.categoriaFiscal],
-        domicilio: comprobante.venta.cliente.domicilio,
-        nombre: comprobante.venta.cliente.nombre,
-        documento: comprobante.venta.cliente.nroDocumento.toString(),
-      },
-      venta: {
-        descuentoPorcentaje: comprobante.venta.descuentoPorcentaje,
-        descuentoObraSocial: descuentoPorcentajeObraSocial,
-        lineasDeVenta: comprobante.venta.lineasDeVenta.map((linea) => ({
-          cantidad: linea.cantidad,
-          precioIndividual: linea.precioIndividual,
-          producto: {
-            descripcion: linea.producto?.descripcion ?? '',
-            categoria: linea.producto?.categoria ?? '',
-            marca: linea.producto?.marca?.nombre ?? '',
-          },
-        })),
-        fecha: comprobante.venta.fecha.toISOString(),
-      },
-      tipoComprobante: mapeoTipoComprobante[comprobante.tipoComprobante],
-      numeroComprobante: comprobante.numeroComprobante,
-      importeTotal: comprobante.importeTotal,
-    };
+    if (DocumentPrinter.isNota(comprobante)) {
+      return {
+        ...baseData,
+        motivo: comprobante.motivo,
+        cliente: DocumentPrinter.getClienteData(cliente),
+      };
+    }
+
+    if (DocumentPrinter.isFactura(comprobante)) {
+      const descuentoImporteObraSocial =
+        comprobante.venta?.ventaObraSocial.reduce(
+          (acc, curr) => acc + curr.importe,
+          0,
+        ) ?? 0;
+
+      return {
+        ...baseData,
+        cliente: DocumentPrinter.getClienteData(cliente),
+        venta: {
+          descuentoPorcentaje: comprobante.venta.descuentoPorcentaje,
+          descuentoObraSocial:
+            descuentoImporteObraSocial / comprobante.venta.importe,
+          lineasDeVenta: comprobante.venta.lineasDeVenta.map((linea) => ({
+            cantidad: linea.cantidad,
+            precioIndividual: linea.precioIndividual,
+            producto: {
+              descripcion: linea.producto?.descripcion ?? '',
+              categoria: linea.producto?.categoria ?? '',
+              marca: linea.producto?.marca?.nombre ?? '',
+            },
+          })),
+          mediosDePago: comprobante.venta.mediosDePago.map((medio) => ({
+            redPago: medio.redDePago,
+            formaPago: medio.tipoMedioDePago,
+            entidadBancaria: medio.entidadBancaria,
+          })),
+          fecha: comprobante.venta.fecha.toISOString(),
+        },
+      };
+    }
+
+    throw new Error('Tipo de comprobante no soportado');
   }
-  return datosDocumentoParaImprimir;
-};
+}
+
+export const crearDatosNotaDeCreditoDebito =
+  AfipDocumentService.createNotaDeCreditoDebitoParams;
+export const crearDatosFactura = AfipDocumentService.createFacturaParams;
+export const obtenerDatosDocumentoParaImprimir =
+  DocumentPrinter.getPrintableDocumentData;
