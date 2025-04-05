@@ -37,6 +37,10 @@ export class VentaService {
         createVentaDto,
       );
       const factura = await this.processFacturaTransaction(venta);
+
+      delete factura.venta;
+      delete factura.facturaRelacionada;
+
       return {
         venta,
         factura,
