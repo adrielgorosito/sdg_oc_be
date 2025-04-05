@@ -20,6 +20,19 @@ export class CajaController {
     return this.cajaService.findMovimientosCaja(fecha);
   }
 
+  @Get('apertura')
+  findAperturaDelDia(@Query('fecha') fecha?: Date) {
+    if (!fecha) {
+      fecha = parse(
+        new Date().toISOString().split('T')[0],
+        'yyyy-MM-dd',
+        new Date(),
+      );
+    }
+
+    return this.cajaService.findAperturaDelDia(fecha);
+  }
+
   @Post()
   ingresoEgresoCaja(@Body() createCajaDto: CreateCajaDTO) {
     return this.cajaService.extraccionIngresoDinero(createCajaDto);
