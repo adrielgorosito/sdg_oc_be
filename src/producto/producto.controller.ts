@@ -1,9 +1,3 @@
-import { ProductoService } from './producto.service';
-import { CreateProductoDTO } from './dto/create-producto.dto';
-import { UpdateProductoDTO } from './dto/update-producto.dto';
-import { PaginateProductoDTO } from './dto/paginate-producto.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ExcelService } from './utils/excel.service';
 import {
   Body,
   Controller,
@@ -16,6 +10,13 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateProductoDTO } from './dto/create-producto.dto';
+import { PaginateProductoDTO } from './dto/paginate-producto.dto';
+import { UpdatePrecioProductoDTO } from './dto/update-precio-producto.dto';
+import { UpdateProductoDTO } from './dto/update-producto.dto';
+import { ProductoService } from './producto.service';
+import { ExcelService } from './utils/excel.service';
 
 @Controller('producto')
 export class ProductoController {
@@ -37,6 +38,13 @@ export class ProductoController {
   @Post()
   create(@Body() productoDTO: CreateProductoDTO) {
     return this.productoService.create(productoDTO);
+  }
+
+  @Patch('precio')
+  updatePrecio(@Body() updatePrecioProductoDTO: UpdatePrecioProductoDTO) {
+    return this.productoService.updatePrecioMarcaProveedor(
+      updatePrecioProductoDTO,
+    );
   }
 
   @Patch(':id')

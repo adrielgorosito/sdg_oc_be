@@ -9,6 +9,7 @@ import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { Repository } from 'typeorm';
 import { CreateProductoDTO } from './dto/create-producto.dto';
 import { PaginateProductoDTO } from './dto/paginate-producto.dto';
+import { UpdatePrecioProductoDTO } from './dto/update-precio-producto.dto';
 import { UpdateProductoDTO } from './dto/update-producto.dto';
 import { Producto } from './entities/producto.entity';
 
@@ -192,6 +193,55 @@ export class ProductoService {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
         'Error al eliminar el producto: ' + error,
+      );
+    }
+  }
+
+  async updatePrecioMarcaProveedor(
+    updatePrecioProductoDTO: UpdatePrecioProductoDTO,
+  ): Promise<Producto[]> {
+    const { marca, proveedor, porcentaje } = updatePrecioProductoDTO;
+
+    try {
+      const marcaExistente = await this.marcaRepository.findOne({
+        where: { id: marca.id },
+      });
+
+      if (!marcaExistente) {
+        throw new NotFoundException(`Marca con id ${marca.id} no encontrada`);
+      }
+
+      const proveedorExistente = await this.proveedorRepository.findOne({
+        where: { id: proveedor.id },
+      });
+
+      if (!proveedorExistente) {
+        throw new NotFoundException(
+          `Proveedor con id ${proveedor.id} no encontrado`,
+        );
+      }
+
+      const productos = await this.productoRepository.find({
+        where: { marca: { id: marca.id }, proveedor: { id: proveedor.id } },
+      });
+
+      if (productos.length === 0) {
+        throw new NotFoundException(
+          `No se encontraron productos para la marca ${marcaExistente.nombre} y el proveedor ${proveedorExistente.razonSocial}`,
+        );
+      }
+
+      productos.forEach((producto) => {
+        producto.precio = producto.precio * (1 + porcentaje / 100);
+        producto.precioLista = producto.precioLista * (1 + porcentaje / 100);
+      });
+
+      return await this.productoRepository.save(productos);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+
+      throw new InternalServerErrorException(
+        'Error al actualizar el precio de los productos: ' + error,
       );
     }
   }
