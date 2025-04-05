@@ -238,7 +238,14 @@ class DocumentPrinter {
       condicionIVA: mapeoCondicionIVA[cliente.categoriaFiscal],
       domicilio: cliente.domicilio,
       nombre: cliente.nombre,
-      documento: cliente.nroDocumento.toString(),
+      documento:
+        cliente.tipoDocumento === TipoDocumento.CUIT
+          ? cliente.nroDocumento.toString().slice(0, 2) +
+            '-' +
+            cliente.nroDocumento.toString().slice(2, 10) +
+            '-' +
+            cliente.nroDocumento.toString().slice(10, 11)
+          : cliente.nroDocumento.toString(),
     };
   }
 
@@ -254,6 +261,7 @@ class DocumentPrinter {
     const cliente =
       comprobante.venta?.cliente ??
       comprobante.facturaRelacionada?.venta?.cliente;
+    console.log(cliente);
 
     if (DocumentPrinter.isNota(comprobante)) {
       return {

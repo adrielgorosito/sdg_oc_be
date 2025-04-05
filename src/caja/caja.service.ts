@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { parse } from 'date-fns';
 import {
   RedDePago,
   TipoMedioDePagoEnum,
@@ -24,6 +26,8 @@ export class CajaService {
 
   async findMovimientosCaja(fechaParam: Date) {
     try {
+      fechaParam = await this.validarFormatoFecha(fechaParam);
+
       const movimientos = (
         await this.cajaRepository.find({
           where: {
@@ -135,37 +139,111 @@ export class CajaService {
   }
 
   async findAperturaDelDia(fechaParam: Date) {
-    const apertura = await this.cajaRepository.findOne({
-      where: {
-        fechaMovimiento: Raw((alias) => `CAST(${alias} AS DATE) = :fecha`, {
-          fecha: fechaParam,
-        }),
-        detalle: 'APERTURA',
-      },
-    });
+    try {
+      fechaParam = await this.validarFormatoFecha(fechaParam);
+      const apertura = await this.cajaRepository.findOne({
+        where: {
+          fechaMovimiento: Raw((alias) => `CAST(${alias} AS DATE) = :fecha`, {
+            fecha: fechaParam,
+          }),
+          detalle: 'APERTURA',
+        },
+      });
 
-    if (!apertura) {
-      throw new NotFoundException('No hubo apertura del día');
+      return apertura;
+    } catch (error) {
+      if (error instanceof NotFoundException)
+        throw new InternalServerErrorException(error);
     }
+  }
 
-    return apertura;
+  async findCierreDelDia(fechaParam: Date) {
+    try {
+      fechaParam = await this.validarFormatoFecha(fechaParam);
+
+      const cierre = await this.cajaRepository.findOne({
+        where: {
+          fechaMovimiento: Raw((alias) => `CAST(${alias} AS DATE) = :fecha`, {
+            fecha: fechaParam,
+          }),
+          detalle: 'CIERRE',
+        },
+      });
+
+      return cierre;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   async createMovimientoCaja(cajas: Caja[], entityManager: EntityManager) {
     try {
+      const apertura = await this.findAperturaDelDia(null);
+
+      if (!apertura) {
+        throw new BadRequestException('No hubo apertura del día');
+      }
+
       await entityManager.save(Caja, cajas);
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+
       throw new InternalServerErrorException(error);
     }
   }
 
   async extraccionIngresoDinero(createCajaDTO: CreateCajaDTO) {
     try {
+      if (createCajaDTO.detalle !== 'APERTURA') {
+        const apertura = await this.findAperturaDelDia(null);
+
+        if (!apertura) {
+          throw new BadRequestException('No hubo apertura del día');
+        }
+      } else {
+        /*  const fechaDiaAnterior = subDays(new Date(), 1);
+
+        const cierreDiaAnterior = await this.findCierreDelDia(fechaDiaAnterior);
+
+        if (!cierreDiaAnterior) {
+          throw new BadRequestException('No hubo cierre del día anterior');
+        } */
+      }
       const caja = this.cajaRepository.create(createCajaDTO);
       caja.formaPago = TipoMedioDePagoEnum.EFECTIVO;
+
       return await this.cajaRepository.save(caja);
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+
       throw new InternalServerErrorException(error);
     }
+  }
+
+  private async validarAperturaCierreDelDia(fechaParam: Date) {
+    const apertura = await this.findAperturaDelDia(fechaParam);
+    const cierre = await this.findCierreDelDia(fechaParam);
+
+    return apertura && cierre;
+  }
+
+  private async validarFormatoFecha(fechaParam?: Date) {
+    let fecha: Date;
+    if (!fechaParam) {
+      fecha = parse(
+        new Date().toISOString().split('T')[0],
+        'yyyy-MM-dd',
+        new Date(),
+      );
+    } else {
+      if (fechaParam.toString().split('T')[0].split('-').length === 3) {
+        fecha = parse(fechaParam.toString(), 'yyyy-MM-dd', new Date());
+      } else if (fechaParam.toString().split('-')[2].length === 2) {
+        fecha = parse(fechaParam.toString(), 'yyyy-MM-dd', new Date());
+      } else {
+        throw new BadRequestException('El formato de la fecha es inválido');
+      }
+    }
+    return fecha;
   }
 }

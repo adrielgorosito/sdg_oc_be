@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { parse } from 'date-fns';
 import { CajaService } from './caja.service';
 import { CreateCajaDTO } from './dto/create-caja.dto';
 
@@ -9,28 +8,17 @@ export class CajaController {
 
   @Get('saldo')
   findMovimientosCaja(@Query('fecha') fecha?: Date) {
-    if (!fecha) {
-      fecha = parse(
-        new Date().toISOString().split('T')[0],
-        'yyyy-MM-dd',
-        new Date(),
-      );
-    }
-
     return this.cajaService.findMovimientosCaja(fecha);
   }
 
   @Get('apertura')
   findAperturaDelDia(@Query('fecha') fecha?: Date) {
-    if (!fecha) {
-      fecha = parse(
-        new Date().toISOString().split('T')[0],
-        'yyyy-MM-dd',
-        new Date(),
-      );
-    }
-
     return this.cajaService.findAperturaDelDia(fecha);
+  }
+
+  @Get('cierre')
+  findCierreDelDia(@Query('fecha') fecha?: Date) {
+    return this.cajaService.findCierreDelDia(fecha);
   }
 
   @Post()
