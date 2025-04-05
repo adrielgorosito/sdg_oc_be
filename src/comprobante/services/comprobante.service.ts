@@ -320,10 +320,14 @@ export class ComprobanteService {
       if (!venta) {
         throw new NotFoundException('La venta no existe');
       }
+      console.log(venta);
 
       if (venta.factura) {
         const comprobantes = await this.comprobanteRepository.find({
-          where: { facturaRelacionada: { id: venta.factura.id } },
+          where: [
+            { facturaRelacionada: venta.factura },
+            { id: venta.factura.id },
+          ],
           relations: {
             venta: {
               lineasDeVenta: true,
