@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   RedDePago,
@@ -128,6 +132,23 @@ export class CajaService {
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async findAperturaDelDia(fechaParam: Date) {
+    const apertura = await this.cajaRepository.findOne({
+      where: {
+        fechaMovimiento: Raw((alias) => `CAST(${alias} AS DATE) = :fecha`, {
+          fecha: fechaParam,
+        }),
+        detalle: 'APERTURA',
+      },
+    });
+
+    if (!apertura) {
+      throw new NotFoundException('No hubo apertura del día');
+    }
+
+    return apertura;
   }
 
   async createMovimientoCaja(cajas: Caja[], entityManager: EntityManager) {
