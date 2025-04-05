@@ -148,26 +148,39 @@ export class ComprobanteService {
     }
 
     if (fechaDesde) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
-        throw new BadRequestException(
-          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
-        );
+      let fecha: Date;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
+        fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
+      } else {
+        fecha = new Date(fechaDesde);
+        if (isNaN(fecha.getTime())) {
+          throw new BadRequestException(
+            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
+          );
+        }
       }
 
-      const fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
-      queryBuilder.andWhere('comprobante.fechaEmision  >= :fechaDesde ', {
+      queryBuilder.andWhere('comprobante.fechaEmision >= :fechaDesde', {
         fechaDesde: fecha,
       });
     }
+
     if (fechaHasta) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
-        throw new BadRequestException(
-          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
-        );
+      let fecha: Date;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
+        fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
+      } else {
+        fecha = new Date(fechaHasta);
+        if (isNaN(fecha.getTime())) {
+          throw new BadRequestException(
+            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
+          );
+        }
       }
 
-      const fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
-      queryBuilder.andWhere('comprobante.fechaEmision  <= :fechaHasta ', {
+      queryBuilder.andWhere('comprobante.fechaEmision <= :fechaHasta', {
         fechaHasta: fecha,
       });
     }
@@ -230,26 +243,39 @@ export class ComprobanteService {
     }
 
     if (fechaDesde) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
-        throw new BadRequestException(
-          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
-        );
+      let fecha: Date;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
+        fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
+      } else {
+        fecha = new Date(fechaDesde);
+        if (isNaN(fecha.getTime())) {
+          throw new BadRequestException(
+            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
+          );
+        }
       }
 
-      const fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
-      queryBuilder.andWhere('comprobante.fechaEmision  >= :fechaDesde ', {
+      queryBuilder.andWhere('comprobante.fechaEmision >= :fechaDesde', {
         fechaDesde: fecha,
       });
     }
+
     if (fechaHasta) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
-        throw new BadRequestException(
-          `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
-        );
+      let fecha: Date;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
+        fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
+      } else {
+        fecha = new Date(fechaHasta);
+        if (isNaN(fecha.getTime())) {
+          throw new BadRequestException(
+            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
+          );
+        }
       }
 
-      const fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
-      queryBuilder.andWhere('comprobante.fechaEmision  <= :fechaHasta ', {
+      queryBuilder.andWhere('comprobante.fechaEmision <= :fechaHasta', {
         fechaHasta: fecha,
       });
     }
