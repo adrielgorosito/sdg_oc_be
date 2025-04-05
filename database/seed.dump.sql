@@ -2418,15 +2418,15 @@ INSERT INTO [dbo].[localidad] (id, provinciaId, localidad) VALUES
 -- Insertar en la tabla [dbo].[cliente]
 INSERT INTO [dbo].[cliente] ([createdAt], [updatedAt], [nroDocumento], [tipoDocumento], [nombre], [apellido], [email], [telefono], [sexo], [fechaNac], [observaciones], [domicilio], [localidadId], [categoriaFiscal])
 VALUES 
-(GETDATE(), NULL, 20123456789, 80, 'Juan', 'Perez', 'juan.perez@example.com', '12345678', 'Masculino', '1980-01-01', 'Cliente frecuente', 'Calle Falsa 123', 1 , 1),
+(GETDATE(), NULL, 20123456789, 80, 'Juan', 'Perez', 'juan.perez@example.com', '20123456782', 'Masculino', '1980-01-01', 'Cliente frecuente', 'Calle Falsa 123', 1 , 1),
 (GETDATE(), NULL, 87654321, 96, 'Maria', 'Gomez', 'maria.gomez@example.com', '98765432', 'Femenino', '1990-05-15', 'Nuevo cliente', 'Avenida Siempre Viva 456', 2, 6),
-(GETDATE(), NULL, 20114323218, 80, 'Carlos', 'Lopez', 'carlos.lopez@example.com', '11432321', 'Masculino', '1995-07-23', 'Cliente habitual', 'Calle Verdadera 789', 1, 1),
+(GETDATE(), NULL, 20114323218, 80, 'Carlos', 'Lopez', 'carlos.lopez@example.com', '20114323212', 'Masculino', '1995-07-23', 'Cliente habitual', 'Calle Verdadera 789', 1, 1),
 (GETDATE(), NULL, 44332211, 96, 'Ana', 'Martinez', 'ana.martinez@example.com', '55443322', 'Femenino', '1988-09-10', 'Cliente nuevo', 'Boulevard Libertad 321', 3, 6),
 (GETDATE(), NULL, 55667788, 96, 'Elena', 'Sanchez', 'elena.sanchez@example.com', '99887766', 'Femenino', '1985-03-15', 'Cliente regular', 'Calle Luna 234', 2, 6),
 (GETDATE(), NULL, 99887766, 96, 'Lucas', 'Diaz', 'lucas.diaz@example.com', '66778899', 'Masculino', '1992-11-02', 'Cliente ocasional', 'Avenida Sol 890', 1, 6),
 (GETDATE(), NULL, 33445566,  96,   'Sofia', 'Reyes', 'sofia.reyes@example.com', '11223344', 'Femenino', '2000-02-14', 'Cliente nuevo', 'Calle del Parque 567', 3, 6),
 (GETDATE(), NULL, 22334455, 96, 'Roberto', 'Gonzalez', 'roberto.gonzalez@example.com', '55667788', 'Masculino', '1983-07-19', 'Cliente frecuente', 'Calle de la Luna 111', 2, 6),
-(GETDATE(), NULL, 20265544331, 80, 'David', 'Torres', 'david.torres@example.com', '26554433', 'Masculino', '1979-08-25', 'Cliente leal', 'Calle Rápida 600', 1, 1),
+(GETDATE(), NULL, 20265544331, 80, 'David', 'Torres', 'david.torres@example.com', '20265544331', 'Masculino', '1979-08-25', 'Cliente leal', 'Calle Rápida 600', 1, 1),
 (GETDATE(), NULL, 88776655, 96, 'Patricia', 'Alvarez', 'patricia.alvarez@example.com', '44556623', 'Femenino', '1998-12-05', 'Cliente nueva', 'Avenida de la Paz 800', 3, 6);
 
 SET IDENTITY_INSERT [dbo].[cliente] ON;
@@ -2606,15 +2606,15 @@ VALUES
 (GETDATE(), NULL, 'PA001', 'Paño de limpieza microfibra', 'CRISTALES', 200.00, 500.00, 1, 3);
 
 -- Insertar en la tabla [dbo].[venta]
-INSERT INTO [dbo].[venta] ([id], [createdAt], [updatedAt], [fecha], [descuentoPorcentaje], [importe], [observaciones], [clienteId])
+INSERT INTO [dbo].[venta] ([id], [createdAt], [updatedAt], [fecha], [descuentoPorcentaje], [importe], [observaciones], [clienteId] , [condicionIva])
 VALUES 
-('00000000-0000-0000-0000-000000000001', GETDATE(), NULL, '2025-03-01', 10, 21500.00, 'Observacion de venta 1', 1),
-('00000000-0000-0000-0000-000000000002', GETDATE(), NULL, '2025-03-02', 0, 11000.00, NULL, 1),
-('00000000-0000-0000-0000-000000000003', GETDATE(), NULL, '2025-03-03', 15, 23000.00, NULL, 2),
-('00000000-0000-0000-0000-000000000004', GETDATE(), NULL, '2025-03-04', 20, 16500.00, NULL, 3),
-('00000000-0000-0000-0000-000000000005', GETDATE(), NULL, '2025-03-05', 10, 19500.00, NULL, 4),
-('00000000-0000-0000-0000-000000000006', GETDATE(), NULL, '2025-03-06', 0, 22500.00, 'Observacion de venta 6', 5),
-('00000000-0000-0000-0000-000000000007', GETDATE(), NULL, '2025-03-07', 15, 17000.00, NULL, 6);
+('00000000-0000-0000-0000-000000000001', GETDATE(), NULL, '2025-03-01', 10, 21500.00, 'Observacion de venta 1', 1, 1),
+('00000000-0000-0000-0000-000000000002', GETDATE(), NULL, '2025-03-02', 0, 11000.00, NULL, 1, 5),
+('00000000-0000-0000-0000-000000000003', GETDATE(), NULL, '2025-03-03', 15, 23000.00, NULL, 2,1),
+('00000000-0000-0000-0000-000000000004', GETDATE(), NULL, '2025-03-04', 20, 16500.00, NULL, 3,5),
+('00000000-0000-0000-0000-000000000005', GETDATE(), NULL, '2025-03-05', 10, 19500.00, NULL, 4, 1),
+('00000000-0000-0000-0000-000000000006', GETDATE(), NULL, '2025-03-06', 0, 22500.00, 'Observacion de venta 6', 5, 5),
+('00000000-0000-0000-0000-000000000007', GETDATE(), NULL, '2025-03-07', 15, 17000.00, NULL, 6, 1);
 
 -- Insertar en la tabla [dbo].[linea_venta]
 INSERT INTO [dbo].[linea_venta] ([id], [createdAt], [updatedAt], [cantidad], [precioIndividual], [ventaId], [productoId])
@@ -2658,20 +2658,20 @@ VALUES
 (GETDATE(), NULL, 4000, 1, '00000000-0000-0000-0000-000000000005', 4);
 
 -- Insertar en la tabla [dbo].[comprobante]
-INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId], [condicionIvaCliente], [motivo])
+INSERT INTO [dbo].[comprobante] ([id], [createdAt], [updatedAt], [numeroComprobante], [CAE], [CAEFechaVencimiento], [fechaEmision], [tipoComprobante], [importeTotal], [ventaId], [facturaRelacionadaId], [motivo])
 VALUES 
-('00000000-0000-0000-0000-000000000001', GETDATE(), NULL, '0001-00000001', '12345678901234', '2025-06-01', '2025-03-01', 1, 18000.00, '00000000-0000-0000-0000-000000000001', NULL, 1, 'Observacion de venta 1'),
-('00000000-0000-0000-0000-000000000003', GETDATE(), NULL, '0001-00000003', '34567890123456', '2025-06-03', '2025-03-03', 1, 17850.00, '00000000-0000-0000-0000-000000000003', NULL, 6, NULL),
-('00000000-0000-0000-0000-000000000004', GETDATE(), NULL, '0001-00000004', '45678901234567', '2025-06-04', '2025-03-04', 6, 10800.00, '00000000-0000-0000-0000-000000000004', NULL, 5, NULL),
-('00000000-0000-0000-0000-000000000005', GETDATE(), NULL, '0001-00000005', '56789012345678', '2025-06-05', '2025-03-05', 1, 13950.00, '00000000-0000-0000-0000-000000000005', NULL, 1, NULL),
-('00000000-0000-0000-0000-000000000006', GETDATE(), NULL, '0001-00000006', '67890123456789', '2025-06-06', '2025-03-06', 6, 22500.00, '00000000-0000-0000-0000-000000000006', NULL, 5, 'Observacion de venta 6'),
-('00000000-0000-0000-0000-000000000007', GETDATE(), NULL, '0001-00000007', '78901234567890', '2025-06-07', '2025-03-07', 1, 14450.00, '00000000-0000-0000-0000-000000000007', NULL, 6, NULL),
+('00000000-0000-0000-0000-000000000001', GETDATE(), NULL, '0001-00000001', '12345678901234', '2025-06-01', '2025-03-01', 1, 18000.00, '00000000-0000-0000-0000-000000000001', NULL, 'Observacion de venta 1'),
+('00000000-0000-0000-0000-000000000003', GETDATE(), NULL, '0001-00000003', '34567890123456', '2025-06-03', '2025-03-03', 1, 17850.00, '00000000-0000-0000-0000-000000000003', NULL, NULL),
+('00000000-0000-0000-0000-000000000004', GETDATE(), NULL, '0001-00000004', '45678901234567', '2025-06-04', '2025-03-04', 6, 10800.00, '00000000-0000-0000-0000-000000000004', NULL, NULL),
+('00000000-0000-0000-0000-000000000005', GETDATE(), NULL, '0001-00000005', '56789012345678', '2025-06-05', '2025-03-05', 1, 13950.00, '00000000-0000-0000-0000-000000000005', NULL, NULL),
+('00000000-0000-0000-0000-000000000006', GETDATE(), NULL, '0001-00000006', '67890123456789', '2025-06-06', '2025-03-06', 6, 22500.00, '00000000-0000-0000-0000-000000000006', NULL, 'Observacion de venta 6'),
+('00000000-0000-0000-0000-000000000007', GETDATE(), NULL, '0001-00000007', '78901234567890', '2025-06-07', '2025-03-07', 1, 14450.00, '00000000-0000-0000-0000-000000000007', NULL, NULL),
 
 -- Notas de Crédito y Débito relacionadas a facturas
-('00000000-0000-0000-0000-000000000008', GETDATE(), NULL, '0001-00000008', '89012345678901', '2025-06-08', '2025-03-08', 3, 1500.00, NULL, '00000000-0000-0000-0000-000000000001', 1, 'Devolución por defecto'),
-('00000000-0000-0000-0000-000000000009', GETDATE(), NULL, '0001-00000009', '90123456789012', '2025-06-09', '2025-03-09', 2, 2000.00, NULL, '00000000-0000-0000-0000-000000000003', 5, 'Ajuste por error'),
-('00000000-0000-0000-0000-000000000010', GETDATE(), NULL, '0001-00000010', '01234567890123', '2025-06-10', '2025-03-10', 8, 1000.00, NULL, '00000000-0000-0000-0000-000000000004', 5, 'Descuento mal aplicado'),
-('00000000-0000-0000-0000-000000000011', GETDATE(), NULL, '0001-00000011', '12345678901234', '2025-06-11', '2025-03-11', 7, 500.00, NULL, '00000000-0000-0000-0000-000000000006', 5, 'Cargo adicional');
+('00000000-0000-0000-0000-000000000008', GETDATE(), NULL, '0001-00000008', '89012345678901', '2025-06-08', '2025-03-08', 3, 1500.00, NULL, '00000000-0000-0000-0000-000000000001', 'Devolución por defecto'),
+('00000000-0000-0000-0000-000000000009', GETDATE(), NULL, '0001-00000009', '90123456789012', '2025-06-09', '2025-03-09', 2, 2000.00, NULL, '00000000-0000-0000-0000-000000000003', 'Ajuste por error'),
+('00000000-0000-0000-0000-000000000010', GETDATE(), NULL, '0001-00000010', '01234567890123', '2025-06-10', '2025-03-10', 8, 1000.00, NULL, '00000000-0000-0000-0000-000000000004', 'Descuento mal aplicado'),
+('00000000-0000-0000-0000-000000000011', GETDATE(), NULL, '0001-00000011', '12345678901234', '2025-06-11', '2025-03-11', 7, 500.00, NULL, '00000000-0000-0000-0000-000000000006', 'Cargo adicional');
 
 -- Insertar en la tabla [dbo].[user]
 INSERT INTO [dbo].[user] ([createdAt], [updatedAt], [username], [nombre], [password], [role])
@@ -2682,7 +2682,14 @@ VALUES
 (GETDATE(), NULL, 'janedoe', 'Jane Doe', 'janedoe123', 'user');
 
 -- Insertar en la tabla [dbo].[token]
-INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnNpb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD0iMzY3NDUyNjQyNCIgZ2VuX3RpbWU9IjE3NDMzNzc1NjIiIGV4cF90aW1lPSIxNzQzNDIwODIyIi8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVudGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPSIyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo=','q8psvB1FyJmJnl/8pZSvMlqPbjoWtCG7FGnk49+BYmFg7BWA8kLcT+NHFdMwI7B/JN8/wvK2+CMhewMTBvR9WtrHfQDtXg2oOtEGk4/Y0IzYo9faDz/YwY7V0LeKc748XT20AbDXmsQSO/YXYHBU/y9pWENJjv7XBfA3VAHDC8o=','2025-03-31 08:33:42.9750000');
+INSERT INTO [dbo].[token] (id, token, sign, tokenExpiration) values (1,'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/Pgo8c3NvIHZlcnN
+pb249IjIuMCI+CiAgICA8aWQgc3JjPSJDTj13c2FhaG9tbywgTz1BRklQLCBDPUFSLCBTRVJJQUxOVU1CRVI9Q1VJVCAzMzY5MzQ1MDIzOSIgZHN0PSJDTj13c2ZlLCBPPUFGSVAsIEM9QVIiIHVuaXF1ZV9pZD
+0iMjg5NTQyNTA1NyIgZ2VuX3RpbWU9IjE3NDM2MTAzMTgiIGV4cF90aW1lPSIxNzQzNjUzNTc4Ii8+CiAgICA8b3BlcmF0aW9uIHR5cGU9ImxvZ2luIiB2YWx1ZT0iZ3JhbnRlZCI+CiAgICAgICAgPGxvZ2luIGVu
+dGl0eT0iMzM2OTM0NTAyMzkiIHNlcnZpY2U9IndzZmUiIHVpZD0iU0VSSUFMTlVNQkVSPUNVSVQgMjA0MDk2Njc0ODIsIENOPW9wdGljYWNyaWFkb3Rlc3RpbmciIGF1dGhtZXRob2Q9ImNtcyIgcmVnbWV0aG9kPS
+IyMiI+CiAgICAgICAgICAgIDxyZWxhdGlvbnM+CiAgICAgICAgICAgICAgICA8cmVsYXRpb24ga2
+V5PSIyMDQwOTY2NzQ4MiIgcmVsdHlwZT0iNCIvPgogICAgICAgICAgICA8L3JlbGF0aW9ucz4KICAgICAgICA8L2xvZ2luPgogICAgPC9vcGVyYXRpb24+Cjwvc3NvPgo='
+,'M0wlE+tVbZpqChOSWMIi0/A65T4lHnNNszIo9z8OAfETDpvXUaaqhI6+T1l2yJfwNJjKB0UtGOkepj++J1C0ZQibks5u0MAH/3VszKXeo1Tl//9G3aOyw9jkBsk7icmq9hAo9qep
+xMlYGNn28tRrZ8WVLFxByFPQgza5Aq3AN9U=','2025-04-03 01:12:58.3510000');
 
 -- Insertar en la tabla [dbo].[parametro]
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('AFIP_PTO_VTA', '12', GETDATE(), NULL);
@@ -2691,3 +2698,4 @@ INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values 
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('RAZON_SOCIAL_EMPRESA', 'Optica Criado S.A.', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('DOMICILIO_FISCAL_EMPRESA', 'Av. Corrientes 1234', GETDATE(), NULL);
 INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('CATEGORIA_FISCAL_EMPRESA', 'Responsable Inscripto', GETDATE(), NULL);
+INSERT INTO [dbo].[parametro] ([key], [value], [createdAt], [updatedAt]) values ('EMAIL_EMPRESA', 'optica.criado@gmail.com', GETDATE(), NULL);

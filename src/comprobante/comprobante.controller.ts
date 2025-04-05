@@ -9,16 +9,19 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { RelationTransactionalDTO } from 'src/common/dtos/relation-transactional.dto';
+import { EmailService } from 'src/comprobante/services/email.service';
 import { CrearComprobanteDTO } from './dto/create-comprobante.dto';
+import { EmailDataDTO } from './dto/email-data.dto';
 import { PaginateComprobanteDTO } from './dto/paginate-comprobante.dto';
 import { ComprobanteService } from './services/comprobante.service';
 import { GeneradorDocumentosService } from './services/generador-documentos.service';
-
 @Controller('comprobante')
 export class ComprobanteController {
   constructor(
     private readonly comprobanteService: ComprobanteService,
     private readonly generadorDocumentosService: GeneradorDocumentosService,
+    private readonly emailService: EmailService,
   ) {}
 
   @Get()
@@ -56,10 +59,18 @@ export class ComprobanteController {
   }
 
   @Post('imprimir')
-  @Header('Content-Type', 'application/json')
-  async imprimirFactura(@Body() data: any, @Res() res: Response) {
+  @Header('Content-Type', 'application/pdf')
+  async imprimirFactura(
+    @Body() data: RelationTransactionalDTO,
+    @Res() res: Response,
+  ) {
     const { pdfOriginal, pdfDuplicado } =
       await this.generadorDocumentosService.imprimirFactura(data);
-    res.send({ pdfOriginal, pdfDuplicado });
+    res.send(pdfOriginal);
+  }
+
+  @Post('email')
+  async enviarEmail(@Body() data: EmailDataDTO) {
+    return this.emailService.sendEmail(data);
   }
 }
