@@ -180,13 +180,13 @@ export class CuentaCorrienteService {
       }
 
       const cuentaCorriente = await em.findOne(CuentaCorriente, {
-        where: { id: clienteId },
+        where: { cliente: { id: clienteId } },
         relations: ['movimientos'],
       });
 
       if (!cuentaCorriente) {
         throw new NotFoundException(
-          `Cuenta corriente con id ${clienteId} no encontrada`,
+          `Cuenta corriente con cliente ${clienteId} no encontrada`,
         );
       }
 
