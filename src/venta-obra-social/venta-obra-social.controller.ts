@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { VentaObraSocialService } from './venta-obra-social.service';
 
 @Controller('os')
@@ -8,7 +8,15 @@ export class VentaObraSocialController {
   ) {}
 
   @Get('reporte')
-  async getReporteOS() {
-    return this.ventaObraSocialService.getReporteOS();
+  async getReporteOS(
+    @Query('obraSocialId') obraSocialId: number,
+    @Query('fechaDesde') fechaDesde: string,
+    @Query('fechaHasta') fechaHasta: string,
+  ) {
+    return this.ventaObraSocialService.getReporteOS(
+      obraSocialId,
+      fechaDesde,
+      fechaHasta,
+    );
   }
 }
