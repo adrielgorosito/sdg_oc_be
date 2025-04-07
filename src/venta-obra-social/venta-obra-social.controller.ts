@@ -1,7 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { VentaObraSocialService } from './venta-obra-social.service';
 
-@Controller('venta-obra-social')
+@Controller('os')
 export class VentaObraSocialController {
-  constructor(private readonly ventaObraSocialService: VentaObraSocialService) {}
+  constructor(
+    private readonly ventaObraSocialService: VentaObraSocialService,
+  ) {}
+
+  @Get('reporte')
+  async getReporteOS() {
+    return this.ventaObraSocialService.getReporteOS();
+  }
 }
