@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ObraSocial } from '../obra-social/entities/obra-social.entity';
 import { VentaObraSocial } from './entities/venta-obra-social.entity';
 @Injectable()
@@ -23,35 +23,6 @@ export class VentaObraSocialService {
     fechaHasta?: string,
   ) {
     try {
-      const query = this.ventaObraSocialRepository
-        .createQueryBuilder('ventaObraSocial')
-        .select('ventaObraSocial.obraSocialId', 'obraSocialId')
-        .addSelect('ventaObraSocial.condicionIVA', 'condicionIVA')
-        .addSelect('SUM(ventaObraSocial.importe)', 'suma_importe')
-        .innerJoin('ventaObraSocial.venta', 'venta')
-        .groupBy('ventaObraSocial.obraSocialId')
-        .addGroupBy('ventaObraSocial.condicionIVA');
-
-      const queryImportes = this.ventaObraSocialRepository
-        .createQueryBuilder('ventaObraSocial')
-        .select('ventaObraSocial.importe', 'importe')
-        .addSelect('ventaObraSocial.condicionIVA', 'condicionIVA')
-        .addSelect('ventaObraSocial.obraSocialId', 'obraSocialId')
-        .addSelect('venta.fecha', 'fecha')
-        .addSelect('cliente.nombre', 'nombre')
-        .addSelect('cliente.apellido', 'apellido')
-        .innerJoin('ventaObraSocial.venta', 'venta')
-        .innerJoin('venta.cliente', 'cliente');
-
-      if (obraSocialId) {
-        query.andWhere('ventaObraSocial.obraSocialId = :obraSocialId', {
-          obraSocialId,
-        });
-        queryImportes.andWhere('ventaObraSocial.obraSocialId = :obraSocialId', {
-          obraSocialId,
-        });
-      }
-      // Filtro por fecha
       let fechaInicio: Date;
       let fechaFin: Date;
 
@@ -63,7 +34,6 @@ export class VentaObraSocialService {
         }
         fechaInicio = parse(fechaDesde, 'yyyy-MM-dd', new Date());
       } else {
-        // Si no se proporciona fechaDesde, usamos un mes anterior como predeterminado
         fechaInicio = new Date();
         fechaInicio.setMonth(fechaInicio.getMonth() - 1);
       }
@@ -77,76 +47,130 @@ export class VentaObraSocialService {
         fechaFin = parse(fechaHasta, 'yyyy-MM-dd', new Date());
       }
 
+      const whereParams: Record<string, any> = {};
+      if (obraSocialId) whereParams.obraSocialId = obraSocialId;
+      if (fechaInicio) whereParams.fechaInicio = fechaInicio;
+      if (fechaFin) whereParams.fechaFin = fechaFin;
+
+      // Query agregada
+      const query = this.ventaObraSocialRepository
+        .createQueryBuilder('ventaObraSocial')
+        .select('ventaObraSocial.obraSocialId', 'obraSocialId')
+        .addSelect('ventaObraSocial.condicionIVA', 'condicionIVA')
+        .addSelect('SUM(ventaObraSocial.importe)', 'suma_importe')
+        .innerJoin('ventaObraSocial.venta', 'venta')
+        .groupBy('ventaObraSocial.obraSocialId')
+        .addGroupBy('ventaObraSocial.condicionIVA');
+
+      if (whereParams.obraSocialId) {
+        query.andWhere(
+          'ventaObraSocial.obraSocialId = :obraSocialId',
+          whereParams,
+        );
+      }
       if (fechaInicio && fechaFin) {
-        query.andWhere('venta.fecha BETWEEN :fechaInicio AND :fechaFin', {
-          fechaInicio,
-          fechaFin,
-        });
-        queryImportes.andWhere(
+        query.andWhere(
           'venta.fecha BETWEEN :fechaInicio AND :fechaFin',
-          {
-            fechaInicio,
-            fechaFin,
-          },
+          whereParams,
         );
       } else if (fechaInicio) {
-        query.andWhere('venta.fecha >= :fechaInicio', { fechaInicio });
-        queryImportes.andWhere('venta.fecha >= :fechaInicio', { fechaInicio });
+        query.andWhere('venta.fecha >= :fechaInicio', whereParams);
       } else if (fechaFin) {
-        query.andWhere('venta.fecha <= :fechaFin', { fechaFin });
-        queryImportes.andWhere('venta.fecha <= :fechaFin', { fechaFin });
+        query.andWhere('venta.fecha <= :fechaFin', whereParams);
       }
-      const resultado = await query.getRawMany();
-      const resultadoImportes = await queryImportes.getRawMany();
 
-      const resultadoProcesado = new Map();
-      const resultadoProcesadoImportes = new Map();
+      const queryImportes = this.ventaObraSocialRepository
+        .createQueryBuilder('ventaObraSocial')
+        .select([
+          'ventaObraSocial.importe AS importe',
+          'ventaObraSocial.condicionIVA AS condicionIVA',
+          'ventaObraSocial.obraSocialId AS obraSocialId',
+          'venta.fecha AS fecha',
+          'cliente.nombre AS nombre',
+          'cliente.apellido AS apellido',
+        ])
+        .innerJoin('ventaObraSocial.venta', 'venta')
+        .innerJoin('venta.cliente', 'cliente');
 
-      resultadoImportes.forEach((item) => {
-        if (!resultadoProcesadoImportes.has(item.obraSocialId)) {
-          resultadoProcesadoImportes.set(item.obraSocialId, {
-            movimientos: [],
-          });
+      if (whereParams.obraSocialId) {
+        queryImportes.andWhere(
+          'ventaObraSocial.obraSocialId = :obraSocialId',
+          whereParams,
+        );
+      }
+      if (fechaInicio && fechaFin) {
+        queryImportes.andWhere(
+          'venta.fecha BETWEEN :fechaInicio AND :fechaFin',
+          whereParams,
+        );
+      } else if (fechaInicio) {
+        queryImportes.andWhere('venta.fecha >= :fechaInicio', whereParams);
+      } else if (fechaFin) {
+        queryImportes.andWhere('venta.fecha <= :fechaFin', whereParams);
+      }
+
+      const [resultado, resultadoImportes] = await Promise.all([
+        query.getRawMany(),
+        queryImportes.getRawMany(),
+      ]);
+
+      const movimientosMap = new Map<string, any>();
+
+      for (const item of resultadoImportes) {
+        const key = `${item.obraSocialId}-${item.condicionIVA}`;
+        if (!movimientosMap.has(key)) {
+          movimientosMap.set(key, []);
         }
-        resultadoProcesadoImportes.get(item.obraSocialId).movimientos.push({
+        movimientosMap.get(key).push({
           fecha: item.fecha,
           nombreCliente: item.nombre,
           apellidoCliente: item.apellido,
           importe: item.importe,
           condicionIVA: item.condicionIVA,
         });
-      });
-
-      console.log(resultadoProcesadoImportes);
-
-      for (const item of resultado) {
-        if (!resultadoProcesado.has(item.obraSocialId)) {
-          const obraSocial = await this.obraSocialRepository.findOne({
-            where: { id: item.obraSocialId },
-          });
-          resultadoProcesado.set(item.obraSocialId, {
-            obraSocial: { ...obraSocial, condicionesIVA: [] },
-          });
-        }
-
-        const movimientos = resultadoProcesadoImportes
-          .get(item.obraSocialId)
-          .movimientos.filter(
-            (movimiento) => movimiento.condicionIVA === item.condicionIVA,
-          );
-
-        resultadoProcesado
-          .get(item.obraSocialId)
-          .obraSocial.condicionesIVA.push({
-            condicionIVA: item.condicionIVA,
-            suma_importe: item.suma_importe,
-            movimientos: movimientos ?? [],
-          });
       }
 
-      return Array.from(resultadoProcesado.values());
+      // Obtenemos todas las obras sociales en una sola query
+      const obrasSocialesIds = [
+        ...new Set(resultado.map((r) => r.obraSocialId)),
+      ];
+      const obrasSociales = await this.obraSocialRepository.findBy({
+        id: In(obrasSocialesIds),
+      });
+
+      // Creamos un mapa para acceso rápido
+      const obrasSocialesMap = new Map(obrasSociales.map((o) => [o.id, o]));
+
+      const resultadoProcesado = [];
+
+      for (const item of resultado) {
+        const obraSocial = obrasSocialesMap.get(item.obraSocialId);
+        const key = `${item.obraSocialId}-${item.condicionIVA}`;
+        const movimientos = movimientosMap.get(key) ?? [];
+
+        let entrada = resultadoProcesado.find(
+          (r) => r.obraSocial.id === item.obraSocialId,
+        );
+
+        if (!entrada) {
+          entrada = {
+            obraSocial: { ...obraSocial, condicionesIVA: [] },
+          };
+          resultadoProcesado.push(entrada);
+        }
+
+        entrada.obraSocial.condicionesIVA.push({
+          condicionIVA: item.condicionIVA,
+          suma_importe: item.suma_importe,
+          movimientos,
+        });
+      }
+
+      return resultadoProcesado;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(
+        'Error al obtener el reporte de ventas por obra social' + error.message,
+      );
     }
   }
 }
