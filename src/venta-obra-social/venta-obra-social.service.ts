@@ -86,6 +86,7 @@ export class VentaObraSocialService {
           'ventaObraSocial.condicionIVA AS condicionIVA',
           'ventaObraSocial.obraSocialId AS obraSocialId',
           'venta.fecha AS fecha',
+          'venta.id AS ventaId',
           'cliente.nombre AS nombre',
           'cliente.apellido AS apellido',
         ])
@@ -127,6 +128,7 @@ export class VentaObraSocialService {
           apellidoCliente: item.apellido,
           importe: item.importe,
           condicionIVA: item.condicionIVA,
+          ventaId: item.ventaId,
         });
       }
 
