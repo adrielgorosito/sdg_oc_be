@@ -45,14 +45,15 @@ export class CuentaCorrienteService {
           },
         );
       }
+      console.log(estado);
 
-      if (estado && estado === 0) {
+      if (estado === 0) {
+        console.log('entra');
+
         queryBuilder.andWhere('cuentaCorriente.saldo >= 0');
       }
 
-      if (estado && estado === 1) {
-        console.log('entra');
-
+      if (estado === 1) {
         queryBuilder.andWhere('cuentaCorriente.saldo < 0');
       }
 
