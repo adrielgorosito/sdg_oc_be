@@ -35,6 +35,9 @@ export class CajaService {
               fecha: fechaParam,
             }),
           },
+          order: {
+            fechaMovimiento: 'DESC',
+          },
         })
       ).map((movimiento) => {
         const mov = {

@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { ClienteService } from 'src/cliente/cliente.service';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { EmailDataDTO } from '../dto/email-data.dto';
 import { GeneradorDocumentosService } from './generador-documentos.service';
@@ -18,7 +17,6 @@ export class EmailService {
   constructor(
     private readonly parametroService: ParametrosService,
     private readonly generadorDocumentosService: GeneradorDocumentosService,
-    private readonly clienteService: ClienteService,
     private readonly configService: ConfigService,
   ) {
     this.gmailUser = this.configService.get<string>('GMAIL_USER');
@@ -58,7 +56,7 @@ export class EmailService {
 
         const emailResponse = await this.transporter.sendMail({
           from: `"${razonSocialEmpresa}" <${this.gmailUser}>`,
-          to: 'chat.banbra@gmail.com', //emailTo,
+          to: emailTo,
           subject: 'Factura',
           html: `
           <h1>Hola, ${cliente.nombre}!</h1>
