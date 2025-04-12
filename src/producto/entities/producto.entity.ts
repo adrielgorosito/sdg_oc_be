@@ -7,7 +7,7 @@ import { CategoriaEnum } from '../enums/categoria.enum';
 
 @Entity()
 export class Producto extends BaseEntity {
-  @Column()
+  @Column({ unique: true })
   codProv: string;
 
   @Column()

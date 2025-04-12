@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { AfipError, AfipErrorType } from 'src/comprobante/errors/afip.errors';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
@@ -36,7 +37,19 @@ export class VentaService {
         queryRunner,
         createVentaDto,
       );
-      const factura = await this.processFacturaTransaction(venta);
+      let factura;
+      try {
+        throw new AfipError(
+          'Error al crear la factura',
+          500,
+          AfipErrorType.AUTH,
+        );
+        factura = await this.processFacturaTransaction(venta);
+      } catch (error) {
+        factura = {
+          error: error.message,
+        };
+      }
 
       delete factura.venta;
       delete factura.facturaRelacionada;
@@ -251,15 +264,8 @@ export class VentaService {
   }
 
   private async processFacturaTransaction(venta: Venta) {
-    try {
-      const factura = await this.comprobanteService.crearComprobante(
-        null,
-        venta,
-      );
-      return factura;
-    } catch (error) {
-      this.handleTransactionError(error);
-    }
+    const factura = await this.comprobanteService.crearComprobante(null, venta);
+    return factura;
   }
 
   private calcularImporte(venta: Venta) {
