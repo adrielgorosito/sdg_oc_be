@@ -18,9 +18,9 @@ import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago
 import { CreateVentaObraSocialDTO } from 'src/venta-obra-social/dto/create-venta-obra-social.dto';
 
 export class CreateVentaDTO extends BaseTransactionalDTO {
-  @IsNotEmpty()
+  @IsOptional()
   @IsDate()
-  fecha: Date;
+  fecha?: Date = new Date();
 
   @IsString()
   @IsOptional()
@@ -53,6 +53,7 @@ export class CreateVentaDTO extends BaseTransactionalDTO {
   @IsOptional()
   observaciones: string;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested()
   @Type(() => CreateVentaObraSocialDTO)

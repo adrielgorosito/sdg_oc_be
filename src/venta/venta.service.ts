@@ -296,6 +296,10 @@ export class VentaService {
     queryRunner: QueryRunner,
     createVentaDto: CreateVentaDTO,
   ) {
+    if (!createVentaDto.ventaObraSocial) {
+      return [];
+    }
+
     const obraSocialesIds = createVentaDto.ventaObraSocial.map(
       (vos) => vos.obraSocial.id,
     );
@@ -314,9 +318,11 @@ export class VentaService {
     createVentaDto: CreateVentaDTO,
     obraSociales: ObraSocial[],
   ): Venta {
-    createVentaDto.ventaObraSocial.forEach((vos) => {
-      vos.obraSocial = obraSociales.find((os) => os.id === vos.obraSocial.id);
-    });
+    if (createVentaDto.ventaObraSocial) {
+      createVentaDto.ventaObraSocial.forEach((vos) => {
+        vos.obraSocial = obraSociales.find((os) => os.id === vos.obraSocial.id);
+      });
+    }
 
     return this.dataSource.manager.create(Venta, createVentaDto);
   }

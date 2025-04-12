@@ -16,7 +16,6 @@ import { TipoMovimiento } from '../enums/tipo-movimiento.enum';
 export class CreateMovimientoDTO extends BaseDTO {
   @IsNotEmpty()
   @IsEnum(TipoMovimiento)
-  @ValidateFormaPagoMovimiento()
   tipoMovimiento: TipoMovimiento;
 
   @IsNotEmpty()
@@ -25,6 +24,7 @@ export class CreateMovimientoDTO extends BaseDTO {
 
   @IsOptional()
   @IsEnum(TipoMedioDePagoEnum)
+  @ValidateFormaPagoMovimiento()
   formaPago?: TipoMedioDePagoEnum;
 
   @IsEnum(RedDePago)

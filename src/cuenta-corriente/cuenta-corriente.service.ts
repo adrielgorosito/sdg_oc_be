@@ -45,11 +45,8 @@ export class CuentaCorrienteService {
           },
         );
       }
-      console.log(estado);
 
       if (estado === 0) {
-        console.log('entra');
-
         queryBuilder.andWhere('cuentaCorriente.saldo >= 0');
       }
 
@@ -223,9 +220,11 @@ export class CuentaCorrienteService {
           tipoMovimiento: movimientoDTO.tipoMovimiento,
           formaPago: movimientoDTO.formaPago,
           redDePago: movimientoDTO.redDePago,
+          detalle: TipoMovimiento.PAGO,
         });
         if (movimientoDTO.tipoMovimiento === TipoMovimiento.DEVOLUCION) {
           caja.importe = caja.importe * -1;
+          caja.detalle = TipoMovimiento.DEVOLUCION;
         }
 
         await this.cajaService.createMovimientoCaja([caja], em);
