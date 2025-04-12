@@ -1,16 +1,17 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Producto } from '../entities/producto.entity';
-import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
-import { Marca } from 'src/marca/entities/marca.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as ExcelJS from 'exceljs';
+import { Marca } from 'src/marca/entities/marca.entity';
+import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
+import { Repository } from 'typeorm';
+import { Producto } from '../entities/producto.entity';
 import { CategoriaEnum } from '../enums/categoria.enum';
+import { generarCodigoProv } from './generador-codigo';
 
 @Injectable()
 export class ExcelService {
@@ -50,7 +51,7 @@ export class ExcelService {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(file.buffer);
 
-      const productos: Producto[] = this.getTemplate(workbook).map(
+      const productos: Producto[] = (await this.getTemplate(workbook)).map(
         (producto) => ({
           ...producto,
           proveedor: proveedorExistente,
@@ -69,12 +70,21 @@ export class ExcelService {
     }
   }
 
-  private getTemplate(workbook: ExcelJS.Workbook): any[] {
+  private async getTemplate(workbook: ExcelJS.Workbook): Promise<any[]> {
     const productos: Partial<Producto>[] = [];
     const worksheet = workbook.getWorksheet('Productos');
+    const codProvExistentes = [];
+
+    const productosExistentes = (
+      await this.productoRepository.find({
+        select: {
+          codProv: true,
+        },
+      })
+    ).map((producto) => producto.codProv);
 
     for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
-      const codProv = this.getPlainText(
+      let codProv = this.getPlainText(
         worksheet.getRow(rowNumber).getCell(1).value,
       );
       const descripcion = this.getPlainText(
@@ -90,10 +100,18 @@ export class ExcelService {
         Number(this.getPlainText(worksheet.getRow(rowNumber).getCell(5).value)),
       );
 
-      if (!codProv || !descripcion || !categoria || !precioLista || !precio) {
+      if (!descripcion || !categoria || !precioLista || !precio) {
         throw new BadRequestException(
           'El archivo contiene productos con valores nulos en campos obligatorios',
         );
+      }
+
+      if (codProv) {
+        if (productosExistentes.includes(codProv)) {
+          codProvExistentes.push(codProv);
+        }
+      } else {
+        codProv = generarCodigoProv();
       }
 
       const categoriaKey = Object.keys(CategoriaEnum).find(
@@ -109,6 +127,18 @@ export class ExcelService {
         precioLista: Math.round(Number(precioLista)),
         precio: Math.round(Number(precio)),
       });
+    }
+
+    if (codProvExistentes.length > 0) {
+      if (codProvExistentes.length === 1) {
+        throw new BadRequestException(
+          `El código de proveedor ${codProvExistentes[0]} ya existe`,
+        );
+      } else {
+        throw new BadRequestException(
+          `Los siguientes códigos de proveedor ya existen: ${codProvExistentes.join(', ')}`,
+        );
+      }
     }
 
     return productos;

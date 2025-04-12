@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -12,6 +13,7 @@ import { PaginateProductoDTO } from './dto/paginate-producto.dto';
 import { UpdatePrecioProductoDTO } from './dto/update-precio-producto.dto';
 import { UpdateProductoDTO } from './dto/update-producto.dto';
 import { Producto } from './entities/producto.entity';
+import { generarCodigoProv } from './utils/generador-codigo';
 
 @Injectable()
 export class ProductoService {
@@ -127,6 +129,22 @@ export class ProductoService {
 
   async create(productoDTO: CreateProductoDTO) {
     try {
+      if (productoDTO.codProv) {
+        const productoExistente = await this.productoRepository.findOne({
+          where: {
+            codProv: productoDTO.codProv,
+          },
+        });
+
+        if (productoExistente) {
+          throw new BadRequestException(
+            `El producto con código de proveedor ${productoDTO.codProv} ya existe`,
+          );
+        }
+      } else {
+        productoDTO.codProv = generarCodigoProv();
+      }
+
       const marcaExistente: Marca = await this.marcaRepository.findOne({
         where: { id: productoDTO.marca.id },
       });

@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsObject,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -12,8 +13,8 @@ import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CategoriaEnum } from '../enums/categoria.enum';
 
 export class CreateProductoDTO extends BaseDTO {
-  @IsNotEmpty()
   @IsString()
+  @IsOptional()
   codProv: string;
 
   @IsNotEmpty()
