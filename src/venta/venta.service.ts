@@ -40,11 +40,6 @@ export class VentaService {
 
       let factura;
       try {
-        throw new AfipError(
-          'Error al crear la factura',
-          500,
-          AfipErrorType.AUTH,
-        );
         factura = await this.processFacturaTransaction(venta);
       } catch (error) {
         factura = {
