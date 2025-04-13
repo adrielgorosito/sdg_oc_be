@@ -239,7 +239,7 @@ export class CajaService {
     return fecha;
   }
 
-  @Cron('0 41 18 * * *')
+  @Cron('0 59 23 * * *')
   async handleCron() {
     const apertura = await this.findAperturaDelDia(null);
     const cierre = await this.findCierreDelDia(null);

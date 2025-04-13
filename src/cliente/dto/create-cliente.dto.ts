@@ -17,7 +17,6 @@ import { ValidateTipoDocumento } from 'src/common/decorators/validate-tipo-docum
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
 import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
-import { CreateCuentaCorrienteDTO } from 'src/cuenta-corriente/dto/create-cuenta-corriente.dto';
 
 export class CreateClienteDTO extends BaseDTO {
   @ValidateDocumento()
@@ -75,10 +74,6 @@ export class CreateClienteDTO extends BaseDTO {
   @ValidateNested()
   @Type(() => CreateClienteObraSocialDTO)
   clienteObrasSociales: CreateClienteObraSocialDTO[];
-
-  @ValidateNested()
-  @Type(() => CreateCuentaCorrienteDTO)
-  cuentaCorriente: CreateCuentaCorrienteDTO;
 
   @IsOptional()
   @IsObject()
