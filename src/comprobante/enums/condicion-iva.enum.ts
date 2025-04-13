@@ -1,0 +1,8 @@
+export enum CondicionIva {
+  RESPONSABLE_INSCRIPTO = 1,
+  EXENTO = 4,
+  CONSUMIDOR_FINAL = 5,
+  MONOTRIBUTISTA = 6,
+  GRAVADO = 7,
+  NO_GRAVADO = 8,
+}
