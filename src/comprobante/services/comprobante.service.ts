@@ -99,9 +99,7 @@ export class ComprobanteService {
       });
 
       if (comprobantes.length === 0) {
-        throw new NotFoundException(
-          `No se encontraron comprobantes para el cliente con clienteId ${clienteId}`,
-        );
+        return [];
       }
 
       return comprobantes;
@@ -346,7 +344,6 @@ export class ComprobanteService {
       if (!venta) {
         throw new NotFoundException('La venta no existe');
       }
-      console.log(venta);
 
       if (venta.factura) {
         const comprobantes = await this.comprobanteRepository.find({

@@ -37,6 +37,7 @@ export class VentaService {
         queryRunner,
         createVentaDto,
       );
+
       let factura;
       try {
         throw new AfipError(
