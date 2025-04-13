@@ -4,8 +4,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
 import {
   RedDePago,
   TipoMedioDePagoEnum,
@@ -14,7 +14,6 @@ import { Venta } from 'src/venta/entities/venta.entity';
 import { EntityManager, Raw, Repository } from 'typeorm';
 import { CreateCajaDTO } from './dto/create-caja.dto';
 import { Caja } from './entities/caja.entity';
-
 @Injectable()
 export class CajaService {
   constructor(
@@ -40,14 +39,8 @@ export class CajaService {
           },
         })
       ).map((movimiento) => {
-        const mov = {
-          ...movimiento,
-          fechaMovimiento: fechaParam,
-        };
-
-        delete mov.id;
-
-        return mov;
+        delete movimiento.id;
+        return movimiento;
       });
 
       const ventas = await this.ventaRepository.find({
@@ -62,10 +55,15 @@ export class CajaService {
       });
 
       const mediosDePago = ventas
-        .flatMap((venta) => venta.mediosDePago)
+        .flatMap((venta) =>
+          venta.mediosDePago.map((mp) => ({
+            ...mp,
+            fecha: venta.fecha,
+          })),
+        )
         .map((mediopago) => {
           return {
-            fechaMovimiento: fechaParam,
+            fechaMovimiento: mediopago.fecha,
             detalle: 'VENTA',
             importe: mediopago.importe,
             formaPago: mediopago.tipoMedioDePago,
@@ -203,14 +201,20 @@ export class CajaService {
         if (!apertura) {
           throw new BadRequestException('No hubo apertura del día');
         }
+
+        if (createCajaDTO.detalle === 'CIERRE') {
+          const cierre = await this.findCierreDelDia(null);
+
+          if (cierre) {
+            throw new BadRequestException('Ya hubo un cierre del día');
+          }
+        }
       } else {
-        /*  const fechaDiaAnterior = subDays(new Date(), 1);
+        const apertura = await this.findAperturaDelDia(null);
 
-        const cierreDiaAnterior = await this.findCierreDelDia(fechaDiaAnterior);
-
-        if (!cierreDiaAnterior) {
-          throw new BadRequestException('No hubo cierre del día anterior');
-        } */
+        if (apertura) {
+          throw new BadRequestException('Ya hubo una apertura del día');
+        }
       }
       const caja = this.cajaRepository.create(createCajaDTO);
       caja.formaPago = TipoMedioDePagoEnum.EFECTIVO;
@@ -223,30 +227,28 @@ export class CajaService {
     }
   }
 
-  private async validarAperturaCierreDelDia(fechaParam: Date) {
-    const apertura = await this.findAperturaDelDia(fechaParam);
-    const cierre = await this.findCierreDelDia(fechaParam);
-
-    return apertura && cierre;
-  }
-
   private async validarFormatoFecha(fechaParam?: Date) {
     let fecha: Date;
     if (!fechaParam) {
-      fecha = parse(
-        new Date().toISOString().split('T')[0],
-        'yyyy-MM-dd',
-        new Date(),
-      );
+      fecha = new Date();
+      fecha.setHours(0, 0, 0, 0);
     } else {
-      if (fechaParam.toString().split('T')[0].split('-').length === 3) {
-        fecha = parse(fechaParam.toString(), 'yyyy-MM-dd', new Date());
-      } else if (fechaParam.toString().split('-')[2].length === 2) {
-        fecha = parse(fechaParam.toString(), 'yyyy-MM-dd', new Date());
-      } else {
-        throw new BadRequestException('El formato de la fecha es inválido');
-      }
+      fecha = new Date(new Date(fechaParam).setUTCHours(3, 0, 0, 0));
     }
+
     return fecha;
+  }
+
+  @Cron('0 41 18 * * *')
+  async handleCron() {
+    const apertura = await this.findAperturaDelDia(null);
+    const cierre = await this.findCierreDelDia(null);
+
+    if (apertura && !cierre) {
+      await this.extraccionIngresoDinero({
+        detalle: 'CIERRE',
+        importe: 0,
+      });
+    }
   }
 }
