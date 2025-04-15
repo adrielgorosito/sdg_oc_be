@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
+import { createHash } from 'crypto';
 import { UserService } from 'src/user/user.service';
 import { SignInDTO } from './dto/signin.dto';
 import { SignUpDTO } from './dto/signup.dto';
@@ -23,8 +23,7 @@ export class AuthService {
         signInDto.username,
       );
 
-      const encryptedPassword = crypto
-        .createHash('sha256')
+      const encryptedPassword = createHash('sha256')
         .update(signInDto.password)
         .digest('hex');
 
@@ -53,8 +52,7 @@ export class AuthService {
 
   async signUp(signUpDto: SignUpDTO) {
     try {
-      const encryptedPassword = crypto
-        .createHash('sha256')
+      const encryptedPassword = createHash('sha256')
         .update(signUpDto.password)
         .digest('hex');
 
