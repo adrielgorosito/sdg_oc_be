@@ -410,7 +410,7 @@ export class ComprobanteService {
         ),
       },
     );
-    // Determine whether this is a factura or a nota to set the correct relationships
+
     const isFactura = this.isFactura(dto.tipoComprobante);
     const isNota = this.isNota(dto.tipoComprobante);
 
@@ -594,7 +594,8 @@ class FacturaProcessor extends ComprobanteProcessor {
     descuentoEmpresa: number;
   } {
     const importeDescuentoObraSocial =
-      venta.ventaObraSocial.reduce((total, vos) => total + vos.importe, 0) || 0;
+      venta.ventaObraSocial?.reduce((total, vos) => total + vos.importe, 0) ||
+      0;
 
     const importeVentaSegunLineasDeVenta = venta.lineasDeVenta.reduce(
       (total, linea) => total + linea.precioIndividual * linea.cantidad,
