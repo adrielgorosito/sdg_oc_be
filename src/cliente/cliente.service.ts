@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ClienteObraSocial } from 'src/cliente-obra-social/entities/cliente-obra-social.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
 import { RecetaLentesAereos } from 'src/receta-lentes-aereos/entities/receta-lentes-aereos.entity';
@@ -22,10 +21,8 @@ export class ClienteService {
   constructor(
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
-    @InjectRepository(ClienteObraSocial)
-    private readonly cosRepository: Repository<Cliente>,
     @InjectRepository(ObraSocial)
-    private readonly obraSocialRepository: Repository<Cliente>,
+    private readonly obraSocialRepository: Repository<ObraSocial>,
   ) {}
 
   async findAll(paginateClienteDTO: PaginateClienteDTO) {
@@ -206,7 +203,7 @@ export class ClienteService {
           (cos) => cos.obraSocial.id,
         );
 
-        const obrasSocialesExistentes = await this.cosRepository.count({
+        const obrasSocialesExistentes = await this.obraSocialRepository.count({
           where: { id: In(obraSocialIds) },
         });
 
@@ -245,7 +242,7 @@ export class ClienteService {
           (cos) => cos.obraSocial.id,
         );
 
-        const obrasSocialesExistentes = await this.cosRepository.count({
+        const obrasSocialesExistentes = await this.obraSocialRepository.count({
           where: { id: In(obraSocialIds) },
         });
 
