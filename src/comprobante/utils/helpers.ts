@@ -1,7 +1,6 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { add, compareAsc, format } from 'date-fns';
 import { XMLParser } from 'fast-xml-parser';
-import { promises as fs } from 'fs';
 import * as forge from 'node-forge';
 import { NtpTimeSync } from 'ntp-time-sync';
 import {
@@ -9,7 +8,6 @@ import {
   AfipValidationError,
   AfipXMLError,
 } from '../errors/afip.errors';
-import { IConfigService } from '../interfaces/IConfigServices';
 import {
   IDatosAfip,
   IFECAESolicitarResult,
@@ -27,9 +25,6 @@ import {
   PREFIX_ENVELOPE_LOGIN,
   PREFIX_ENVELOPE_SERVICE,
 } from './afip.constantes';
-
-export const readFile = fs.readFile;
-export const writeFile = fs.writeFile;
 
 export function isExpired(expireStr: string): boolean {
   const now = new Date();
@@ -285,18 +280,6 @@ export async function getNetworkHour(): Promise<Date> {
   }
 }
 
-export async function readStringFromFile(
-  path: string,
-  encoding: BufferEncoding = 'utf8',
-): Promise<string> {
-  try {
-    return (await readFile(path)).toString(encoding);
-  } catch (error) {
-    throw new InternalServerErrorException(
-      `Error al leer el archivo ${path}: ${error}`,
-    );
-  }
-}
 export function objectToXml(obj: any): string {
   return Object.entries(obj)
     .map(([key, value]) => {
@@ -323,10 +306,12 @@ export function parseXmlResponse(xmlString: string) {
 
 export async function signMessage(
   message: string,
-  config: IConfigService,
+  configService: ConfigService,
 ): Promise<string> {
-  const privateKey = await readStringFromFile(config.privateKeyPath);
-  const certPem = await readStringFromFile(config.certPath);
+  /* const privateKey = await readStringFromFile(config.privateKeyPath);
+  const certPem = await readStringFromFile(config.certPath); */
+  const privateKey = configService.get('AFIP_PRIVATE_KEY');
+  const certPem = configService.get('AFIP_CERT');
   const p7 = forge.pkcs7.createSignedData();
 
   p7.content = forge.util.createBuffer(message, 'utf8');

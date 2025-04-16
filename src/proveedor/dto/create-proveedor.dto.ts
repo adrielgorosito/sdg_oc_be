@@ -2,10 +2,9 @@ import {
   IsArray,
   IsEmail,
   IsNotEmpty,
-  IsNumberString,
+  IsNumber,
   IsOptional,
   IsString,
-  Length,
 } from 'class-validator';
 import { BaseDTO } from 'src/common/dtos/base.dto';
 import { RelationDTO } from 'src/common/dtos/relation.dto';
@@ -15,8 +14,7 @@ export class CreateProveedorDTO extends BaseDTO {
   productos: RelationDTO[];
 
   @IsNotEmpty()
-  @IsNumberString()
-  @Length(10, 11)
+  @IsNumber()
   cuit: number;
 
   @IsNotEmpty()
