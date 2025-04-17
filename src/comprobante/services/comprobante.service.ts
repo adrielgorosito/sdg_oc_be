@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { CrearComprobanteDTO } from '../dto/create-comprobante.dto';
 import { PaginateComprobanteDTO } from '../dto/paginate-comprobante.dto';
 import { Comprobante } from '../entities/comprobante.entity';
+import { CondicionIva } from '../enums/condicion-iva.enum';
 import { TipoComprobante } from '../enums/tipo-comprobante.enum';
 import { AfipAuthError, AfipError, AfipErrorType } from '../errors/afip.errors';
 import {
@@ -71,13 +72,13 @@ export class ComprobanteService {
       ? mapeoTipoComprobanteSegunCondicionIvaCliente[venta.condicionIva][0]
       : comprobanteDTO.tipoComprobante;
 
-    const processor = this.getComprobanteProcessor(tipoComprobante);
-
     if (!comprobanteDTO) {
       comprobanteDTO = {
         tipoComprobante,
       };
     }
+
+    const processor = this.getComprobanteProcessor(tipoComprobante);
     const datosComprobantes = await processor.processDatos(
       comprobanteDTO,
       venta,
@@ -410,7 +411,7 @@ export class ComprobanteService {
         ),
       },
     );
-    // Determine whether this is a factura or a nota to set the correct relationships
+
     const isFactura = this.isFactura(dto.tipoComprobante);
     const isNota = this.isNota(dto.tipoComprobante);
 
@@ -553,7 +554,12 @@ class FacturaProcessor extends ComprobanteProcessor {
 
     const importeAFacturar = this.calculateImportes(venta);
 
-    await this.validateImportes(importeAFacturar, venta.mediosDePago);
+    if (
+      venta.condicionIva === CondicionIva.CONSUMIDOR_FINAL &&
+      venta.cliente.id === 0
+    ) {
+      await this.validateImportes(importeAFacturar, venta.mediosDePago);
+    }
 
     dto.importeTotal = importeAFacturar.importeAFacturar;
     const datosComprobante = await crearDatosFactura(
@@ -588,13 +594,15 @@ class FacturaProcessor extends ComprobanteProcessor {
       throw new BadRequestException('La venta ya tiene una factura');
     }
   }
-  private calculateImportes(venta: Venta): {
+
+  public calculateImportes(venta: Venta): {
     importeAFacturar: number;
     importeDescuentoObraSocial: number;
     descuentoEmpresa: number;
   } {
     const importeDescuentoObraSocial =
-      venta.ventaObraSocial.reduce((total, vos) => total + vos.importe, 0) || 0;
+      venta.ventaObraSocial?.reduce((total, vos) => total + vos.importe, 0) ||
+      0;
 
     const importeVentaSegunLineasDeVenta = venta.lineasDeVenta.reduce(
       (total, linea) => total + linea.precioIndividual * linea.cantidad,

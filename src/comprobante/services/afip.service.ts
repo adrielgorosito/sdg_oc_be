@@ -26,12 +26,6 @@ import {
 
 @Injectable()
 export class AfipService {
-  private readonly soapConfig = {
-    homo: process.env.NODE_ENV === 'production' ? false : true,
-    certPath: this.configService.get('AFIP_CERT_PATH'),
-    privateKeyPath: this.configService.get('AFIP_PRIVATE_KEY_PATH'),
-    tokensExpireInHours: this.configService.get('AFIP_TOKENS_EXPIRE_IN_HOURS'),
-  };
   private token: string | null;
   private sign: string | null;
   private tokenExpiration: Date | null;
@@ -116,7 +110,7 @@ export class AfipService {
   public async getTokensFromNetwork(): Promise<ILoginResponse> {
     const signedData = await signMessage(
       await generateLoginXml(),
-      this.soapConfig,
+      this.configService,
     );
 
     const tokenCredentials = (await this.execMethod(
