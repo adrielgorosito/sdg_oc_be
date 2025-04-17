@@ -54,6 +54,9 @@ export class AfipDocumentService {
         facturaRelacionada.venta.condicionIva,
       );
 
+    if (!dto.importeTotal) {
+      dto.importeTotal = facturaRelacionada.importeTotal;
+    }
     const importes = AfipDocumentService.calculateImportes(dto.importeTotal);
     const numeroComprobante = parseInt(
       facturaRelacionada.numeroComprobante.split('-')[1],
@@ -261,7 +264,6 @@ class DocumentPrinter {
     const cliente =
       comprobante.venta?.cliente ??
       comprobante.facturaRelacionada?.venta?.cliente;
-    console.log(cliente);
 
     if (DocumentPrinter.isNota(comprobante)) {
       return {

@@ -1,20 +1,20 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateAudiometriaDTO } from './dto/create-audiometria.dto';
-import { UpdateAudiometriaDTO } from './dto/update-audiometria.dto';
-import { Audiometria } from './entities/audiometria.entity';
-import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { ConfigService } from '@nestjs/config';
-import { validate } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
-import { promises as fs } from 'fs';
-import { join } from 'path';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { promises as fs } from 'fs';
+import { join } from 'path';
+import { Cliente } from 'src/cliente/entities/cliente.entity';
+import { Repository } from 'typeorm';
+import { CreateAudiometriaDTO } from './dto/create-audiometria.dto';
+import { UpdateAudiometriaDTO } from './dto/update-audiometria.dto';
+import { Audiometria } from './entities/audiometria.entity';
 
 @Injectable()
 export class AudiometriaService {
@@ -140,7 +140,6 @@ export class AudiometriaService {
         if (audiometriaExistente.linkPDF) {
           try {
             const filePath = join(uploadDir, audiometriaExistente.linkPDF);
-            console.log('FILEPATH: ' + filePath);
             await fs.unlink(filePath);
           } catch (error) {
             throw new Error('Error eliminando PDF anterior: ' + error.message);

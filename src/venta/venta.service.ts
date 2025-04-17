@@ -7,9 +7,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { AfipError, AfipErrorType } from 'src/comprobante/errors/afip.errors';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
+import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
@@ -245,6 +245,9 @@ export class VentaService {
       );
 
       const nuevaVenta = this.prepareVenta(createVentaDto, obraSociales);
+
+      await this.validateImportes(nuevaVenta, nuevaVenta.mediosDePago);
+
       nuevaVenta.importe = this.calcularImporte(nuevaVenta);
       await this.handleCuentaCorriente(queryRunner, nuevaVenta, cliente);
 
@@ -269,7 +272,6 @@ export class VentaService {
       (acc, curr) => acc + curr.precioIndividual * curr.cantidad,
       0,
     );
-
     return importeLineasDeVenta;
   }
 
@@ -357,5 +359,39 @@ export class VentaService {
       throw error;
     }
     throw error;
+  }
+
+  private async validateImportes(
+    venta: Venta,
+    mediosDePago: CreateMedioDePagoDto[],
+  ) {
+    const importeDescuentoObraSocial =
+      venta.ventaObraSocial?.reduce((total, vos) => total + vos.importe, 0) ||
+      0;
+
+    const importeVentaSegunLineasDeVenta = venta.lineasDeVenta.reduce(
+      (total, linea) => total + linea.precioIndividual * linea.cantidad,
+      0,
+    );
+
+    const descuentoEmpresa =
+      (importeVentaSegunLineasDeVenta - importeDescuentoObraSocial) *
+      (venta.descuentoPorcentaje / 100);
+
+    const importeAFacturar =
+      importeVentaSegunLineasDeVenta -
+      importeDescuentoObraSocial -
+      descuentoEmpresa;
+
+    const importeMediosDePago = mediosDePago.reduce(
+      (total, medio) => total + medio.importe,
+      0,
+    );
+
+    if (importeMediosDePago !== importeAFacturar) {
+      throw new BadRequestException(
+        'El importe de los medios de pago no es igual al importe a facturar',
+      );
+    }
   }
 }
