@@ -194,7 +194,11 @@ export class GeneradorDocumentosService {
   ) {
     const tableTop = 230;
 
-    if (data.tipoComprobante === 'FACTURA A') {
+    if (
+      data.tipoComprobante === 'FACTURA A' ||
+      data.tipoComprobante === 'NOTA DE CRÉDITO A' ||
+      data.tipoComprobante === 'NOTA DE DÉBITO A'
+    ) {
       doc
         .font('Helvetica-Bold')
         .fontSize(10)
@@ -263,6 +267,27 @@ export class GeneradorDocumentosService {
 
           yPosition += 25;
         });
+      } else {
+        const importe = new Decimal(data.importeTotal);
+        const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);
+        doc
+          .font('Helvetica')
+          .fontSize(10)
+          .text(
+            `${data.tipoComprobante} ${data.motivo ? '-' : ''} ${data?.motivo ?? ''}`,
+            50,
+            yPosition,
+          )
+          .text('1', 297, yPosition)
+          .text(`$${importeNeto.toFixed(2)}`, 375, yPosition, {
+            align: 'right',
+            width: 80,
+          })
+          .text('21%', 475, yPosition)
+          .font('Helvetica-Bold')
+          .text(`$${importe.toFixed(2)}`, 485, yPosition, {
+            align: 'right',
+          });
       }
     } else {
       doc
@@ -311,7 +336,11 @@ export class GeneradorDocumentosService {
         doc
           .font('Helvetica')
           .fontSize(10)
-          .text(`${data.tipoComprobante} - ${data.motivo}`, 50, yPosition)
+          .text(
+            `${data.tipoComprobante} ${data.motivo ? '-' : ''} ${data?.motivo ?? ''}`,
+            50,
+            yPosition,
+          )
           .text('1', 350, yPosition)
           .text(`$${data.importeTotal.toFixed(2)}`, 500, yPosition, {
             align: 'right',
@@ -330,7 +359,11 @@ export class GeneradorDocumentosService {
     const importeNeto = importe.dividedBy(1.21).toDecimalPlaces(2);
     const importeIVA = importe.minus(importeNeto).toDecimalPlaces(2);
 
-    if (data.tipoComprobante === 'FACTURA B') {
+    if (
+      data.tipoComprobante === 'FACTURA B' ||
+      data.tipoComprobante === 'NOTA DE CRÉDITO B' ||
+      data.tipoComprobante === 'NOTA DE DÉBITO B'
+    ) {
       doc
         .font('Helvetica-Bold')
         .fontSize(12)
@@ -381,7 +414,11 @@ export class GeneradorDocumentosService {
           align: 'right',
           width: 100,
         });
-    } else if (data.tipoComprobante === 'FACTURA A') {
+    } else if (
+      data.tipoComprobante === 'FACTURA A' ||
+      data.tipoComprobante === 'NOTA DE CRÉDITO A' ||
+      data.tipoComprobante === 'NOTA DE DÉBITO A'
+    ) {
       doc
         .font('Helvetica-Bold')
         .fontSize(12)
@@ -407,6 +444,29 @@ export class GeneradorDocumentosService {
           align: 'left',
         })
         .text(`${importe.toFixed(2)}`, 400, 575, {
+          align: 'right',
+        });
+    } else {
+      doc
+        .font('Helvetica-Bold')
+        .fontSize(12)
+        .text('Subtotal: $', 390, 515, {
+          align: 'left',
+        })
+        .text(`${importe.toFixed(2)}`, 400, 515, {
+          align: 'right',
+        })
+
+        .text('Importe Otros Tributos: $', 310, 535, {
+          align: 'left',
+        })
+        .text(`0,00`, 400, 535, {
+          align: 'right',
+        })
+        .text('Importe Total: $', 365, 555, {
+          align: 'left',
+        })
+        .text(`${importe.toFixed(2)}`, 400, 555, {
           align: 'right',
         });
     }

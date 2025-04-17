@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CajaModule } from 'src/caja/caja.module';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { ComprobanteModule } from 'src/comprobante/comprobante.module';
 import { Comprobante } from 'src/comprobante/entities/comprobante.entity';
@@ -32,6 +33,7 @@ import { VentaService } from './venta.service';
     ProductoModule,
     ComprobanteModule,
     CuentaCorrienteModule,
+    CajaModule,
   ],
   controllers: [VentaController],
   providers: [VentaService],

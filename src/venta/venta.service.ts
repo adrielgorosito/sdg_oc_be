@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
+import { CajaService } from 'src/caja/caja.service';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
-import { AfipError, AfipErrorType } from 'src/comprobante/errors/afip.errors';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
+import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
@@ -26,6 +27,7 @@ export class VentaService {
     private readonly ventaRepository: Repository<Venta>,
     private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
+    private readonly cajaService: CajaService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -37,6 +39,12 @@ export class VentaService {
         queryRunner,
         createVentaDto,
       );
+
+      if (!(await this.cajaService.findAperturaDelDia(null))) {
+        throw new BadRequestException(
+          'No se puede crear una venta ya que no se hizo la apertura del día',
+        );
+      }
 
       let factura;
       try {
@@ -245,6 +253,9 @@ export class VentaService {
       );
 
       const nuevaVenta = this.prepareVenta(createVentaDto, obraSociales);
+
+      await this.validateImportes(nuevaVenta, nuevaVenta.mediosDePago);
+
       nuevaVenta.importe = this.calcularImporte(nuevaVenta);
       await this.handleCuentaCorriente(queryRunner, nuevaVenta, cliente);
 
@@ -269,7 +280,6 @@ export class VentaService {
       (acc, curr) => acc + curr.precioIndividual * curr.cantidad,
       0,
     );
-
     return importeLineasDeVenta;
   }
 
@@ -357,5 +367,39 @@ export class VentaService {
       throw error;
     }
     throw error;
+  }
+
+  private async validateImportes(
+    venta: Venta,
+    mediosDePago: CreateMedioDePagoDto[],
+  ) {
+    const importeDescuentoObraSocial =
+      venta.ventaObraSocial?.reduce((total, vos) => total + vos.importe, 0) ||
+      0;
+
+    const importeVentaSegunLineasDeVenta = venta.lineasDeVenta.reduce(
+      (total, linea) => total + linea.precioIndividual * linea.cantidad,
+      0,
+    );
+
+    const descuentoEmpresa =
+      (importeVentaSegunLineasDeVenta - importeDescuentoObraSocial) *
+      (venta.descuentoPorcentaje / 100);
+
+    const importeAFacturar =
+      importeVentaSegunLineasDeVenta -
+      importeDescuentoObraSocial -
+      descuentoEmpresa;
+
+    const importeMediosDePago = mediosDePago.reduce(
+      (total, medio) => total + medio.importe,
+      0,
+    );
+
+    if (importeMediosDePago !== importeAFacturar) {
+      throw new BadRequestException(
+        'El importe de los medios de pago no es igual al importe a facturar',
+      );
+    }
   }
 }
