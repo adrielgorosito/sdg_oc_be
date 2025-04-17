@@ -27,6 +27,7 @@ import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lent
 import { UserModule } from './user/user.module';
 import { VentaObraSocialModule } from './venta-obra-social/venta-obra-social.module';
 import { VentaModule } from './venta/venta.module';
+import { OcrModule } from './ocr/ocr.module';
 @Module({
   providers: [
     {
@@ -92,6 +93,7 @@ import { VentaModule } from './venta/venta.module';
     VentaObraSocialModule,
     CommonsModule,
     ParametrosModule,
+    OcrModule,
   ],
 })
 export class AppModule {}
