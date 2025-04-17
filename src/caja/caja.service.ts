@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -153,8 +152,7 @@ export class CajaService {
 
       return apertura;
     } catch (error) {
-      if (error instanceof NotFoundException)
-        throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 

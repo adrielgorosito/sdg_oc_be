@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { parse } from 'date-fns';
+import { CajaService } from 'src/caja/caja.service';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
 import { CuentaCorrienteService } from 'src/cuenta-corriente/cuenta-corriente.service';
@@ -26,6 +27,7 @@ export class VentaService {
     private readonly ventaRepository: Repository<Venta>,
     private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
+    private readonly cajaService: CajaService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -37,6 +39,12 @@ export class VentaService {
         queryRunner,
         createVentaDto,
       );
+
+      if (!(await this.cajaService.findAperturaDelDia(null))) {
+        throw new BadRequestException(
+          'No se puede crear una venta ya que no se hizo la apertura del día',
+        );
+      }
 
       let factura;
       try {

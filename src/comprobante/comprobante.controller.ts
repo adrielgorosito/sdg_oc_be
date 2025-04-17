@@ -63,10 +63,11 @@ export class ComprobanteController {
   async imprimirFactura(
     @Body() data: RelationTransactionalDTO,
     @Res() res: Response,
+    @Query('duplicado') duplicado: number,
   ) {
     const { pdfOriginal, pdfDuplicado } =
       await this.generadorDocumentosService.imprimirFactura(data);
-    res.send(pdfOriginal);
+    res.send(duplicado ? pdfDuplicado : pdfOriginal);
   }
 
   @Post('email')
