@@ -35,16 +35,17 @@ export class VentaService {
 
     try {
       await queryRunner.connect();
-      const venta = await this.processVentaTransaction(
-        queryRunner,
-        createVentaDto,
-      );
 
       if (!(await this.cajaService.findAperturaDelDia(null))) {
         throw new BadRequestException(
           'No se puede crear una venta ya que no se hizo la apertura del día',
         );
       }
+
+      const venta = await this.processVentaTransaction(
+        queryRunner,
+        createVentaDto,
+      );
 
       let factura;
       try {

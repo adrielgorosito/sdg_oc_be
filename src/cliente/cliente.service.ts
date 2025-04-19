@@ -181,6 +181,32 @@ export class ClienteService {
     }
   }
 
+  async findFrecuentes() {
+    try {
+      return await this.clienteRepository
+        .createQueryBuilder('cliente')
+        .select([
+          'cliente.id',
+          'cliente.nombre',
+          'cliente.apellido',
+          'COUNT(venta.id) as ventas_count',
+        ])
+        .leftJoin('cliente.ventas', 'venta')
+        .groupBy('cliente.id')
+        .addGroupBy('cliente.nombre')
+        .addGroupBy('cliente.apellido')
+        .orderBy('ventas_count', 'DESC')
+        .addOrderBy('cliente.apellido', 'ASC')
+        .addOrderBy('cliente.nombre', 'ASC')
+        .limit(10)
+        .getRawMany();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al obtener los clientes más frecuentes: ' + error.message,
+      );
+    }
+  }
+
   async create(createClienteDto: CreateClienteDTO) {
     try {
       const clienteExistente = await this.clienteRepository.findOne({
