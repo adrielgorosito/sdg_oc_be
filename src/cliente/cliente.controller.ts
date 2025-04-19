@@ -36,6 +36,11 @@ export class ClienteController {
     return this.clienteService.findByNroDocumento(nroDocumento, tipoDocumento);
   }
 
+  @Get('get/frecuentes/')
+  findFrecuentes() {
+    return this.clienteService.findFrecuentes();
+  }
+
   @Post()
   create(@Body() createClienteDto: CreateClienteDTO) {
     return this.clienteService.create(createClienteDto);

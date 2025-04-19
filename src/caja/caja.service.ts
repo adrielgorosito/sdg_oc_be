@@ -70,7 +70,26 @@ export class CajaService {
           };
         });
 
-      const cajaFinal = [...movimientos, ...mediosDePago];
+      const cajaFinalUnsorted = [...movimientos, ...mediosDePago];
+
+      const cierre = cajaFinalUnsorted.find((mov) => mov.detalle === 'CIERRE');
+      const apertura = cajaFinalUnsorted.find(
+        (mov) => mov.detalle === 'APERTURA',
+      );
+
+      const ventasYMovimientos = cajaFinalUnsorted
+        .filter((mov) => mov.detalle !== 'CIERRE' && mov.detalle !== 'APERTURA')
+        .sort(
+          (a, b) =>
+            new Date(b.fechaMovimiento).getTime() -
+            new Date(a.fechaMovimiento).getTime(),
+        );
+
+      const cajaFinal = [
+        ...(cierre ? [cierre] : []),
+        ...ventasYMovimientos,
+        ...(apertura ? [apertura] : []),
+      ];
 
       const cajaEfectivo = cajaFinal
         .filter(
