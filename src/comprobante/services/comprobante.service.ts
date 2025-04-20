@@ -348,21 +348,9 @@ export class ComprobanteService {
 
       if (venta.factura) {
         const comprobantes = await this.comprobanteRepository.find({
-          where: [
-            { facturaRelacionada: venta.factura },
-            { id: venta.factura.id },
-          ],
+          where: [{ facturaRelacionada: { id: venta.factura.id } }],
           relations: {
-            venta: {
-              lineasDeVenta: true,
-              cliente: true,
-            },
-            facturaRelacionada: {
-              venta: {
-                lineasDeVenta: true,
-                cliente: true,
-              },
-            },
+            facturaRelacionada: true,
           },
         });
 
