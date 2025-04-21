@@ -38,10 +38,10 @@ export class CuentaCorrienteService {
 
       if (filtro) {
         queryBuilder.andWhere(
-          '(CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento)',
+          '(CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombre OR cliente.nroDocumento LIKE :nroDocumento)',
           {
-            nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
-            nroDocumento: `%${filtro}%`,
+            nombre: `%${filtro.replace(' ', '').trim()}%`,
+            nroDocumento: `%${filtro.trim()}%`,
           },
         );
       }

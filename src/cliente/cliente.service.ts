@@ -56,29 +56,29 @@ export class ClienteService {
 
       if (filtro) {
         queryBuilder.andWhere(
-          '(CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre) OR cliente.nroDocumento LIKE :nroDocumento)',
+          '(CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombre OR cliente.nroDocumento  LIKE :nroDocumento)',
           {
-            nombre: `%${filtro.toLowerCase().replace(' ', '').trim()}%`,
-            nroDocumento: `%${filtro}%`,
+            nombre: `%${filtro.replace(' ', '').trim()}%`,
+            nroDocumento: `%${filtro.trim()}%`,
           },
         );
       }
       if (genero) {
-        queryBuilder.andWhere('cliente.sexo LIKE :genero', {
-          genero: `%${genero.toLowerCase().trim()}%`,
+        queryBuilder.andWhere('cliente.sexo = :genero', {
+          genero: `%${genero.trim()}%`,
         });
       }
       if (nombre) {
         queryBuilder.andWhere(
-          'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombre)',
+          'CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombre',
           {
-            nombre: `%${nombre.toLowerCase().replace(' ', '').trim()}%`,
+            nombre: `%${nombre.replace(' ', '').trim()}%`,
           },
         );
       }
       if (nroDocumento) {
         queryBuilder.andWhere('cliente.nroDocumento LIKE :nroDocumento', {
-          nroDocumento: `%${nroDocumento}%`,
+          nroDocumento: `%${nroDocumento.trim()}%`,
         });
       }
       if (localidadId) {
@@ -88,20 +88,15 @@ export class ClienteService {
         queryBuilder.andWhere('provincia.id = :provinciaId', { provinciaId });
       }
       if (nombreLocalidad) {
-        queryBuilder.andWhere(
-          'LOWER(localidad.nombre) LIKE LOWER(:nombreLocalidad)',
-          {
-            nombreLocalidad: `%${nombreLocalidad.toLowerCase().trim()}%`,
-          },
-        );
+        queryBuilder.andWhere('localidad.nombre = :nombreLocalidad', {
+          nombreLocalidad: `%${nombreLocalidad.trim()}%`,
+        });
       }
       if (nombreProvincia) {
-        queryBuilder.andWhere(
-          'LOWER(localidad.nombre) LIKE LOWER(:nombreProvincia)',
-          {
-            nombreProvincia: `%${nombreProvincia.toLowerCase().trim()}%`,
-          },
-        );
+        // Corregido: Debería buscar en provincia.nombre, no en localidad.nombre
+        queryBuilder.andWhere('provincia.nombre = :nombreProvincia', {
+          nombreProvincia: `%${nombreProvincia.trim()}%`,
+        });
       }
 
       const [items, total] = await queryBuilder.getManyAndCount();
@@ -220,7 +215,7 @@ export class ClienteService {
 
       if (clienteExistente) {
         throw new BadRequestException(
-          'Ya existe un cliente con ese Numero de Documento',
+          'Ya existe un cliente con ese Número de Documento',
         );
       }
 

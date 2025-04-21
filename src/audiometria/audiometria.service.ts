@@ -40,6 +40,9 @@ export class AudiometriaService {
 
   async findOne(id: number): Promise<Audiometria> {
     try {
+      if (!id) {
+        throw new BadRequestException('El id es requerido');
+      }
       const audiometria = await this.audiometriaRepository.findOne({
         where: { id },
         relations: { cliente: true },

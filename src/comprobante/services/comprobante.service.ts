@@ -97,6 +97,9 @@ export class ComprobanteService {
           venta: { cliente: true },
           facturaRelacionada: { venta: { cliente: true } },
         },
+        order: {
+          fechaEmision: 'DESC',
+        },
       });
 
       if (comprobantes.length === 0) {
@@ -131,13 +134,17 @@ export class ComprobanteService {
       .leftJoinAndSelect('comprobante.facturaRelacionada', 'facturaRelacionada')
       .leftJoinAndSelect('facturaRelacionada.venta', 'ventaRelacionada')
       .leftJoinAndSelect('ventaRelacionada.cliente', 'clienteRelacionada')
+      .orderBy('comprobante.fechaEmision', 'DESC')
       .take(limit)
       .skip(offset);
 
     if (nombreCliente) {
-      queryBuilder.andWhere('cliente.nombre LIKE :nombreCliente', {
-        nombreCliente: `%${nombreCliente}%`,
-      });
+      queryBuilder.andWhere(
+        'cliente.nombre COLLATE Latin1_General_CI_AI LIKE :nombreCliente',
+        {
+          nombreCliente: `%${nombreCliente}%`,
+        },
+      );
     }
 
     if (nroDocumento) {
@@ -226,6 +233,7 @@ export class ComprobanteService {
       .leftJoinAndSelect('comprobante.facturaRelacionada', 'facturaRelacionada')
       .leftJoinAndSelect('facturaRelacionada.venta', 'ventaRelacionada')
       .leftJoinAndSelect('ventaRelacionada.cliente', 'clienteRelacionada')
+      .orderBy('comprobante.fechaEmision', 'DESC')
       .take(limit)
       .skip(offset);
 
@@ -318,6 +326,9 @@ export class ComprobanteService {
             },
           },
         },
+        order: {
+          fechaEmision: 'DESC',
+        },
       });
 
       if (!comprobante) {
@@ -351,6 +362,9 @@ export class ComprobanteService {
           where: [{ facturaRelacionada: { id: venta.factura.id } }],
           relations: {
             facturaRelacionada: true,
+          },
+          order: {
+            fechaEmision: 'DESC',
           },
         });
 

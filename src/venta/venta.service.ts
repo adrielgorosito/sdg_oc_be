@@ -41,6 +41,11 @@ export class VentaService {
           'No se puede crear una venta ya que no se hizo la apertura del día',
         );
       }
+      if (await this.cajaService.findCierreDelDia(null)) {
+        throw new BadRequestException(
+          'No se puede crear una venta ya que se hizo el cierre del día',
+        );
+      }
 
       const venta = await this.processVentaTransaction(
         queryRunner,
@@ -95,9 +100,9 @@ export class VentaService {
 
       if (nombreCliente) {
         queryBuilder.andWhere(
-          'CONCAT(LOWER(cliente.nombre), LOWER(cliente.apellido)) LIKE LOWER(:nombreCliente)',
+          'CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente',
           {
-            nombreCliente: `%${nombreCliente.toLowerCase().replace(' ', '').trim()}%`,
+            nombreCliente: `%${nombreCliente.replace(' ', '').trim()}%`,
           },
         );
       }

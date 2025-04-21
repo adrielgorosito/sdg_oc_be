@@ -1,18 +1,18 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AudiometriaService } from './audiometria.service';
 import { CreateAudiometriaDTO } from './dto/create-audiometria.dto';
 import { UpdateAudiometriaDTO } from './dto/update-audiometria.dto';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
 
 @Controller('audiometria')
 export class AudiometriaController {
