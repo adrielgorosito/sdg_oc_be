@@ -22,11 +22,8 @@ export function ValidateDocumento(validationOptions?: ValidationOptions) {
 
           return true;
         },
-        defaultMessage(args: any) {
-          const { tipoDocumento } = args.object;
-          return tipoDocumento === TipoDocumento.DNI
-            ? 'Número de DNI inválido'
-            : 'Número de CUIT inválido';
+        defaultMessage() {
+          return 'Número de documento inválido';
         },
       },
     });

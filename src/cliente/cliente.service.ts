@@ -163,7 +163,7 @@ export class ClienteService {
 
       if (!cliente) {
         throw new NotFoundException(
-          `Cliente con nroDocumento ${nroDocumento} y tipoDocumento ${tipoDocumento} no encontrado`,
+          `Cliente con Número Documento ${nroDocumento} y Tipo Documento ${tipoDocumento} no encontrado`,
         );
       }
 
@@ -242,7 +242,7 @@ export class ClienteService {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException(
-        'Error al crear el cliente' + error,
+        'Error al crear el cliente' + error.message,
       );
     }
   }
