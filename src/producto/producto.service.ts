@@ -50,30 +50,29 @@ export class ProductoService {
 
       if (categoria) {
         queryBuilder.andWhere(
-          'LOWER(producto.categoria) LIKE LOWER(:categoria)',
-          { categoria: `%${categoria.toLowerCase().trim()}%` },
+          'producto.categoria COLLATE Latin1_General_CI_AI LIKE :categoria',
+          { categoria: `%${categoria.trim()}%` },
         );
       }
       if (descripcion) {
         queryBuilder.andWhere(
-          'LOWER(producto.descripcion) LIKE LOWER(:descripcion)',
-          { descripcion: `%${descripcion.toLowerCase().trim()}%` },
+          'producto.descripcion COLLATE Latin1_General_CI_AI LIKE :descripcion',
+          { descripcion: `%${descripcion.trim()}%` },
         );
       }
       if (nombreMarca) {
-        queryBuilder.andWhere('LOWER(marca.nombre) LIKE LOWER(:nombreMarca)', {
-          nombreMarca: `%${nombreMarca.toLowerCase().trim()}%`,
-        });
+        queryBuilder.andWhere(
+          'marca.nombre COLLATE Latin1_General_CI_AI LIKE :nombreMarca',
+          { nombreMarca: `%${nombreMarca.trim()}%` },
+        );
       }
       if (marcaId) {
         queryBuilder.andWhere('marca.id = :marcaId', { marcaId });
       }
       if (razonSocialProveedor) {
         queryBuilder.andWhere(
-          'LOWER(proveedor.razonSocial) LIKE LOWER(:razonSocialProveedor)',
-          {
-            razonSocialProveedor: `%${razonSocialProveedor.toLowerCase().trim()}%`,
-          },
+          'proveedor.razonSocial COLLATE Latin1_General_CI_AI LIKE :razonSocialProveedor',
+          { razonSocialProveedor: `%${razonSocialProveedor.trim()}%` },
         );
       }
       if (proveedorId) {
@@ -81,10 +80,8 @@ export class ProductoService {
       }
       if (filtro) {
         queryBuilder.andWhere(
-          'LOWER(producto.descripcion) LIKE LOWER(:filtro) OR LOWER(marca.nombre) LIKE LOWER(:filtro) OR LOWER(proveedor.razonSocial) LIKE LOWER(:filtro) OR LOWER(producto.categoria) LIKE LOWER(:filtro)',
-          {
-            filtro: `%${filtro.toLowerCase().trim()}%`,
-          },
+          'producto.descripcion COLLATE Latin1_General_CI_AI LIKE :filtro OR marca.nombre COLLATE Latin1_General_CI_AI LIKE :filtro OR proveedor.razonSocial COLLATE Latin1_General_CI_AI LIKE :filtro OR producto.categoria COLLATE Latin1_General_CI_AI LIKE :filtro OR producto.codProv COLLATE Latin1_General_CI_AI LIKE :filtro',
+          { filtro: `%${filtro.trim()}%` },
         );
       }
 

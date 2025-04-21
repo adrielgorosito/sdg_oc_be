@@ -5,8 +5,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { constants } from 'crypto';
-import fetch from 'node-fetch';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { Repository } from 'typeorm';
 import { Token } from '../entities/token.entity';
@@ -135,18 +133,9 @@ export class AfipService {
 
     const content = generateSoapRequest(method, params);
 
-    const https = await import('https');
-
-    const agent = new https.Agent({
-      secureOptions: constants.SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION,
-    });
-
     const response = await fetch(
       method === WsServicesNamesEnum.LoginCms ? getLoginURL() : getServiceURL(),
-      {
-        ...content,
-        agent,
-      },
+      content,
     );
     if (!response.ok) {
       throw new ServiceUnavailableException(

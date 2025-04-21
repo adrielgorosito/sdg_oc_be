@@ -18,10 +18,9 @@ export class UploadService {
       }
       return filePath;
     } catch (error) {
-      if (error.code === 'ENOENT')
-        throw new NotFoundException('Archivo no encontrado');
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
-        'Error al obtener el archivo: ' + error,
+        'Error al obtener el archivo: ' + error.message,
       );
     }
   }

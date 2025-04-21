@@ -197,9 +197,13 @@ export class CajaService {
   async createMovimientoCaja(cajas: Caja[], entityManager: EntityManager) {
     try {
       const apertura = await this.findAperturaDelDia(null);
+      const cierre = await this.findCierreDelDia(null);
 
       if (!apertura) {
         throw new BadRequestException('No hubo apertura del día');
+      }
+      if (cierre) {
+        throw new BadRequestException('Ya hubo un cierre del día');
       }
 
       await entityManager.save(Caja, cajas);
@@ -219,12 +223,10 @@ export class CajaService {
           throw new BadRequestException('No hubo apertura del día');
         }
 
-        if (createCajaDTO.detalle === 'CIERRE') {
-          const cierre = await this.findCierreDelDia(null);
+        const cierre = await this.findCierreDelDia(null);
 
-          if (cierre) {
-            throw new BadRequestException('Ya hubo un cierre del día');
-          }
+        if (cierre) {
+          throw new BadRequestException('Ya hubo un cierre del día');
         }
       } else {
         const apertura = await this.findAperturaDelDia(null);
