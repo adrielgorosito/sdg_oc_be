@@ -23,7 +23,7 @@ export class OcrService {
       }
 
       const fullText = textAnnotations[0].description;
-      const lines = fullText.split('\n');
+      const lines = fullText.split('\n').filter((line) => line.trim() !== '');
 
       console.log('=== TEXTO DETECTADO ===');
       lines.forEach((line, i) => {
@@ -37,173 +37,211 @@ export class OcrService {
     }
   }
 
-  // FINAL: anda para la foto de Lu
   private processOptometryText(lines: string[]): any {
-    const oftalmometriaLines = [lines[5], lines[6], lines[8], lines[11]];
-    const graduacionLines = [lines[2], lines[3]];
-    const visionBinocularLines = [lines[17], lines[18]];
-
     const result = {
-      oftalmometria: {
-        OD: [] as string[],
-        OI: [] as string[],
-      },
-      graduacion_con_gafas: {
-        OD: '',
-        OI: '',
-      },
-      vision_binocular: {
-        OD: '',
-        OI: '',
-      },
+      oftalmometria: { OD: [], OI: [] },
+      observaciones: '',
     };
 
-    // Procesar oftalmometría (ya funciona perfecto)
-    this.processOftalmometria(oftalmometriaLines, result);
+    // 1. Procesar oftalmometría (Keratometría) - Versión mejorada
+    this.processKeratometry(lines, result.oftalmometria);
 
-    // Procesar graduación con correcciones específicas
-    result.graduacion_con_gafas.OD = this.formatGraduacionOD(
-      graduacionLines[0],
-    );
-    result.graduacion_con_gafas.OI = this.formatGraduacionOI(
-      graduacionLines[1],
-    );
+    // 2. Procesar graduación con gafas - Versión mejorada
+    const graduacion = this.processGraduacion(lines);
 
-    // Procesar visión binocular con correcciones específicas
-    result.vision_binocular.OD = this.formatVisionBinocularOD(
-      visionBinocularLines[0],
-    );
-    result.vision_binocular.OI = this.formatVisionBinocularOI(
-      visionBinocularLines[1],
-    );
+    // 3. Procesar visión binocular - Versión mejorada
+    const vision = this.processVision(lines);
 
-    console.log('\n=== RESULTADO POR SECCIONES ===');
-    console.log(JSON.stringify(result, null, 2));
+    // Construir observaciones
+    result.observaciones = `graduacion_con_gafas:
+    OD: ${graduacion.OD || 'No detectado'}
+    OI: ${graduacion.OI || 'No detectado'}
+    vision_binocular:
+    OD: ${vision.OD || 'No detectado'}
+    OI: ${vision.OI || 'No detectado'}`;
 
     return result;
   }
 
-  private processOftalmometria(lines: string[], result: any): void {
-    // (Mantener el mismo código que ya funciona)
-    if (lines[0].includes('OD') || lines[0].includes('O.D')) {
-      const odParts = lines[0].split(/\s+/);
-      const odValue1 = odParts[odParts.length - 1];
-      const odValue2 = lines[1].trim();
+  private processKeratometry(lines: string[], result: any) {
+    // Primero buscamos las líneas que contienen OD/OI y sus valores
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
 
-      result.oftalmometria.OD.push(this.validateNumber(odValue1));
-      result.oftalmometria.OD.push(this.validateNumber(odValue2));
-    }
+      // Detección para OD (Ojo Derecho)
+      if (/(?:0\.D|OD|O\.D|O\.O)/i.test(line)) {
+        // Buscamos los dos valores en la misma línea o en la siguiente
+        const currentLineMatch = line.match(
+          /(?:0\.D|OD|O\.D)[^\d]*(\d{2})(?:[^\d]*(\d{2}))?/i,
+        );
 
-    const oiTags = ['OI', 'O.I', '01', '0I', 'O1'];
-    if (oiTags.some((tag) => lines[2].includes(tag))) {
-      const oiParts = lines[2].split(/\s+/);
-      const oiValue1 = oiParts[oiParts.length - 1];
-      const oiValue2 = lines[3].trim();
-
-      result.oftalmometria.OI.push(this.validateNumber(oiValue1));
-      result.oftalmometria.OI.push(this.validateNumber(oiValue2));
-    }
-  }
-
-  private validateNumber(value: string): string {
-    return /^-?\d*\.?\d+$/.test(value) ? value : '';
-  }
-
-  private formatGraduacionOD(text: string): string {
-    // Caso especial para OD: "-400-275-180" → "-4,00 -2,75 -180"
-    const cleaned = text.replace(/[^0-9\-]/g, '');
-    const matches = cleaned.match(/-?\d+/g) || [];
-
-    const formatted = matches
-      .map((num, index) => {
-        if (index === 2) return num; // El último número (180) se queda igual
-        const withDecimal = (parseInt(num) / 100).toFixed(2).replace('.', ',');
-        return withDecimal.startsWith('0,')
-          ? withDecimal.substring(1)
-          : withDecimal;
-      })
-      .join(' ');
-
-    return formatted;
-  }
-
-  private formatGraduacionOI(text: string): string {
-    // Caso especial para OI: "a1-3,00 -2,75 - 180f" → "-3,00 -2,75 180"
-    const cleaned = text.replace(/[^0-9\-\.,]/g, ' ');
-    const matches = cleaned.match(/-?\d+[\.,]?\d*/g) || [];
-
-    // Filtramos y formateamos los valores
-    const formattedValues = matches
-      .map((num) => {
-        // Manejar el signo negativo
-        const negative = num.startsWith('-');
-        const absolute = negative ? num.substring(1) : num;
-
-        // Determinar si es un valor grande (como 180)
-        const numericValue = parseFloat(absolute.replace(',', '.'));
-        const isLargeValue = Math.abs(numericValue) >= 10;
-
-        // Formatear según el tipo de valor
-        if (isLargeValue) {
-          return negative
-            ? `-${absolute.split(',')[0]}`
-            : absolute.split(',')[0];
+        if (currentLineMatch && currentLineMatch[1] && currentLineMatch[2]) {
+          result.OD = [currentLineMatch[1], currentLineMatch[2]];
         } else {
-          const withDecimal =
-            absolute.includes(',') || absolute.includes('.')
-              ? absolute.replace('.', ',').replace(/(,\d)$/, '$10') // Asegurar 2 decimales
-              : `${absolute},00`;
-          return negative ? `-${withDecimal}` : withDecimal;
+          // Si no encontramos dos valores, buscamos en la línea siguiente
+          const nextLine = lines[i + 1];
+          if (nextLine && nextLine.match(/^\d{2}$/)) {
+            const firstValue = line.match(/(\d{2})/);
+            if (firstValue) {
+              result.OD = [firstValue[0], nextLine.trim()];
+            }
+          }
         }
-      })
-      // Filtrar valores no deseados (como el 1,00 que aparece primero)
-      .filter((num, index) => {
-        // Eliminar el primer valor si es positivo y pequeño (el 1,00 no deseado)
-        if (
-          index === 0 &&
-          !num.startsWith('-') &&
-          parseFloat(num.replace(',', '.')) < 10
-        ) {
-          return false;
-        }
-        return true;
-      });
+      }
 
-    return formattedValues.join(' ');
+      // Detección para OI (Ojo Izquierdo)
+      if (/(?:0\.I|OI|O\.I|AI|0\.1|01|O\.\s)/i.test(line)) {
+        // Buscamos los dos valores en la misma línea o en la siguiente
+        const currentLineMatch = line.match(
+          /(?:0\.I|OI|O\.I|0\.1|01|O\.\s)[^\d]*(\d{2})(?:[^\d]*(\d{2}))?/i,
+        );
+        if (currentLineMatch && currentLineMatch[1] && currentLineMatch[2]) {
+          result.OI = [currentLineMatch[1], currentLineMatch[2]];
+        } else {
+          // Si no encontramos dos valores, buscamos en la línea siguiente
+          const nextLine = lines[i + 1];
+          if (nextLine && nextLine.match(/^\d{2}$/)) {
+            const firstValue = line.match(/(\d{2})/);
+            if (firstValue) {
+              result.OI = [firstValue[0], nextLine.trim()];
+            }
+          }
+        }
+      }
+    }
+
+    // Si no encontramos en el formato estándar, buscamos patrones alternativos
+    if (result.OD.length === 0 || result.OI.length === 0) {
+      const allText = lines.join(' ');
+
+      // Patrón alternativo para OD: cualquier mención de OD/AD seguido de dos números de 2 dígitos
+      const odMatch = allText.match(
+        /(?:OD|O\.D|AD)[^\d]*(\d{2})[^\d]+(\d{2})/i,
+      );
+      if (odMatch) result.OD = [odMatch[1], odMatch[2]];
+
+      // Patrón alternativo para OI: cualquier mención de OI/AI/01 seguido de dos números de 2 dígitos
+      const oiMatch = allText.match(
+        /(?:OI|O\.I|AI|0\.1|01)[^\d]*(\d{2})[^\d]+(\d{2})/i,
+      );
+      if (oiMatch) result.OI = [oiMatch[1], oiMatch[2]];
+    }
+
+    // Validación final - los valores deben ser números entre 30 y 60 (rango típico de queratometría)
+    if (result.OD.length === 2) {
+      if (parseInt(result.OD[0]) < 30 || parseInt(result.OD[0]) > 60)
+        result.OD = [];
+      if (parseInt(result.OD[1]) < 30 || parseInt(result.OD[1]) > 60)
+        result.OD = [];
+    }
+    if (result.OI.length === 2) {
+      if (parseInt(result.OI[0]) < 30 || parseInt(result.OI[0]) > 60)
+        result.OI = [];
+      if (parseInt(result.OI[1]) < 30 || parseInt(result.OI[1]) > 60)
+        result.OI = [];
+    }
   }
 
-  private formatVisionBinocularOD(text: string): string {
-    // Caso especial para OD: "OD: 770 +1,00 =8.7" → "OD: 7,70 +1,00 = 8,70"
-    let formatted = text.replace('COD', 'OD').replace('Cod', 'OD');
+  private processGraduacion(lines: string[]): { OD: string; OI: string } {
+    const result = { OD: '', OI: '' };
+    const graduacionPatterns = [
+      // Patrón para OD/OI con formato: -4,00 -2,75 180
+      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]?\s*([+-]?\d+[,.]\d+)\s*([+-]?\d+[,.]\d+)\s*(\d+)/i,
+      // Patrón para líneas que comienzan directamente con los valores
+      /^\s*([+-]?\d+[,.]\d+)\s*[~-]\s*(\d+[,.]\d+)\s*[~-]\s*(\d+)/i,
+      // Patrón para valores pegados: -4,00-2,75-180
+      /([+-]?\d+[,.]\d+)[~-](\d+[,.]\d+)[~-](\d+)/i,
 
-    // Corregir 770 → 7,70
-    formatted = formatted.replace(/(\D)7{2,}0(\D)/, '$17,70$2');
+      /([+~-]?\d+[,.]?\d+)\s*[+~-](\d+[,.]\d+)\s*[+~-](\d+)/i,
+    ];
 
-    // Asegurar formato estándar
-    formatted = formatted
-      .replace(/(\d)\.(\d)/g, '$1,$2') // Puntos a comas
-      .replace(/([=+])\s?(\d)/g, '$1 $2') // Espacios alrededor de operadores
-      .replace(/(\d)\s?([=+])/g, '$1 $2')
-      .replace(/(,\d)\b/g, (match) =>
-        match.length === 2 ? `${match}0` : match,
-      ); // 2 decimales
+    lines.forEach((line) => {
+      for (const pattern of graduacionPatterns) {
+        const match = line.match(pattern);
+        if (match) {
+          const eye =
+            line.includes('OD') || line.includes('0.D') || line.includes('AD')
+              ? 'OD'
+              : line.includes('OI') ||
+                  line.includes('0.I') ||
+                  line.includes('AI') ||
+                  line.includes('0.1')
+                ? 'OI'
+                : null;
 
-    return formatted;
+          if (eye) {
+            const sphere = match[1].replace(',', '.');
+            const cylinder = match[2].replace(',', '.');
+            const axis = match[3];
+
+            result[eye] =
+              `${parseFloat(sphere).toFixed(2).replace('.', ',')} ${parseFloat(
+                cylinder,
+              )
+                .toFixed(2)
+                .replace('.', ',')} ${axis}`;
+            break;
+          } else if (!result.OD && !result.OI) {
+            // Asignar alternativamente si no se ha detectado ninguno
+            const sphere = match[1].replace(',', '.');
+            const cylinder = match[2].replace(',', '.');
+            const axis = match[3];
+
+            const value = `${parseFloat(sphere).toFixed(2).replace('.', ',')} ${parseFloat(
+              cylinder,
+            )
+              .toFixed(2)
+              .replace('.', ',')} ${axis}`;
+
+            if (!result.OD) result.OD = value;
+            else if (!result.OI) result.OI = value;
+            break;
+          }
+        }
+      }
+    });
+
+    return result;
   }
 
-  private formatVisionBinocularOI(text?: string): string {
-    // Caso especial para OI: "OI: 7,50+1,0 = 8,5" → "OI: 7,50 +1,00 = 8,50"
-    let formatted = text?.replace('COI', 'OI').replace('Coi', 'OI');
+  private processVision(lines: string[]): { OD: string; OI: string } {
+    const result = { OD: '', OI: '' };
+    const visionPatterns = [
+      // Patrón estándar: OD: 7,70 +1,00 =8.7
+      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]\s*(\d+[,.]\d+)\s*[+]\s*(\d+[,.]\d+)\s*=\s*(\d+[,.]\d+)/i,
+      // Patrón sin espacios: OD:7,70+1,00=8.7
+      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]\s*(\d+[,.]\d+)\+(\d+[,.]\d+)=(\d+[,.]\d+)/i,
+      // Patrón con espacios irregulares
+      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]?\s*(\d+[,.]\d+)\s*[+]\s*(\d+[,.]\d+)\s*=\s*(\d+[,.]\d+)/i,
+    ];
 
-    // Asegurar formato estándar
-    formatted = formatted
-      ?.replace(/(\d)\.(\d)/g, '$1,$2') // Puntos a comas
-      .replace(/([=+])\s?(\d)/g, '$1 $2') // Espacios alrededor de operadores
-      .replace(/(\d)\s?([=+])/g, '$1 $2')
-      .replace(/(,\d)\b/g, (match) =>
-        match.length === 2 ? `${match}0` : match,
-      ); // 2 decimales
+    lines.forEach((line) => {
+      for (const pattern of visionPatterns) {
+        const match = line.match(pattern);
+        if (match) {
+          const eye =
+            line.includes('OD') || line.includes('0.D') || line.includes('AD')
+              ? 'OD'
+              : line.includes('OI') ||
+                  line.includes('0.I') ||
+                  line.includes('AI') ||
+                  line.includes('0.1')
+                ? 'OI'
+                : null;
 
-    return formatted;
+          if (eye) {
+            const value1 = match[1].replace(',', '.');
+            const value2 = match[2].replace(',', '.');
+            const resultValue = match[3].replace(',', '.');
+
+            result[eye] =
+              `${value1.replace('.', ',')} + ${value2.replace('.', ',')} = ${resultValue.replace('.', ',')}`;
+            break;
+          }
+        }
+      }
+    });
+
+    return result;
   }
 }
