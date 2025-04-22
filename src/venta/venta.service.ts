@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
 import { CajaService } from 'src/caja/caja.service';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { ComprobanteService } from 'src/comprobante/services/comprobante.service';
@@ -123,29 +122,27 @@ export class VentaService {
           clienteId,
         });
       }
-      if (fechaDesde) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
-          throw new BadRequestException(
-            `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
-          );
-        }
 
-        const fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
-        queryBuilder.andWhere('venta.fecha  >= :fechaDesde ', {
-          fechaDesde: fecha,
-        });
+      const whereParams: Record<string, any> = {};
+      if (fechaDesde) {
+        const fechaDesdeDate = new Date(fechaDesde + 'T00:00:00-03:00');
+        whereParams.fechaDesde = fechaDesdeDate;
       }
       if (fechaHasta) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
-          throw new BadRequestException(
-            `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
-          );
-        }
+        const fechaHastaDate = new Date(fechaHasta + 'T23:59:59-03:00');
+        whereParams.fechaHasta = fechaHastaDate;
+      }
+      console.log(whereParams);
 
-        const fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
-        queryBuilder.andWhere('venta.fecha  <= :fechaHasta ', {
-          fechaHasta: fecha,
-        });
+      if (fechaDesde && fechaHasta) {
+        queryBuilder.andWhere(
+          'venta.fecha BETWEEN :fechaDesde AND :fechaHasta',
+          whereParams,
+        );
+      } else if (fechaDesde) {
+        queryBuilder.andWhere('venta.fecha >= :fechaDesde', whereParams);
+      } else if (fechaHasta) {
+        queryBuilder.andWhere('venta.fecha <= :fechaHasta', whereParams);
       }
 
       if (tipoComprobante) {

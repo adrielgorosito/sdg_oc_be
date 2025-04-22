@@ -1,10 +1,5 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
 import { In, Repository } from 'typeorm';
 import { ObraSocial } from '../obra-social/entities/obra-social.entity';
 import { VentaObraSocial } from './entities/venta-obra-social.entity';
@@ -26,27 +21,6 @@ export class VentaObraSocialService {
       let fechaInicio: Date;
       let fechaFin: Date;
 
-      if (fechaDesde) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
-          throw new BadRequestException(
-            `Formato de fechaDesde inválido. Se esperaba 'YYYY-MM-DD'`,
-          );
-        }
-        fechaInicio = parse(fechaDesde, 'yyyy-MM-dd', new Date());
-      } else {
-        fechaInicio = new Date();
-        fechaInicio.setMonth(fechaInicio.getMonth() - 1);
-      }
-
-      if (fechaHasta) {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
-          throw new BadRequestException(
-            `Formato de fechaHasta inválido. Se esperaba 'YYYY-MM-DD'`,
-          );
-        }
-        fechaFin = parse(fechaHasta, 'yyyy-MM-dd', new Date());
-      }
-
       const whereParams: Record<string, any> = {};
       if (obraSocialId) whereParams.obraSocialId = obraSocialId;
       if (fechaInicio) whereParams.fechaInicio = fechaInicio;
@@ -61,23 +35,6 @@ export class VentaObraSocialService {
         .innerJoin('ventaObraSocial.venta', 'venta')
         .groupBy('ventaObraSocial.obraSocialId')
         .addGroupBy('ventaObraSocial.condicionIVA');
-
-      if (whereParams.obraSocialId) {
-        query.andWhere(
-          'ventaObraSocial.obraSocialId = :obraSocialId',
-          whereParams,
-        );
-      }
-      if (fechaInicio && fechaFin) {
-        query.andWhere(
-          'venta.fecha BETWEEN :fechaInicio AND :fechaFin',
-          whereParams,
-        );
-      } else if (fechaInicio) {
-        query.andWhere('venta.fecha >= :fechaInicio', whereParams);
-      } else if (fechaFin) {
-        query.andWhere('venta.fecha <= :fechaFin', whereParams);
-      }
 
       const queryImportes = this.ventaObraSocialRepository
         .createQueryBuilder('ventaObraSocial')
@@ -94,20 +51,39 @@ export class VentaObraSocialService {
         .innerJoin('venta.cliente', 'cliente');
 
       if (whereParams.obraSocialId) {
+        query.andWhere(
+          'ventaObraSocial.obraSocialId = :obraSocialId',
+          whereParams,
+        );
         queryImportes.andWhere(
           'ventaObraSocial.obraSocialId = :obraSocialId',
           whereParams,
         );
       }
-      if (fechaInicio && fechaFin) {
-        queryImportes.andWhere(
-          'venta.fecha BETWEEN :fechaInicio AND :fechaFin',
+      if (fechaDesde) {
+        const fechaDesdeDate = new Date(fechaDesde + 'T00:00:00-03:00');
+        whereParams.fechaDesde = fechaDesdeDate;
+      }
+      if (fechaHasta) {
+        const fechaHastaDate = new Date(fechaHasta + 'T23:59:59-03:00');
+        whereParams.fechaHasta = fechaHastaDate;
+      }
+
+      if (fechaDesde && fechaHasta) {
+        query.andWhere(
+          'venta.fecha BETWEEN :fechaDesde AND :fechaHasta',
           whereParams,
         );
-      } else if (fechaInicio) {
-        queryImportes.andWhere('venta.fecha >= :fechaInicio', whereParams);
-      } else if (fechaFin) {
-        queryImportes.andWhere('venta.fecha <= :fechaFin', whereParams);
+        queryImportes.andWhere(
+          'venta.fecha BETWEEN :fechaDesde AND :fechaHasta',
+          whereParams,
+        );
+      } else if (fechaDesde) {
+        query.andWhere('venta.fecha >= :fechaDesde', whereParams);
+        queryImportes.andWhere('venta.fecha >= :fechaDesde', whereParams);
+      } else if (fechaHasta) {
+        query.andWhere('venta.fecha <= :fechaHasta', whereParams);
+        queryImportes.andWhere('venta.fecha <= :fechaHasta', whereParams);
       }
 
       const [resultado, resultadoImportes] = await Promise.all([

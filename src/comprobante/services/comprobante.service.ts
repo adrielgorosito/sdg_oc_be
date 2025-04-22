@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
 import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago.dto';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { Venta } from 'src/venta/entities/venta.entity';
@@ -151,43 +150,33 @@ export class ComprobanteService {
       });
     }
 
+    const whereParams: Record<string, any> = {};
     if (fechaDesde) {
-      let fecha: Date;
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
-        fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
-      } else {
-        fecha = new Date(fechaDesde);
-        if (isNaN(fecha.getTime())) {
-          throw new BadRequestException(
-            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
-          );
-        }
-      }
-
-      queryBuilder.andWhere('comprobante.fechaEmision >= :fechaDesde', {
-        fechaDesde: fecha,
-      });
+      const fechaDesdeDate = new Date(fechaDesde + 'T00:00:00-03:00');
+      whereParams.fechaDesde = fechaDesdeDate;
     }
-
     if (fechaHasta) {
-      let fecha: Date;
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
-        fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
-      } else {
-        fecha = new Date(fechaHasta);
-        if (isNaN(fecha.getTime())) {
-          throw new BadRequestException(
-            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
-          );
-        }
-      }
-
-      queryBuilder.andWhere('comprobante.fechaEmision <= :fechaHasta', {
-        fechaHasta: fecha,
-      });
+      const fechaHastaDate = new Date(fechaHasta + 'T23:59:59-03:00');
+      whereParams.fechaHasta = fechaHastaDate;
     }
+
+    if (fechaDesde && fechaHasta) {
+      queryBuilder.andWhere(
+        'comprobante.fechaEmision BETWEEN :fechaDesde AND :fechaHasta',
+        whereParams,
+      );
+    } else if (fechaDesde) {
+      queryBuilder.andWhere(
+        'comprobante.fechaEmision >= :fechaDesde',
+        whereParams,
+      );
+    } else if (fechaHasta) {
+      queryBuilder.andWhere(
+        'comprobante.fechaEmision <= :fechaHasta',
+        whereParams,
+      );
+    }
+
     if (clienteId) {
       queryBuilder.andWhere('comprobante.clienteId = :clienteId', {
         clienteId,
@@ -247,43 +236,33 @@ export class ComprobanteService {
       });
     }
 
+    const whereParams: Record<string, any> = {};
     if (fechaDesde) {
-      let fecha: Date;
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaDesde)) {
-        fecha = parse(fechaDesde, 'yyyy-MM-dd', new Date());
-      } else {
-        fecha = new Date(fechaDesde);
-        if (isNaN(fecha.getTime())) {
-          throw new BadRequestException(
-            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
-          );
-        }
-      }
-
-      queryBuilder.andWhere('comprobante.fechaEmision >= :fechaDesde', {
-        fechaDesde: fecha,
-      });
+      const fechaDesdeDate = new Date(fechaDesde + 'T00:00:00-03:00');
+      whereParams.fechaDesde = fechaDesdeDate;
     }
-
     if (fechaHasta) {
-      let fecha: Date;
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
-        fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
-      } else {
-        fecha = new Date(fechaHasta);
-        if (isNaN(fecha.getTime())) {
-          throw new BadRequestException(
-            'Formato de fecha inválido. Se espera YYYY-MM-DD o fecha ISO (ej: 2024-03-14T10:30:00)',
-          );
-        }
-      }
-
-      queryBuilder.andWhere('comprobante.fechaEmision <= :fechaHasta', {
-        fechaHasta: fecha,
-      });
+      const fechaHastaDate = new Date(fechaHasta + 'T23:59:59-03:00');
+      whereParams.fechaHasta = fechaHastaDate;
     }
+
+    if (fechaDesde && fechaHasta) {
+      queryBuilder.andWhere(
+        'comprobante.fechaEmision BETWEEN :fechaDesde AND :fechaHasta',
+        whereParams,
+      );
+    } else if (fechaDesde) {
+      queryBuilder.andWhere(
+        'comprobante.fechaEmision >= :fechaDesde',
+        whereParams,
+      );
+    } else if (fechaHasta) {
+      queryBuilder.andWhere(
+        'comprobante.fechaEmision <= :fechaHasta',
+        whereParams,
+      );
+    }
+
     if (clienteId) {
       queryBuilder.andWhere('comprobante.clienteId = :clienteId', {
         clienteId,
@@ -389,6 +368,7 @@ export class ComprobanteService {
         AfipErrorType.SERVICE,
       );
     }
+
     return resultado as IProcesadoExitoso;
   }
 
@@ -431,16 +411,8 @@ export class ComprobanteService {
         : null,
       numeroComprobante: resultado.numeroComprobante,
       CAE: resultado.CAE,
-      CAEFechaVencimiento: parse(
-        resultado.CAEFchVto.toString(),
-        'yyyyMMdd',
-        new Date(),
-      ),
-      fechaEmision: parse(
-        resultado.fechaFactura.toString(),
-        'yyyyMMdd',
-        new Date(),
-      ),
+      CAEFechaVencimiento: new Date(),
+      fechaEmision: new Date(),
     });
 
     const savedComprobante = await this.comprobanteRepository.save(comprobante);
