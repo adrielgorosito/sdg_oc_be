@@ -38,6 +38,7 @@ export class ProductoService {
         marcaId,
         proveedorId,
         filtro,
+        cod,
       } = paginateProductoDTO;
 
       const queryBuilder = this.productoRepository
@@ -54,6 +55,13 @@ export class ProductoService {
           { categoria: `%${categoria.trim()}%` },
         );
       }
+      if (cod) {
+        queryBuilder.andWhere(
+          'producto.cod COLLATE Latin1_General_CI_AI LIKE :cod',
+          { cod: `%${cod.trim()}%` },
+        );
+      }
+
       if (descripcion) {
         queryBuilder.andWhere(
           'producto.descripcion COLLATE Latin1_General_CI_AI LIKE :descripcion',

@@ -26,4 +26,8 @@ export class PaginateProductoDTO extends PaginationDTO {
   @IsOptional()
   @IsNumber()
   proveedorId?: number;
+
+  @IsOptional()
+  @IsString()
+  cod?: string;
 }
