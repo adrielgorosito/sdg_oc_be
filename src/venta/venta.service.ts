@@ -84,6 +84,7 @@ export class VentaService {
         nombreCliente,
         nroDocumento: nroDocumentoCliente,
         tipoComprobante,
+        pendientes,
       } = paginateVentaDTO;
 
       const queryBuilder = this.ventaRepository
@@ -97,6 +98,10 @@ export class VentaService {
         .orderBy('venta.fecha', 'DESC')
         .take(limit)
         .skip(offset);
+
+      if (pendientes === 1) {
+        queryBuilder.andWhere('factura.id IS NULL');
+      }
 
       if (nombreCliente) {
         queryBuilder.andWhere(

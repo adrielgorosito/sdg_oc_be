@@ -28,4 +28,8 @@ export class PaginateVentaDTO extends PaginationDTO {
   @IsTipoFacturaValida()
   @IsEnum(TipoComprobante)
   tipoComprobante?: TipoComprobante;
+
+  @IsNumber()
+  @IsOptional()
+  pendientes?: number;
 }
