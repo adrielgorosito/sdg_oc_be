@@ -58,6 +58,11 @@ export class ComprobanteController {
     return this.comprobanteService.crearComprobante(createComprobanteDto);
   }
 
+  @Post('facturarPendientes')
+  async facturarPendientes() {
+    return this.comprobanteService.facturarPendientes();
+  }
+
   @Post('imprimir')
   @Header('Content-Type', 'application/pdf')
   async imprimirFactura(

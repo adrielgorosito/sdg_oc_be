@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.5.0",
+    "@google-cloud/vision": "^5.1.0",
     "@nestjs/common": "^11.0.12",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.12",

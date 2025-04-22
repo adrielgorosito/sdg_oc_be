@@ -35,7 +35,6 @@ import {
 } from '../utils/helpers';
 import { mapeoTipoComprobanteSegunCondicionIvaCliente } from '../utils/mapeosEnums';
 import { AfipService } from './afip.service';
-import { EmailService } from './email.service';
 
 @Injectable()
 export class ComprobanteService {
@@ -46,7 +45,6 @@ export class ComprobanteService {
     private readonly parametrosService: ParametrosService,
     @InjectRepository(Venta)
     private readonly ventaRepository: Repository<Venta>,
-    private readonly emailService: EmailService,
   ) {}
 
   private async getUltimoComprobante(params: IParamsFECompUltimoAutorizado) {
@@ -488,6 +486,50 @@ export class ComprobanteService {
       TipoComprobante.FACTURA_C,
       TipoComprobante.FACTURA_M,
     ].includes(tipo);
+  }
+
+  async facturarPendientes() {
+    try {
+      const pendientes = await this.ventaRepository
+        .createQueryBuilder('venta')
+        .innerJoinAndSelect('venta.cliente', 'cliente')
+        .innerJoinAndSelect('venta.lineasDeVenta', 'lineasDeVenta')
+        .innerJoinAndSelect('venta.mediosDePago', 'mediosDePago')
+        .leftJoinAndSelect('venta.ventaObraSocial', 'ventaObraSocial')
+        .leftJoin('venta.factura', 'factura')
+        .where('factura.id IS NULL')
+        .getMany();
+
+      if (pendientes.length === 0) {
+        return { message: 'No hay ventas pendientes' };
+      }
+
+      const resultados = {
+        exitosas: [],
+        fallidas: [],
+      };
+
+      for (const venta of pendientes) {
+        try {
+          await this.crearComprobante(null, venta);
+          resultados.exitosas.push(venta.id);
+        } catch (error) {
+          resultados.fallidas.push({
+            ventaId: venta.id,
+            error: error.message,
+          });
+        }
+      }
+
+      return {
+        message: 'Proceso de facturación completado',
+        resultados,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al procesar las ventas pendientes: ' + error,
+      );
+    }
   }
 }
 

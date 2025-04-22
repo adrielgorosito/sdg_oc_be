@@ -33,6 +33,7 @@ export class CuentaCorrienteService {
       const queryBuilder = this.cuentaCorrienteRepository
         .createQueryBuilder('cuentaCorriente')
         .innerJoinAndSelect('cuentaCorriente.cliente', 'cliente')
+        .orderBy('cliente.apellido', 'ASC')
         .take(limit)
         .skip(offset);
 
