@@ -11,7 +11,7 @@ export class OcrService {
     this.client = new ImageAnnotatorClient();
   }
 
-  async processImage(imageBuffer: Buffer): Promise<any> {
+  async processImage1(imageBuffer: Buffer): Promise<any> {
     try {
       const [result] = await this.client.textDetection({
         image: { content: imageBuffer },
@@ -39,11 +39,11 @@ export class OcrService {
 
   private processOptometryText(lines: string[]): any {
     const result = {
-      oftalmometria: { OD: [], OI: [] },
+      queterometria: { OD: [], OI: [] },
       observaciones: '',
     };
 
-    this.processKeratometry(lines, result.oftalmometria);
+    this.processKeratometry(lines, result.queterometria);
 
     const graduacion = this.processGraduacion(lines);
 
@@ -63,7 +63,6 @@ export class OcrService {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Detección para OD (Ojo Derecho)
       if (/(?:0\.D|OD|O\.D|O\.O)/i.test(line)) {
         const currentLineMatch = line.match(
           /(?:0\.D|OD|O\.D)[^\d]*(\d{2})(?:[^\d]*(\d{2}))?/i,
@@ -236,6 +235,127 @@ export class OcrService {
       }
     });
 
+    return result;
+  }
+
+  async processImage2(imageBuffer: Buffer): Promise<any> {
+    try {
+      const [result] = await this.client.textDetection({
+        image: { content: imageBuffer },
+      });
+
+      const textAnnotations = result.textAnnotations;
+
+      if (!textAnnotations || textAnnotations.length === 0) {
+        throw new Error('No se detectó texto en la imagen.');
+      }
+
+      const fullText = textAnnotations[0].description;
+      const lines = fullText.split('\n').filter((line) => line.trim() !== '');
+
+      console.log('=== TEXTO DETECTADO ===');
+      lines.forEach((line, i) => {
+        console.log(`${(i + 1).toString().padStart(2, '0')}: ${line}`);
+      });
+
+      return this.processLentesDefinitivas(lines);
+    } catch (error) {
+      console.error('Error en el procesamiento OCR:', error);
+      throw new Error('Error al procesar la imagen con OCR');
+    }
+  }
+
+  private processLentesDefinitivas(lines: string[]): any {
+    const result = {
+      lentes_definitivas: {
+        OD: {} as any,
+        OI: {} as any,
+      },
+    };
+
+    const EYE_REGEX = {
+      OD: /^(O\.?\s?D|OD|0\.?D)\b/i,
+      OI: /^(O\.?\s?I|OI|0\.?I|0\.1)\b/i,
+    };
+
+    const VALUE_REGEX = {
+      TRIPLE_VALUES:
+        /([+-]?\d+[.,]\d+)[\s\/\-]+([+-]?\d+[.,]\d+)[\s\/\-]+([+-]?\d+[.,]\d+)/,
+      DIAM: /(\d{3,})/,
+      EJE: /(\d{1,3})°?/,
+    };
+
+    const processEye = (eyeType: 'OD' | 'OI') => {
+      const eyeData: any = {};
+      let eyeSection = false;
+      let valueBuffer: string[] = [];
+
+      lines.forEach((line, index) => {
+        if (EYE_REGEX[eyeType].test(line)) {
+          eyeSection = true;
+          valueBuffer = [];
+          return;
+        }
+
+        if (eyeSection) {
+          const tripleMatch = line.match(VALUE_REGEX.TRIPLE_VALUES);
+          if (tripleMatch) {
+            eyeData.CB = tripleMatch[1].replace('.', ',');
+            eyeData.Esf = tripleMatch[2].replace('.', ',');
+            eyeData.Cil = tripleMatch[3].replace('.', ',');
+          }
+
+          const numbers = line.match(/([+-]?\d+[.,]\d+)/g) || [];
+          valueBuffer.push(...numbers.map((n) => n.replace('.', ',')));
+
+          if (valueBuffer.length >= 3 && !eyeData.CB) {
+            [eyeData.CB, eyeData.Esf, eyeData.Cil] = valueBuffer.slice(0, 3);
+            valueBuffer = [];
+          }
+
+          const ejeMatch = line.match(VALUE_REGEX.EJE);
+          if (ejeMatch) eyeData.Eje = `${ejeMatch[1]}°`;
+
+          const diamMatch = line.match(VALUE_REGEX.DIAM);
+          if (diamMatch) eyeData.Diam = parseInt(diamMatch[1], 10);
+
+          if (index > lines.findIndex((l) => EYE_REGEX[eyeType].test(l)) + 4) {
+            eyeSection = false;
+          }
+        }
+      });
+
+      if (!eyeData.Diam) {
+        const diamKey = eyeType === 'OD' ? /D/ : /I/;
+        const diamLine = lines
+          .join(' ')
+          .match(new RegExp(`${diamKey.source}.*?(\\d{3,})`, 'i'));
+        eyeData.Diam = diamLine ? parseInt(diamLine[1], 10) : null;
+      }
+
+      result.lentes_definitivas[eyeType] = eyeData;
+    };
+
+    processEye('OD');
+    processEye('OI');
+
+    const formatResult = (data: any) => {
+      return {
+        CB: data.CB || '',
+        Esf: data.Esf || '',
+        Cil: data.Cil || '',
+        Eje: data.Eje || '',
+        Diam: data.Diam || '',
+      };
+    };
+
+    result.lentes_definitivas.OD = formatResult(result.lentes_definitivas.OD);
+    result.lentes_definitivas.OI = formatResult(result.lentes_definitivas.OI);
+
+    console.log('\n=== RESULTADO FINAL ===');
+    console.log(
+      JSON.stringify(result, null, 2).replace(/"(\w+)": null/g, '"$1": ""'),
+    );
     return result;
   }
 }
