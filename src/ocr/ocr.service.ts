@@ -43,34 +43,28 @@ export class OcrService {
       observaciones: '',
     };
 
-    // 1. Procesar oftalmometría (Keratometría) - Versión mejorada
     this.processKeratometry(lines, result.oftalmometria);
 
-    // 2. Procesar graduación con gafas - Versión mejorada
     const graduacion = this.processGraduacion(lines);
 
-    // 3. Procesar visión binocular - Versión mejorada
     const vision = this.processVision(lines);
 
-    // Construir observaciones
     result.observaciones = `graduacion_con_gafas:
-    OD: ${graduacion.OD || 'No detectado'}
-    OI: ${graduacion.OI || 'No detectado'}
+    OD: ${graduacion.OD || ' '}
+    OI: ${graduacion.OI || ' '}
     vision_binocular:
-    OD: ${vision.OD || 'No detectado'}
-    OI: ${vision.OI || 'No detectado'}`;
+    OD: ${vision.OD || ' '}
+    OI: ${vision.OI || ' '}`;
 
     return result;
   }
 
   private processKeratometry(lines: string[], result: any) {
-    // Primero buscamos las líneas que contienen OD/OI y sus valores
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
       // Detección para OD (Ojo Derecho)
       if (/(?:0\.D|OD|O\.D|O\.O)/i.test(line)) {
-        // Buscamos los dos valores en la misma línea o en la siguiente
         const currentLineMatch = line.match(
           /(?:0\.D|OD|O\.D)[^\d]*(\d{2})(?:[^\d]*(\d{2}))?/i,
         );
@@ -78,7 +72,6 @@ export class OcrService {
         if (currentLineMatch && currentLineMatch[1] && currentLineMatch[2]) {
           result.OD = [currentLineMatch[1], currentLineMatch[2]];
         } else {
-          // Si no encontramos dos valores, buscamos en la línea siguiente
           const nextLine = lines[i + 1];
           if (nextLine && nextLine.match(/^\d{2}$/)) {
             const firstValue = line.match(/(\d{2})/);
@@ -89,16 +82,13 @@ export class OcrService {
         }
       }
 
-      // Detección para OI (Ojo Izquierdo)
       if (/(?:0\.I|OI|O\.I|AI|0\.1|01|O\.\s)/i.test(line)) {
-        // Buscamos los dos valores en la misma línea o en la siguiente
         const currentLineMatch = line.match(
           /(?:0\.I|OI|O\.I|0\.1|01|O\.\s)[^\d]*(\d{2})(?:[^\d]*(\d{2}))?/i,
         );
         if (currentLineMatch && currentLineMatch[1] && currentLineMatch[2]) {
           result.OI = [currentLineMatch[1], currentLineMatch[2]];
         } else {
-          // Si no encontramos dos valores, buscamos en la línea siguiente
           const nextLine = lines[i + 1];
           if (nextLine && nextLine.match(/^\d{2}$/)) {
             const firstValue = line.match(/(\d{2})/);
@@ -110,24 +100,20 @@ export class OcrService {
       }
     }
 
-    // Si no encontramos en el formato estándar, buscamos patrones alternativos
     if (result.OD.length === 0 || result.OI.length === 0) {
       const allText = lines.join(' ');
 
-      // Patrón alternativo para OD: cualquier mención de OD/AD seguido de dos números de 2 dígitos
       const odMatch = allText.match(
         /(?:OD|O\.D|AD)[^\d]*(\d{2})[^\d]+(\d{2})/i,
       );
       if (odMatch) result.OD = [odMatch[1], odMatch[2]];
 
-      // Patrón alternativo para OI: cualquier mención de OI/AI/01 seguido de dos números de 2 dígitos
       const oiMatch = allText.match(
         /(?:OI|O\.I|AI|0\.1|01)[^\d]*(\d{2})[^\d]+(\d{2})/i,
       );
       if (oiMatch) result.OI = [oiMatch[1], oiMatch[2]];
     }
 
-    // Validación final - los valores deben ser números entre 30 y 60 (rango típico de queratometría)
     if (result.OD.length === 2) {
       if (parseInt(result.OD[0]) < 30 || parseInt(result.OD[0]) > 60)
         result.OD = [];
@@ -144,99 +130,107 @@ export class OcrService {
 
   private processGraduacion(lines: string[]): { OD: string; OI: string } {
     const result = { OD: '', OI: '' };
-    const graduacionPatterns = [
-      // Patrón para OD/OI con formato: -4,00 -2,75 180
-      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]?\s*([+-]?\d+[,.]\d+)\s*([+-]?\d+[,.]\d+)\s*(\d+)/i,
-      // Patrón para líneas que comienzan directamente con los valores
-      /^\s*([+-]?\d+[,.]\d+)\s*[~-]\s*(\d+[,.]\d+)\s*[~-]\s*(\d+)/i,
-      // Patrón para valores pegados: -4,00-2,75-180
-      /([+-]?\d+[,.]\d+)[~-](\d+[,.]\d+)[~-](\d+)/i,
 
-      /([+~-]?\d+[,.]?\d+)\s*[+~-](\d+[,.]\d+)\s*[+~-](\d+)/i,
-    ];
+    const normalizeNumber = (value: string) =>
+      parseFloat(value.replace(',', '.')).toFixed(2).replace('.', ',');
 
-    lines.forEach((line) => {
-      for (const pattern of graduacionPatterns) {
-        const match = line.match(pattern);
+    const cleanAndExtractNumbers = (line: string): string[] => {
+      const matches = [...line.matchAll(/([+-]?\d{1,3}[,.]?\d*)/g)].map(
+        (m) => m[1],
+      );
+      return matches.length >= 3 ? matches.slice(0, 3) : [];
+    };
+
+    let odDetected = false;
+    let oiDetected = false;
+
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+
+      if (!odDetected && /od|o\.d|0\.d|ad/.test(lower)) {
+        const numbers = cleanAndExtractNumbers(line);
+        if (numbers.length === 3) {
+          result.OD = `${normalizeNumber(numbers[0])} ${normalizeNumber(numbers[1])} ${numbers[2]}°`;
+          odDetected = true;
+          continue;
+        }
+      }
+
+      if (!oiDetected && /oi|o\.i|0\.i|ai|0\.1/.test(lower)) {
+        const numbers = cleanAndExtractNumbers(line);
+        if (numbers.length === 3) {
+          result.OI = `${normalizeNumber(numbers[0])} ${normalizeNumber(numbers[1])} ${numbers[2]}°`;
+          oiDetected = true;
+          continue;
+        }
+      }
+
+      if (
+        !odDetected &&
+        /^\s*[-+]?\d{3}[-~]\d{3}[-~]\d{3}\s*$/i.test(
+          line.replace(/[^\d\-]/g, ''),
+        )
+      ) {
+        const match = line.match(/([-+]?\d{3})[-~]?(\d{3})[-~]?(\d{3})/);
         if (match) {
-          const eye =
-            line.includes('OD') || line.includes('0.D') || line.includes('AD')
-              ? 'OD'
-              : line.includes('OI') ||
-                  line.includes('0.I') ||
-                  line.includes('AI') ||
-                  line.includes('0.1')
-                ? 'OI'
-                : null;
+          const sphere = normalizeNumber((parseInt(match[1]) / 100).toString());
+          const cylinder = normalizeNumber(
+            (parseInt(match[2]) / 100).toString(),
+          );
+          const axis = match[3];
+          result.OD = `${sphere} ${cylinder} ${axis}°`;
+          odDetected = true;
+          continue;
+        }
+      }
 
-          if (eye) {
-            const sphere = match[1].replace(',', '.');
-            const cylinder = match[2].replace(',', '.');
-            const axis = match[3];
-
-            result[eye] =
-              `${parseFloat(sphere).toFixed(2).replace('.', ',')} ${parseFloat(
-                cylinder,
-              )
-                .toFixed(2)
-                .replace('.', ',')} ${axis}`;
-            break;
-          } else if (!result.OD && !result.OI) {
-            // Asignar alternativamente si no se ha detectado ninguno
-            const sphere = match[1].replace(',', '.');
-            const cylinder = match[2].replace(',', '.');
-            const axis = match[3];
-
-            const value = `${parseFloat(sphere).toFixed(2).replace('.', ',')} ${parseFloat(
-              cylinder,
-            )
-              .toFixed(2)
-              .replace('.', ',')} ${axis}`;
-
-            if (!result.OD) result.OD = value;
-            else if (!result.OI) result.OI = value;
-            break;
+      if ((!odDetected || !oiDetected) && /\d/.test(line)) {
+        const numbers = cleanAndExtractNumbers(line);
+        if (numbers.length === 3) {
+          const value = `${normalizeNumber(numbers[0])} ${normalizeNumber(numbers[1])} ${numbers[2]}°`;
+          if (!odDetected) {
+            result.OD = value;
+            odDetected = true;
+          } else if (!oiDetected) {
+            result.OI = value;
+            oiDetected = true;
           }
         }
       }
-    });
+    }
 
     return result;
   }
 
   private processVision(lines: string[]): { OD: string; OI: string } {
     const result = { OD: '', OI: '' };
+
+    const cleanNumber = (n: string): string =>
+      n.replace(',', '.').replace(/[^\d.]/g, '');
+
+    const formatVision = (v1: string, v2: string, v3: string): string =>
+      `${v1.replace('.', ',')} + ${v2.replace('.', ',')} = ${v3.replace('.', ',')}`;
+
     const visionPatterns = [
-      // Patrón estándar: OD: 7,70 +1,00 =8.7
-      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]\s*(\d+[,.]\d+)\s*[+]\s*(\d+[,.]\d+)\s*=\s*(\d+[,.]\d+)/i,
-      // Patrón sin espacios: OD:7,70+1,00=8.7
-      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]\s*(\d+[,.]\d+)\+(\d+[,.]\d+)=(\d+[,.]\d+)/i,
-      // Patrón con espacios irregulares
-      /(?:OD|OI|0\.D|0\.I|AD|AI)\s*[:=]?\s*(\d+[,.]\d+)\s*[+]\s*(\d+[,.]\d+)\s*=\s*(\d+[,.]\d+)/i,
+      /(?:OD|OI|O\.D|O\.I|0\.D|0\.I|AD|AI)\s*[:=]?\s*(\d+[,.]?\d*)\s*\+?\s*(\d+[,.]?\d*)\s*=?\s*(\d+[,.]?\d*)/i,
+      /(?:OD|OI|O\.D|O\.I|0\.D|0\.I|AD|AI)\s*[:=]?\s*(\d{1,3})\s*\+?\s*(\d{1,3}[,.]?\d*)\s*=?\s*(\d+[,.]?\d*)/i,
     ];
 
     lines.forEach((line) => {
       for (const pattern of visionPatterns) {
         const match = line.match(pattern);
         if (match) {
-          const eye =
-            line.includes('OD') || line.includes('0.D') || line.includes('AD')
-              ? 'OD'
-              : line.includes('OI') ||
-                  line.includes('0.I') ||
-                  line.includes('AI') ||
-                  line.includes('0.1')
-                ? 'OI'
-                : null;
+          const eye = /(?:OD|O\.D|0\.D|AD)/i.test(line)
+            ? 'OD'
+            : /(?:OI|O\.I|0\.I|AI|0\.1)/i.test(line)
+              ? 'OI'
+              : null;
 
-          if (eye) {
-            const value1 = match[1].replace(',', '.');
-            const value2 = match[2].replace(',', '.');
-            const resultValue = match[3].replace(',', '.');
-
-            result[eye] =
-              `${value1.replace('.', ',')} + ${value2.replace('.', ',')} = ${resultValue.replace('.', ',')}`;
-            break;
+          if (eye && !result[eye]) {
+            const v1 = cleanNumber(match[1]);
+            const v2 = cleanNumber(match[2]);
+            const v3 = cleanNumber(match[3]);
+            result[eye] = formatVision(v1, v2, v3);
           }
         }
       }
