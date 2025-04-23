@@ -18,6 +18,7 @@ import { LocalidadModule } from './localidad/localidad.module';
 import { MarcaModule } from './marca/marca.module';
 import { MovimientoModule } from './movimiento/movimiento.module';
 import { ObraSocialModule } from './obra-social/obra-social.module';
+import { OcrModule } from './ocr/ocr.module';
 import { ParametrosModule } from './parametros/parametros.module';
 import { ProductoModule } from './producto/producto.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
@@ -27,7 +28,6 @@ import { RecetaLentesContactoModule } from './receta-lentes-contacto/receta-lent
 import { UserModule } from './user/user.module';
 import { VentaObraSocialModule } from './venta-obra-social/venta-obra-social.module';
 import { VentaModule } from './venta/venta.module';
-import { OcrModule } from './ocr/ocr.module';
 @Module({
   providers: [
     {
@@ -67,8 +67,8 @@ import { OcrModule } from './ocr/ocr.module';
     }),
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,
-        limit: 100,
+        ttl: 10000,
+        limit: 10000,
       },
     ]),
     ProductoModule,

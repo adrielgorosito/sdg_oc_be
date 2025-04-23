@@ -1,3 +1,7 @@
 export const generarCodigoProv = () => {
-  return 'PRO-' + Math.random().toString(36).substring(2, 15);
+  const caracteresAleatorios = Math.random()
+    .toString(36)
+    .substring(2, 8)
+    .toUpperCase();
+  return 'OC-' + caracteresAleatorios;
 };

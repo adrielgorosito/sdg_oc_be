@@ -56,7 +56,7 @@ export class ClienteService {
 
       if (filtro) {
         queryBuilder.andWhere(
-          '(CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombre OR cliente.nroDocumento  LIKE :nroDocumento)',
+          '(CONCAT(cliente.apellido, cliente.nombre) COLLATE Latin1_General_CI_AI LIKE :nombre OR CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombre OR cliente.nroDocumento LIKE :nroDocumento)',
           {
             nombre: `%${filtro.replace(' ', '').trim()}%`,
             nroDocumento: `%${filtro.trim()}%`,

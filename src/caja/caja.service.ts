@@ -63,7 +63,7 @@ export class CajaService {
         .map((mediopago) => {
           return {
             fechaMovimiento: mediopago.fecha,
-            detalle: 'VENTA',
+            detalle: `VENTA ${mediopago.ventaId.slice(0, 6)}`,
             importe: mediopago.importe,
             formaPago: mediopago.tipoMedioDePago,
             redDePago: mediopago.redDePago,
@@ -258,7 +258,7 @@ export class CajaService {
     return fecha;
   }
 
-  @Cron('0 59 23 * * *')
+  @Cron('30 59 23 * * *')
   async handleCron() {
     const apertura = await this.findAperturaDelDia(null);
     const cierre = await this.findCierreDelDia(null);
