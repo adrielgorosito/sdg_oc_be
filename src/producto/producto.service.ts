@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Decimal from 'decimal.js';
 import { Marca } from 'src/marca/entities/marca.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { Repository } from 'typeorm';
@@ -255,8 +256,16 @@ export class ProductoService {
       }
 
       productos.forEach((producto) => {
-        producto.precio = producto.precio * (1 + porcentaje / 100);
-        producto.precioLista = producto.precioLista * (1 + porcentaje / 100);
+        const precioDecimal = new Decimal(producto.precio);
+        const precioListaDecimal = new Decimal(producto.precioLista);
+        const porcentajeDecimal = new Decimal(porcentaje).div(100).plus(1);
+
+        producto.precio = Number(
+          precioDecimal.times(porcentajeDecimal).toFixed(2),
+        );
+        producto.precioLista = Number(
+          precioListaDecimal.times(porcentajeDecimal).toFixed(2),
+        );
       });
 
       return await this.productoRepository.save(productos);

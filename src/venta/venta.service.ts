@@ -104,7 +104,7 @@ export class VentaService {
 
       if (nombreCliente) {
         queryBuilder.andWhere(
-          'CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente',
+          '(CONCAT(cliente.apellido, cliente.nombre) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente)',
           {
             nombreCliente: `%${nombreCliente.replace(' ', '').trim()}%`,
           },
