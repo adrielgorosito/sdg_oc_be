@@ -58,7 +58,7 @@ export class ProductoService {
       }
       if (cod) {
         queryBuilder.andWhere(
-          'producto.cod COLLATE Latin1_General_CI_AI LIKE :cod',
+          'producto.codProv COLLATE Latin1_General_CI_AI LIKE :cod',
           { cod: `%${cod.trim()}%` },
         );
       }
