@@ -257,6 +257,11 @@ export class CuentaCorrienteService {
       const cuentaCorriente = await this.cuentaCorrienteRepository.findOne({
         where: { cliente: { id: clienteId } },
         relations: { cliente: true, movimientos: true },
+        order: {
+          movimientos: {
+            fechaMovimiento: 'DESC',
+          },
+        },
       });
 
       if (!cuentaCorriente) {
