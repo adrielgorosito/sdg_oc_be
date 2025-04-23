@@ -275,7 +275,7 @@ export class OcrService {
 
     const EYE_REGEX = {
       OD: /^(O\.?\s?D|OD|0\.?D)\b/i,
-      OI: /^(O\.?\s?I|OI|0\.?I|0\.1)\b/i,
+      OI: /^(O\.?\s?I|OI|0\.?I|0[.,]?1|0I|O\s?I)\b/i,
     };
 
     const VALUE_REGEX = {
@@ -294,30 +294,51 @@ export class OcrService {
         if (EYE_REGEX[eyeType].test(line)) {
           eyeSection = true;
           valueBuffer = [];
-          return;
+          //return;
         }
 
         if (eyeSection) {
-          const tripleMatch = line.match(VALUE_REGEX.TRIPLE_VALUES);
-          if (tripleMatch) {
-            eyeData.CB = tripleMatch[1].replace('.', ',');
-            eyeData.Esf = tripleMatch[2].replace('.', ',');
-            eyeData.Cil = tripleMatch[3].replace('.', ',');
+          let complexMatch = line.match(/(\d+[.,]?\d*)[-](\d+[.,]?\d*)/);
+          if (complexMatch && !eyeData.CB && !eyeData.Esf) {
+            eyeData.CB = complexMatch[1].replace('.', ',');
+            eyeData.Esf = complexMatch[2].replace('.', ',');
+          }
+
+          const oiPattern =
+            /(O\.?\s?I|0[.,]?\s?1|0I|OI)\s*(\d{1,2}(?:[.,]?\d*)?)-([+-]?\d+(?:[.,]?\d*)?)\s+([+-]?\d+(?:[.,]?\d*)?)/;
+
+          complexMatch = line.match(oiPattern);
+          console.log(line);
+
+          if (complexMatch && !eyeData.CB && !eyeData.Esf && !eyeData.Cil) {
+            eyeData.CB = complexMatch[1].replace('.', ',');
+            eyeData.Esf = complexMatch[2].replace('.', ',');
+            eyeData.Cil = complexMatch[3].replace('.', ',');
           }
 
           const numbers = line.match(/([+-]?\d+[.,]\d+)/g) || [];
-          valueBuffer.push(...numbers.map((n) => n.replace('.', ',')));
+          const cleanNumbers = numbers.filter(
+            (n) => parseFloat(n.replace(',', '.')) !== 0.1,
+          );
+          valueBuffer.push(...cleanNumbers.map((n) => n.replace('.', ',')));
 
-          if (valueBuffer.length >= 3 && !eyeData.CB) {
+          if (valueBuffer.length >= 3 && (!eyeData.CB || !eyeData.Cil)) {
             [eyeData.CB, eyeData.Esf, eyeData.Cil] = valueBuffer.slice(0, 3);
             valueBuffer = [];
           }
 
           const ejeMatch = line.match(VALUE_REGEX.EJE);
-          if (ejeMatch) eyeData.Eje = `${ejeMatch[1]}°`;
+          if (ejeMatch && parseInt(ejeMatch[1], 10) <= 180) {
+            eyeData.Eje = `${ejeMatch[1]}°`;
+          }
 
           const diamMatch = line.match(VALUE_REGEX.DIAM);
-          if (diamMatch) eyeData.Diam = parseInt(diamMatch[1], 10);
+          if (diamMatch) {
+            const val = parseInt(diamMatch[1], 10);
+            if (val > 100 && val < 1000) {
+              eyeData.Diam = val;
+            }
+          }
 
           if (index > lines.findIndex((l) => EYE_REGEX[eyeType].test(l)) + 4) {
             eyeSection = false;
