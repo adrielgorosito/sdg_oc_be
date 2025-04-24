@@ -15,6 +15,7 @@ import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
+import { validate } from 'uuid';
 import { CreateVentaDTO } from './dto/create-venta.dto';
 import { PaginateVentaDTO } from './dto/paginate-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
@@ -29,6 +30,8 @@ export class VentaService {
     private readonly cuentaCorrienteService: CuentaCorrienteService,
     private readonly cajaService: CajaService,
     private readonly parametrosService: ParametrosService,
+    @InjectRepository(Cliente)
+    private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -173,18 +176,24 @@ export class VentaService {
 
   async findOne(id: string) {
     try {
+      if (!validate(id)) {
+        throw new BadRequestException('El id debe ser un uuid válido');
+      }
       const venta = await this.ventaRepository.findOne({
         where: { id },
         relations: {
-          cliente: true,
           factura: true,
           ventaObraSocial: {
             obraSocial: true,
           },
+          cliente: true,
           lineasDeVenta: {
             producto: true,
           },
           mediosDePago: true,
+        },
+        order: {
+          fecha: 'DESC',
         },
       });
 
@@ -200,9 +209,13 @@ export class VentaService {
 
       return { venta, comprobantesRelacionados: comprobantesRelacionados };
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      )
+        throw error;
       throw new InternalServerErrorException(
-        'Error al obtener la venta: ' + error,
+        'Error al obtener la venta: ' + error.message,
       );
     }
   }
@@ -419,6 +432,39 @@ export class VentaService {
     if (importeAFacturar > importeMaximoAFacturar && venta.cliente.id === 0) {
       throw new BadRequestException(
         `El importe a facturar no puede ser mayor a ${importeMaximoAFacturar}`,
+      );
+    }
+  }
+
+  async findAllByCliente(clienteId: number) {
+    try {
+      const cliente = await this.clienteRepository.findOne({
+        where: { id: clienteId },
+      });
+
+      if (!cliente) {
+        throw new NotFoundException('Cliente no encontrado');
+      }
+
+      const ventas = await this.ventaRepository.find({
+        where: { cliente: { id: clienteId } },
+        relations: {
+          factura: true,
+          ventaObraSocial: {
+            obraSocial: true,
+          },
+          lineasDeVenta: {
+            producto: true,
+          },
+          mediosDePago: true,
+        },
+      });
+
+      return ventas;
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new InternalServerErrorException(
+        'Error al obtener las ventas: ' + error.message,
       );
     }
   }

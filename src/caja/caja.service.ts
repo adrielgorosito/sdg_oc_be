@@ -75,210 +75,256 @@ export class CajaService {
       );
       //EFECTIVO
       const cajaEfectivo = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'formaPago' in movimiento) {
             if (movimiento.formaPago === TipoMedioDePagoEnum.EFECTIVO) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (detalle.formaPago === TipoMedioDePagoEnum.EFECTIVO) {
-                return detalle;
-              }
-            });
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesEfectivo = movimiento.detalle.filter(
+              (detalle) => detalle.formaPago === TipoMedioDePagoEnum.EFECTIVO,
+            );
+
+            return detallesEfectivo;
           }
+
+          return [];
         })
-        .reduce((acc: number, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //TRANSFERENCIA
       const cajaTransferencia = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'formaPago' in movimiento) {
             if (
               movimiento.formaPago ===
               TipoMedioDePagoEnum.TRANSFERENCIA_BANCARIA
             ) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (
-                detalle.formaPago === TipoMedioDePagoEnum.TRANSFERENCIA_BANCARIA
-              ) {
-                return detalle;
-              }
-            });
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesTransferencia = movimiento.detalle.filter(
+              (detalle) =>
+                detalle.formaPago ===
+                TipoMedioDePagoEnum.TRANSFERENCIA_BANCARIA,
+            );
+
+            return detallesTransferencia;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //CHEQUE
       const cajaCheque = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'formaPago' in movimiento) {
             if (movimiento.formaPago === TipoMedioDePagoEnum.CHEQUE) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (detalle.formaPago === TipoMedioDePagoEnum.CHEQUE) {
-                return detalle;
-              }
-            });
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesCheque = movimiento.detalle.filter(
+              (detalle) => detalle.formaPago === TipoMedioDePagoEnum.CHEQUE,
+            );
+
+            return detallesCheque;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //CUENTA CORRIENTE
       const cajaCuentaCorriente = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'formaPago' in movimiento) {
             if (movimiento.formaPago === TipoMedioDePagoEnum.CUENTA_CORRIENTE) {
-              return movimiento.importe;
+              return [movimiento]; // Devolvemos array con un elemento
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (detalle.formaPago === TipoMedioDePagoEnum.CUENTA_CORRIENTE) {
-                return detalle;
-              }
-            });
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesCuentaCorriente = movimiento.detalle.filter(
+              (detalle) =>
+                detalle.formaPago === TipoMedioDePagoEnum.CUENTA_CORRIENTE,
+            );
+
+            return detallesCuentaCorriente;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //OTRO
       const cajaOtro = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'formaPago' in movimiento) {
             if (movimiento.formaPago === TipoMedioDePagoEnum.OTRO) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (detalle.formaPago === TipoMedioDePagoEnum.OTRO) {
-                return detalle;
-              }
-            });
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesOtro = movimiento.detalle.filter(
+              (detalle) => detalle.formaPago === TipoMedioDePagoEnum.OTRO,
+            );
+
+            return detallesOtro;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //VISA
       const cajaVisa = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'redDePago' in movimiento) {
             if (
               movimiento.redDePago === RedDePago.VISA &&
               (movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
                 movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
             ) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesVisa = movimiento.detalle.filter(
+              (detalle) =>
                 detalle.redDePago === RedDePago.VISA &&
                 (detalle.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
-                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
-              ) {
-                return detalle;
-              }
-            });
+                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO),
+            );
+
+            return detallesVisa;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //MASTERCARD
       const cajaMastercard = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'redDePago' in movimiento) {
             if (
               movimiento.redDePago === RedDePago.MASTERCARD &&
               (movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
                 movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
             ) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesMastercard = movimiento.detalle.filter(
+              (detalle) =>
                 detalle.redDePago === RedDePago.MASTERCARD &&
                 (detalle.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
-                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
-              ) {
-                return detalle;
-              }
-            });
+                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO),
+            );
+
+            return detallesMastercard;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //AMERICAN EXPRESS
       const cajaAmericanExpress = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'redDePago' in movimiento) {
             if (
               movimiento.redDePago === RedDePago.AMERICAN_EXPRESS &&
               (movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
                 movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
             ) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesAmericanExpress = movimiento.detalle.filter(
+              (detalle) =>
                 detalle.redDePago === RedDePago.AMERICAN_EXPRESS &&
                 (detalle.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
-                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
-              ) {
-                return detalle;
-              }
-            });
+                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO),
+            );
+
+            return detallesAmericanExpress;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //NARANJA
       const cajaNaranja = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'redDePago' in movimiento) {
             if (
               movimiento.redDePago === RedDePago.NARANJA &&
               (movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
                 movimiento.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
             ) {
-              return movimiento.importe;
+              return [movimiento];
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesNaranja = movimiento.detalle.filter(
+              (detalle) =>
                 detalle.redDePago === RedDePago.NARANJA &&
                 (detalle.formaPago === TipoMedioDePagoEnum.TARJETA_CREDITO ||
-                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO)
-              ) {
-                return detalle;
-              }
-            });
+                  detalle.formaPago === TipoMedioDePagoEnum.TARJETA_DEBITO),
+            );
+
+            return detallesNaranja;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //PAGOFACIL
       const cajaPagofacil = cajaDetalladaSorted
-        .filter((movimiento) => {
+        .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'redDePago' in movimiento) {
             if (movimiento.redDePago === RedDePago.PAGOFACIL) {
-              return movimiento.importe;
             }
-          } else {
-            movimiento.detalle.forEach((detalle) => {
-              if (detalle.redDePago === RedDePago.PAGOFACIL) {
-                return detalle;
-              }
-            });
+          } else if (
+            'detalle' in movimiento &&
+            Array.isArray(movimiento.detalle)
+          ) {
+            const detallesPagofacil = movimiento.detalle.filter(
+              (detalle) => detalle.redDePago === RedDePago.PAGOFACIL,
+            );
+
+            return detallesPagofacil;
           }
+
+          return [];
         })
-        .reduce((acc, curr: Caja) => acc + curr.importe, 0);
+        .reduce((acc, curr) => acc + curr.importe, 0);
 
       //TOTAL
       const total = cajaDetalladaSorted

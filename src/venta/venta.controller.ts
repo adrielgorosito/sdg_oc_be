@@ -24,6 +24,7 @@ export class VentaController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    //como puedo validar que el id sea un uuid?
     return this.ventaService.findOne(id);
   }
 
@@ -40,5 +41,10 @@ export class VentaController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.ventaService.remove(id);
+  }
+
+  @Get('cliente/:id')
+  async findAllByCliente(@Param('id') id: number) {
+    return this.ventaService.findAllByCliente(id);
   }
 }
