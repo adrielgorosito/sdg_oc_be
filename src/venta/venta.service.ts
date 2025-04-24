@@ -14,6 +14,7 @@ import { CreateMedioDePagoDto } from 'src/medio-de-pago/dto/create-medio-de-pago
 import { TipoMedioDePagoEnum } from 'src/medio-de-pago/enum/medio-de-pago.enum';
 import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
+import { ParametrosService } from 'src/parametros/parametros.service';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { CreateVentaDTO } from './dto/create-venta.dto';
 import { PaginateVentaDTO } from './dto/paginate-venta.dto';
@@ -28,6 +29,7 @@ export class VentaService {
     private readonly comprobanteService: ComprobanteService,
     private readonly cuentaCorrienteService: CuentaCorrienteService,
     private readonly cajaService: CajaService,
+    private readonly parametrosService: ParametrosService,
   ) {}
 
   async create(createVentaDto: CreateVentaDTO): Promise<any> {
@@ -131,11 +133,17 @@ export class VentaService {
         });
       }
       if (fechaHasta) {
+<<<<<<< Updated upstream
         if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaHasta)) {
           throw new BadRequestException(
             `Formato de fecha inválido. Se esperaba 'YYYY-MM-DD'`,
           );
         }
+=======
+        const fechaHastaDate = new Date(fechaHasta + 'T23:59:59-03:00');
+        whereParams.fechaHasta = fechaHastaDate;
+      }
+>>>>>>> Stashed changes
 
         const fecha = parse(fechaHasta, 'yyyy-MM-dd', new Date());
         queryBuilder.andWhere('venta.fecha  <= :fechaHasta ', {
@@ -405,6 +413,17 @@ export class VentaService {
     if (importeMediosDePago !== importeAFacturar) {
       throw new BadRequestException(
         'El importe de los medios de pago no es igual al importe a facturar',
+      );
+    }
+
+    const importeMaximoAFacturar = parseInt(
+      (await this.parametrosService.getParam('AFIP_IMPORTE_MAXIMO_FACTURAR'))
+        .value,
+    );
+
+    if (importeAFacturar > importeMaximoAFacturar && venta.cliente.id === 0) {
+      throw new BadRequestException(
+        `El importe a facturar no puede ser mayor a ${importeMaximoAFacturar}`,
       );
     }
   }
