@@ -15,7 +15,6 @@ import { TipoMovimiento } from 'src/movimiento/enums/tipo-movimiento.enum';
 import { ObraSocial } from 'src/obra-social/entities/obra-social.entity';
 import { ParametrosService } from 'src/parametros/parametros.service';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
-import { validate } from 'uuid';
 import { CreateVentaDTO } from './dto/create-venta.dto';
 import { PaginateVentaDTO } from './dto/paginate-venta.dto';
 import { UpdateVentaDTO } from './dto/update-venta.dto';
@@ -176,9 +175,6 @@ export class VentaService {
 
   async findOne(id: string) {
     try {
-      if (!validate(id)) {
-        throw new BadRequestException('El id debe ser un uuid válido');
-      }
       const venta = await this.ventaRepository.findOne({
         where: { id },
         relations: {
