@@ -130,69 +130,82 @@ export class OcrService {
   private processGraduacion(lines: string[]): { OD: string; OI: string } {
     const result = { OD: '', OI: '' };
 
-    const normalizeNumber = (value: string) =>
-      parseFloat(value.replace(',', '.')).toFixed(2).replace('.', ',');
-
-    const cleanAndExtractNumbers = (line: string): string[] => {
-      const matches = [...line.matchAll(/([+-]?\d{1,3}[,.]?\d*)/g)].map(
-        (m) => m[1],
-      );
-      return matches.length >= 3 ? matches.slice(0, 3) : [];
+    const normalizeNumber = (value: string) => {
+      const cleaned = value.replace(/\s+/g, '').replace(',', '.');
+      const num =
+        cleaned.length > 2 && !cleaned.includes('.')
+          ? parseFloat(cleaned) / 100
+          : parseFloat(cleaned);
+      return num.toFixed(2).replace('.', ',');
     };
 
-    let odDetected = false;
-    let oiDetected = false;
-
     for (const line of lines) {
-      const lower = line.toLowerCase();
+      const lower = line.toLowerCase().trim();
 
-      if (!odDetected && /od|o\.d|0\.d|ad/.test(lower)) {
-        const numbers = cleanAndExtractNumbers(line);
-        if (numbers.length === 3) {
-          result.OD = `${normalizeNumber(numbers[0])} ${normalizeNumber(numbers[1])} ${numbers[2]}°`;
-          odDetected = true;
-          continue;
+      if (
+        !result.OD &&
+        /(od|o\.d|0\.d|ad|o\.\s*d|0\.\s*d|o\.\s*b|0\.\s*b|o\s*b|0\s*b|^[\-+]?\d{3}[\-~]\d{3}[\-~]\d{3}$)/i.test(
+          lower,
+        )
+      ) {
+        let odMatch = line.match(
+          /([-+]?\s*\d+[,.]?\d{2})\s*([-+]?\s*\d+[,.]?\d{2})\s*([-+]?\s*\d+)\s*°?/,
+        );
+
+        if (!odMatch) {
+          odMatch = line.match(
+            /([-+]?\d{3})[\-~]([-+]?\d{3})[\-~]([-+]?\d{1,3})/,
+          );
         }
-      }
 
-      if (!oiDetected && /oi|o\.i|0\.i|ai|0\.1/.test(lower)) {
-        const numbers = cleanAndExtractNumbers(line);
-        if (numbers.length === 3) {
-          result.OI = `${normalizeNumber(numbers[0])} ${normalizeNumber(numbers[1])} ${numbers[2]}°`;
-          oiDetected = true;
+        if (odMatch) {
+          const axis = odMatch[3].replace(/\s+/g, '').replace(/[^\d]/g, '');
+          result.OD = `${normalizeNumber(odMatch[1])} ${normalizeNumber(odMatch[2])} ${axis}°`;
           continue;
         }
       }
 
       if (
-        !odDetected &&
-        /^\s*[-+]?\d{3}[-~]\d{3}[-~]\d{3}\s*$/i.test(
-          line.replace(/[^\d\-]/g, ''),
+        !result.OI &&
+        /(oi|o\.i|0\.i|ai|0\.1|o\.\s*i|0\.\s*i|o\.\s*1|0\.\s*1|^[\-+]?\d{3}[\-~]\d{3}[\-~]\d{3}$)/i.test(
+          lower,
         )
       ) {
-        const match = line.match(/([-+]?\d{3})[-~]?(\d{3})[-~]?(\d{3})/);
-        if (match) {
-          const sphere = normalizeNumber((parseInt(match[1]) / 100).toString());
-          const cylinder = normalizeNumber(
-            (parseInt(match[2]) / 100).toString(),
+        let oiMatch = line.match(
+          /([-+]?\s*\d+[,.]?\d{2})\s*([-+]?\s*\d+[,.]?\d{2})\s*([-+]?\s*\d+)\s*°?/,
+        );
+
+        if (!oiMatch) {
+          oiMatch = line.match(
+            /([-+]?\d{3})[\-~]([-+]?\d{3})[\-~]([-+]?\d{1,3})/,
           );
-          const axis = match[3];
-          result.OD = `${sphere} ${cylinder} ${axis}°`;
-          odDetected = true;
+        }
+
+        if (oiMatch) {
+          const axis = oiMatch[3].replace(/\s+/g, '').replace(/[^\d]/g, '');
+          result.OI = `${normalizeNumber(oiMatch[1])} ${normalizeNumber(oiMatch[2])} ${axis}°`;
           continue;
         }
       }
 
-      if ((!odDetected || !oiDetected) && /\d/.test(line)) {
-        const numbers = cleanAndExtractNumbers(line);
-        if (numbers.length === 3) {
-          const value = `${normalizeNumber(numbers[0])} ${normalizeNumber(numbers[1])} ${numbers[2]}°`;
-          if (!odDetected) {
+      if (
+        (!result.OD || !result.OI) &&
+        /([-+]?\s*\d+[,.]?\d{2}|[-+]?\d{3})[\s\-~]+([-+]?\s*\d+[,.]?\d{2}|[-+]?\d{3})[\s\-~]+([-+]?\s*\d+)/.test(
+          line,
+        )
+      ) {
+        const genericMatch = line.match(
+          /([-+]?\s*\d+[,.]?\d{2}|[-+]?\d{3})[\s\-~]+([-+]?\s*\d+[,.]?\d{2}|[-+]?\d{3})[\s\-~]+([-+]?\s*\d+)/,
+        );
+        if (genericMatch) {
+          const axis = genericMatch[3]
+            .replace(/\s+/g, '')
+            .replace(/[^\d]/g, '');
+          const value = `${normalizeNumber(genericMatch[1])} ${normalizeNumber(genericMatch[2])} ${axis}°`;
+          if (!result.OD) {
             result.OD = value;
-            odDetected = true;
-          } else if (!oiDetected) {
+          } else if (!result.OI) {
             result.OI = value;
-            oiDetected = true;
           }
         }
       }
@@ -205,32 +218,38 @@ export class OcrService {
     const result = { OD: '', OI: '' };
 
     const cleanNumber = (n: string): string =>
-      n.replace(',', '.').replace(/[^\d.]/g, '');
+      n
+        .replace(/\s+/g, '')
+        .replace(',', '.')
+        .replace(/[^\d.]/g, '');
 
     const formatVision = (v1: string, v2: string, v3: string): string =>
       `${v1.replace('.', ',')} + ${v2.replace('.', ',')} = ${v3.replace('.', ',')}`;
 
-    const visionPatterns = [
-      /(?:OD|OI|O\.D|O\.I|0\.D|0\.I|AD|AI)\s*[:=]?\s*(\d+[,.]?\d*)\s*\+?\s*(\d+[,.]?\d*)\s*=?\s*(\d+[,.]?\d*)/i,
-      /(?:OD|OI|O\.D|O\.I|0\.D|0\.I|AD|AI)\s*[:=]?\s*(\d{1,3})\s*\+?\s*(\d{1,3}[,.]?\d*)\s*=?\s*(\d+[,.]?\d*)/i,
-    ];
+    const odPattern =
+      /(?:OD|O\.D|0\.D|AD|O\.{1,}D)\s*[:=.]*\s*(\d[\d\s,.]*)\s*[+]\s*(\d[\d\s,.]*)\s*=\s*(\d[\d\s,.]*)/i;
+
+    const oiPattern =
+      /(?:OI|O\.\s*I|0\.\s*I|AI|0\.1|O\.{1,}\s*I)\s*[:=.]*\s*(\d[\d\s,.]*)\s*[+]\s*(\d[\d\s,.]*)\s*=\s*(\d[\d\s,.]*)/i;
 
     lines.forEach((line) => {
-      for (const pattern of visionPatterns) {
-        const match = line.match(pattern);
-        if (match) {
-          const eye = /(?:OD|O\.D|0\.D|AD)/i.test(line)
-            ? 'OD'
-            : /(?:OI|O\.I|0\.I|AI|0\.1)/i.test(line)
-              ? 'OI'
-              : null;
+      if (!result.OD) {
+        const odMatch = line.match(odPattern);
+        if (odMatch) {
+          const v1 = cleanNumber(odMatch[1]);
+          const v2 = cleanNumber(odMatch[2]);
+          const v3 = cleanNumber(odMatch[3]);
+          result.OD = formatVision(v1, v2, v3);
+        }
+      }
 
-          if (eye && !result[eye]) {
-            const v1 = cleanNumber(match[1]);
-            const v2 = cleanNumber(match[2]);
-            const v3 = cleanNumber(match[3]);
-            result[eye] = formatVision(v1, v2, v3);
-          }
+      if (!result.OI) {
+        const oiMatch = line.match(oiPattern);
+        if (oiMatch) {
+          const v1 = cleanNumber(oiMatch[1]);
+          const v2 = cleanNumber(oiMatch[2]);
+          const v3 = cleanNumber(oiMatch[3]);
+          result.OI = formatVision(v1, v2, v3);
         }
       }
     });
@@ -268,115 +287,70 @@ export class OcrService {
   private processLentesDefinitivas(lines: string[]): any {
     const result = {
       lentes_definitivas: {
-        OD: {} as any,
-        OI: {} as any,
+        OD: { CB: '', Esf: '', Cil: '', Eje: '', Diam: '' },
+        OI: { CB: '', Esf: '', Cil: '', Eje: '', Diam: '' },
       },
     };
 
-    const EYE_REGEX = {
-      OD: /^(O\.?\s?D|OD|0\.?D)\b/i,
-      OI: /^(O\.?\s?I|OI|0\.?I|0[.,]?1|0I|O\s?I)\b/i,
-    };
+    // Expresiones regulares para detectar OD y OI
+    const OD_REGEX = /(O\.?\s?D|OD|0\.?D|0\.\s?0\.)/i;
+    const OI_REGEX = /(O\.?\s?I|OI|0\.?I|0[.,]?\s?1|O\.?\s?1\.?)/i;
 
-    const VALUE_REGEX = {
-      TRIPLE_VALUES:
-        /([+-]?\d+[.,]\d+)[\s\/\-]+([+-]?\d+[.,]\d+)[\s\/\-]+([+-]?\d+[.,]\d+)/,
-      DIAM: /(\d{3,})/,
-      EJE: /(\d{1,3})°?/,
-    };
+    // Patrón para CB y Esfera (ej: "8,1 -4,00")
+    const CB_ESF_REGEX = /(\d+[.,]\d+)\s+([-+]?\d+[.,]\d+)/;
 
-    const processEye = (eyeType: 'OD' | 'OI') => {
-      const eyeData: any = {};
-      let eyeSection = false;
-      let valueBuffer: string[] = [];
+    let oiIndex = -1;
 
-      lines.forEach((line, index) => {
-        if (EYE_REGEX[eyeType].test(line)) {
-          eyeSection = true;
-          valueBuffer = [];
-          //return;
+    // Primera pasada: encontrar OD y OI
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Procesamiento para OD
+      if (OD_REGEX.test(line)) {
+        const match = line.match(CB_ESF_REGEX);
+        if (match) {
+          result.lentes_definitivas.OD.CB = match[1].replace('.', ',');
+          result.lentes_definitivas.OD.Esf = match[2].replace('.', ',');
         }
-
-        if (eyeSection) {
-          let complexMatch = line.match(/(\d+[.,]?\d*)[-](\d+[.,]?\d*)/);
-          if (complexMatch && !eyeData.CB && !eyeData.Esf) {
-            eyeData.CB = complexMatch[1].replace('.', ',');
-            eyeData.Esf = complexMatch[2].replace('.', ',');
-          }
-
-          const oiPattern =
-            /(O\.?\s?I|0[.,]?\s?1|0I|OI)\s*(\d{1,2}(?:[.,]?\d*)?)-([+-]?\d+(?:[.,]?\d*)?)\s+([+-]?\d+(?:[.,]?\d*)?)/;
-
-          complexMatch = line.match(oiPattern);
-          console.log(line);
-
-          if (complexMatch && !eyeData.CB && !eyeData.Esf && !eyeData.Cil) {
-            eyeData.CB = complexMatch[1].replace('.', ',');
-            eyeData.Esf = complexMatch[2].replace('.', ',');
-            eyeData.Cil = complexMatch[3].replace('.', ',');
-          }
-
-          const numbers = line.match(/([+-]?\d+[.,]\d+)/g) || [];
-          const cleanNumbers = numbers.filter(
-            (n) => parseFloat(n.replace(',', '.')) !== 0.1,
-          );
-          valueBuffer.push(...cleanNumbers.map((n) => n.replace('.', ',')));
-
-          if (valueBuffer.length >= 3 && (!eyeData.CB || !eyeData.Cil)) {
-            [eyeData.CB, eyeData.Esf, eyeData.Cil] = valueBuffer.slice(0, 3);
-            valueBuffer = [];
-          }
-
-          const ejeMatch = line.match(VALUE_REGEX.EJE);
-          if (ejeMatch && parseInt(ejeMatch[1], 10) <= 180) {
-            eyeData.Eje = `${ejeMatch[1]}°`;
-          }
-
-          const diamMatch = line.match(VALUE_REGEX.DIAM);
-          if (diamMatch) {
-            const val = parseInt(diamMatch[1], 10);
-            if (val > 100 && val < 1000) {
-              eyeData.Diam = val;
-            }
-          }
-
-          if (index > lines.findIndex((l) => EYE_REGEX[eyeType].test(l)) + 4) {
-            eyeSection = false;
-          }
-        }
-      });
-
-      if (!eyeData.Diam) {
-        const diamKey = eyeType === 'OD' ? /D/ : /I/;
-        const diamLine = lines
-          .join(' ')
-          .match(new RegExp(`${diamKey.source}.*?(\\d{3,})`, 'i'));
-        eyeData.Diam = diamLine ? parseInt(diamLine[1], 10) : null;
       }
 
-      result.lentes_definitivas[eyeType] = eyeData;
-    };
+      // Procesamiento para OI
+      if (OI_REGEX.test(line)) {
+        const match = line.match(CB_ESF_REGEX);
+        if (match) {
+          result.lentes_definitivas.OI.CB = match[1].replace('.', ',');
+          result.lentes_definitivas.OI.Esf = match[2].replace('.', ',');
+          oiIndex = i; // Guardamos la posición donde encontramos OI
+        }
+        // Búsqueda alternativa para OI si no coincide el patrón completo
+        else {
+          const altMatch = line.match(/(\d+[.,]\d+)\s+([-+]?\d+[.,]\d+)/);
+          if (altMatch) {
+            result.lentes_definitivas.OI.CB = altMatch[1].replace('.', ',');
+            result.lentes_definitivas.OI.Esf = altMatch[2].replace('.', ',');
+            oiIndex = i;
+          }
+        }
+      }
+    }
 
-    processEye('OD');
-    processEye('OI');
+    // Segunda pasada: extraer Cil, Eje y Diam después de OI
+    if (oiIndex !== -1 && oiIndex + 6 < lines.length) {
+      // Valores para OD (primeros 3 valores después de OI)
+      result.lentes_definitivas.OD.Cil = lines[oiIndex + 1].replace('.', ',');
+      result.lentes_definitivas.OD.Eje = lines[oiIndex + 2].includes('°')
+        ? lines[oiIndex + 2]
+        : lines[oiIndex + 2] + '°';
+      result.lentes_definitivas.OD.Diam = lines[oiIndex + 3].trim();
 
-    const formatResult = (data: any) => {
-      return {
-        CB: data.CB || '',
-        Esf: data.Esf || '',
-        Cil: data.Cil || '',
-        Eje: data.Eje || '',
-        Diam: data.Diam || '',
-      };
-    };
+      // Valores para OI (siguientes 3 valores)
+      result.lentes_definitivas.OI.Cil = lines[oiIndex + 4].replace('.', ',');
+      result.lentes_definitivas.OI.Eje = lines[oiIndex + 5].includes('°')
+        ? lines[oiIndex + 5]
+        : lines[oiIndex + 5] + '°';
+      result.lentes_definitivas.OI.Diam = lines[oiIndex + 6].trim();
+    }
 
-    result.lentes_definitivas.OD = formatResult(result.lentes_definitivas.OD);
-    result.lentes_definitivas.OI = formatResult(result.lentes_definitivas.OI);
-
-    console.log('\n=== RESULTADO FINAL ===');
-    console.log(
-      JSON.stringify(result, null, 2).replace(/"(\w+)": null/g, '"$1": ""'),
-    );
     return result;
   }
 }
