@@ -205,6 +205,7 @@ export class CuentaCorrienteService {
         fechaMovimiento: new Date(),
         importe: movimientoDTO.importe,
         tipoMovimiento: movimientoDTO.tipoMovimiento,
+        venta: movimientoDTO?.ventaId ? { id: movimientoDTO.ventaId } : null,
       });
 
       cuentaCorriente.movimientos.push(movimiento);
@@ -256,7 +257,7 @@ export class CuentaCorrienteService {
     try {
       const cuentaCorriente = await this.cuentaCorrienteRepository.findOne({
         where: { cliente: { id: clienteId } },
-        relations: { cliente: true, movimientos: true },
+        relations: { cliente: true, movimientos: { venta: true } },
         order: {
           movimientos: {
             fechaMovimiento: 'DESC',

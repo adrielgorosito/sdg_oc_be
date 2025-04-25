@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsUUID,
   ValidateIf,
 } from 'class-validator';
 import { ValidateFormaPagoMovimiento } from 'src/common/decorators/is-forma-pago.decorator';
@@ -35,4 +36,8 @@ export class CreateMovimientoDTO extends BaseDTO {
   )
   @IsNotEmpty()
   redDePago?: RedDePago;
+
+  @IsUUID()
+  @IsOptional()
+  ventaId?: string;
 }

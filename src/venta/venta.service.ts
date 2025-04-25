@@ -276,9 +276,11 @@ export class VentaService {
       await this.validateImportes(nuevaVenta, nuevaVenta.mediosDePago);
 
       nuevaVenta.importe = this.calcularImporte(nuevaVenta);
-      await this.handleCuentaCorriente(queryRunner, nuevaVenta, cliente);
 
       const venta = await queryRunner.manager.save(Venta, nuevaVenta);
+
+      await this.handleCuentaCorriente(queryRunner, venta, cliente);
+
       await queryRunner.commitTransaction();
 
       venta.cliente = cliente;
@@ -365,13 +367,13 @@ export class VentaService {
       if (!cliente.cuentaCorriente) {
         throw new NotFoundException('Cliente no posee cuenta corriente');
       }
-
       cliente.cuentaCorriente =
         await this.cuentaCorrienteService.afectarCuentaCorriente(
           cliente.id,
           {
             importe: medioDePagoCC.importe,
             tipoMovimiento: TipoMovimiento.VENTA,
+            ventaId: venta.id,
           },
           queryRunner.manager,
         );
