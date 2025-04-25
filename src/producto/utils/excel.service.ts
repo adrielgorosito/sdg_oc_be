@@ -83,7 +83,23 @@ export class ExcelService {
       })
     ).map((producto) => producto.codProv);
 
-    for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
+    let totalRows = worksheet.rowCount;
+
+    for (totalRows; 1; totalRows--) {
+      if (
+        worksheet.getRow(totalRows).getCell(1).value === null &&
+        worksheet.getRow(totalRows).getCell(2).value === null &&
+        worksheet.getRow(totalRows).getCell(3).value === null &&
+        worksheet.getRow(totalRows).getCell(4).value === null &&
+        worksheet.getRow(totalRows).getCell(5).value === null
+      ) {
+        totalRows = totalRows--;
+      } else {
+        break;
+      }
+    }
+
+    for (let rowNumber = 2; rowNumber <= totalRows; rowNumber++) {
       let codProv = this.getPlainText(
         worksheet.getRow(rowNumber).getCell(1).value,
       );
