@@ -137,7 +137,7 @@ export class ComprobanteService {
 
     if (nombreCliente) {
       queryBuilder.andWhere(
-        'cliente.nombre COLLATE Latin1_General_CI_AI LIKE :nombreCliente',
+        '(CONCAT(cliente.apellido, cliente.nombre) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(clienteRelacionada.apellido, clienteRelacionada.nombre) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(clienteRelacionada.nombre, clienteRelacionada.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente)',
         {
           nombreCliente: `%${nombreCliente}%`,
         },
@@ -225,9 +225,13 @@ export class ComprobanteService {
       .skip(offset);
 
     if (nombreCliente) {
-      queryBuilder.andWhere('cliente.nombre LIKE :nombreCliente', {
-        nombreCliente: `%${nombreCliente}%`,
-      });
+      queryBuilder.andWhere(
+        '(CONCAT(cliente.apellido, cliente.nombre) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(cliente.nombre, cliente.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(clienteRelacionada.apellido, clienteRelacionada.nombre) COLLATE Latin1_General_CI_AI LIKE :nombreCliente OR CONCAT(clienteRelacionada.nombre, clienteRelacionada.apellido) COLLATE Latin1_General_CI_AI LIKE :nombreCliente)',
+
+        {
+          nombreCliente: `%${nombreCliente}%`,
+        },
+      );
     }
 
     if (nroDocumento) {
