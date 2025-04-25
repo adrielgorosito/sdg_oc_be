@@ -4,6 +4,7 @@ import { Comprobante } from 'src/comprobante/entities/comprobante.entity';
 import { CondicionIva } from 'src/comprobante/enums/condicion-iva.enum';
 import { LineaVenta } from 'src/linea-venta/entities/linea-venta.entity';
 import { MedioDePago } from 'src/medio-de-pago/entities/medio-de-pago.entity';
+import { Movimiento } from 'src/movimiento/entities/movimiento.entity';
 import { VentaObraSocial } from 'src/venta-obra-social/entities/venta-obra-social.entity';
 import {
   BeforeInsert,
@@ -57,6 +58,9 @@ export class Venta extends BaseTransactionalEntity {
     },
   )
   ventaObraSocial: VentaObraSocial[];
+
+  @OneToMany(() => Movimiento, (movimiento) => movimiento.venta, {})
+  movimientos: Movimiento[];
 
   @BeforeInsert()
   asignarNumerosPago() {

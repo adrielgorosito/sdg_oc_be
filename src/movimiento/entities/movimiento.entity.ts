@@ -1,5 +1,6 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { CuentaCorriente } from 'src/cuenta-corriente/entities/cuenta-corriente.entity';
+import { Venta } from 'src/venta/entities/venta.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { TipoMovimiento } from '../enums/tipo-movimiento.enum';
 
@@ -19,4 +20,7 @@ export class Movimiento extends BaseEntity {
     (cuentaCorriente) => cuentaCorriente.movimientos,
   )
   cuentaCorriente: CuentaCorriente;
+
+  @ManyToOne(() => Venta, (venta) => venta.movimientos, { nullable: true })
+  venta: Venta;
 }
