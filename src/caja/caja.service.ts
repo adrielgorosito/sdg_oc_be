@@ -305,21 +305,21 @@ export class CajaService {
         })
         .reduce((acc, curr) => acc + curr.importe, 0);
 
-      //PAGOFACIL
-      const cajaPagofacil = cajaDetalladaSorted
+      //MERCADOPAGO
+      const cajaMercadopago = cajaDetalladaSorted
         .flatMap((movimiento) => {
           if (typeof movimiento === 'object' && 'redDePago' in movimiento) {
-            if (movimiento.redDePago === RedDePago.PAGOFACIL) {
+            if (movimiento.redDePago === RedDePago.MERCADOPAGO) {
             }
           } else if (
             'detalle' in movimiento &&
             Array.isArray(movimiento.detalle)
           ) {
-            const detallesPagofacil = movimiento.detalle.filter(
-              (detalle) => detalle.redDePago === RedDePago.PAGOFACIL,
+            const detallesMercadopago = movimiento.detalle.filter(
+              (detalle) => detalle.redDePago === RedDePago.MERCADOPAGO,
             );
 
-            return detallesPagofacil;
+            return detallesMercadopago;
           }
 
           return [];
@@ -351,7 +351,7 @@ export class CajaService {
         cajaMastercard,
         cajaAmericanExpress,
         cajaNaranja,
-        cajaPagofacil,
+        cajaMercadopago,
         total,
       };
     } catch (error) {

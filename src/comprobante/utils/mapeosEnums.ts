@@ -64,8 +64,7 @@ export const mapeoTipoMedioDePago = {
 export const mapeoRedDePago = {
   [RedDePago.VISA]: 'VISA',
   [RedDePago.MASTERCARD]: 'MASTERCARD',
-  [RedDePago.AMERICAN_EXPRESS]: 'AMERICAN_EXPRESS',
+  [RedDePago.AMERICAN_EXPRESS]: 'AMERICAN EXPRESS',
   [RedDePago.NARANJA]: 'NARANJA',
-  [RedDePago.PAGOFACIL]: 'PAGOFACIL',
-  [RedDePago.RAPIPAGO]: 'RAPIPAGO',
+  [RedDePago.MERCADOPAGO]: 'MERCADO PAGO',
 };
